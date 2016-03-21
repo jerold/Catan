@@ -1,0 +1,19 @@
+name: catan
+description: assistant for playing catan
+version: 0.0.1
+#author: Jerold Albertson <jerold.albertson@gmail.com>
+#homepage: https://www.solarweb.me
+
+environment:
+  sdk: '>=1.0.0 <2.0.0'
+
+dependencies:
+  browser: ">=0.10.0 <0.11.0"
+  react:
+  w_flux:
+    git: git://github.com/Workiva/w_flux
+  w_module:
+    git: git://github.com/Workiva/w_module
+
+dev_dependencies:
+  test: '>=0.12.0 <0.13.0'
