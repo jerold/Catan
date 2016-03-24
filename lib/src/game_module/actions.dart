@@ -9,5 +9,5 @@ class GameActions {
 
   Action<String> changeState = new Action<String>();
   Action<Terrain> changeActiveTile = new Action<Terrain>();
-  Action<int> changeActiveTileHarvest = new Action<int>();
+  Action<int> changeActiveTileToken = new Action<int>();
 }

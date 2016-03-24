@@ -30,6 +30,11 @@ String terrainTypeToColor(TerrainType type) {
       return 'rgba(151, 148, 136, ${tileOpacity})';
   }
 }
+String utilityGradientColor(int val, int average, int max) {
+  num delta = (val - average) / (max - average);
+  num opacity = val > average ? .4 : .1;
+  return 'rgba(${(255 - (255 * delta)).toInt()}, ${(255 * delta).toInt()}, 0, ${opacity})';
+}
 
 class GameComponents extends ModuleComponents {
   GameActions _actions;
@@ -39,14 +44,65 @@ class GameComponents extends ModuleComponents {
   content() => BoardComponent({'actions': _actions, 'store': _store});
 }
 
+var NumberTokenSelectComponent = React.registerComponent(() => new _NumberTokenSelectComponent());
+class _NumberTokenSelectComponent extends FluxComponent<GameActions, GameStore> {
+  render() {
+    List numberTokenButtons = new List();
+    if (store.activeTerrain != null) {
+      for(int i = 2; i < 13; i++) {
+        if (i != 7) {
+          numberTokenButtons.add(React.button({
+            'disabled': store.activeTerrain.token == i,
+            'onClick': (_) => _handleTokenClick(i),
+          }, '${i}'));
+        }
+      }
+    }
+    return React.div({}, numberTokenButtons);
+  }
+
+  _handleTokenClick(int newToken) {
+    actions.changeActiveTileToken(newToken);
+  }
+}
+
+var ResourceComponent = React.registerComponent(() => new _ResourceComponent());
+class _ResourceComponent extends FluxComponent<GameActions, GameStore> {
+  ResourceType get type => props['type'];
+  num get chance => props['chance'];
+
+  render() {
+    List<Terrain> tiles = store.tilesWithResource(type);
+    List tileSpans = new List()..add('${chance.toString().padLeft(2, "0")} ${stringFromResourceType(type)}: ');
+    tiles.forEach((tile) {
+      tileSpans.add(React.span({
+        'onClick': (_) => actions.changeActiveTile(tile)
+      }, '[${chances(tile.token)}] '));
+    });
+    return React.div({}, tileSpans);
+  }
+}
+
+var ResourcesComponent = React.registerComponent(() => new _ResourcesComponent());
+class _ResourcesComponent extends FluxComponent<GameActions, GameStore> {
+  render() {
+    List resourceGroup = new List();
+    Map<ResourceType, int> chanceMap = store.resourceChances();
+    chanceMap.forEach((type, chance) {
+      if (type != ResourceType.None) {
+        resourceGroup.add(ResourceComponent({'actions': actions, 'store': store, 'type': type, 'chance': chance}));
+      }
+    });
+    return React.div({}, resourceGroup);
+  }
+}
 
 var OverlayComponent = React.registerComponent(() => new _OverlayComponent());
-
 class _OverlayComponent extends FluxComponent<GameActions, GameStore> {
   render() {
 
     List stateChangeButtons = new List();
-    [BoardSetupState, FrequencySetupState, PlayerSetupState, PlayingState].forEach((state) {
+    [BoardSetupState, TokenSetupState, PlayerSetupState, PlayingState].forEach((state) {
       stateChangeButtons.add(React.button({
         'disabled': store.gameState == state,
         'onClick': (_) => _handleStateChangeButtonClick(state),
@@ -54,16 +110,11 @@ class _OverlayComponent extends FluxComponent<GameActions, GameStore> {
     });
     var stateButtonGroup = React.div({}, stateChangeButtons);
 
-    List harvestButtons = new List();
-    if (store.activeTerrain != null) {
-      for(int i = 2; i < 13; i++) {
-        harvestButtons.add(React.button({
-          'disabled': store.activeTerrain.harvest == i,
-          'onClick': (_) => _handleHarvestChangeButtonClick(i),
-        }, '${i}'));
-      }
+    var stateOptions;
+    if (store.gameState == TokenSetupState) {
+      stateOptions = NumberTokenSelectComponent({'actions': actions, 'store': store});
     }
-    var harvestButtonGroup = React.div({}, harvestButtons);
+    var resources = ResourcesComponent({'actions': actions, 'store': store});
 
     return React.div({
       'style': {
@@ -75,25 +126,22 @@ class _OverlayComponent extends FluxComponent<GameActions, GameStore> {
       }
     }, [
       stateButtonGroup,
-      harvestButtonGroup,
+      stateOptions,
+      resources
     ]);
   }
 
   _handleStateChangeButtonClick(String stateString) {
     actions.changeState(stateString);
   }
-
-  _handleHarvestChangeButtonClick(int newHarvest) {
-    actions.changeActiveTileHarvest(newHarvest);
-  }
 }
 
 
 var BoardComponent = React.registerComponent(() => new _BoardComponent());
-
 class _BoardComponent extends FluxComponent<GameActions, GameStore> {
   render() {
     List children = new List();
+    // Tiles
     store.gameBoard.map.values.forEach((terrain) {
       children.add(TileComponent({
         'actions': actions,
@@ -102,6 +150,8 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
         'terrain': terrain
       }));
     });
+
+    // Expansions
     if (store.gameState == BoardSetupState) {
       store.gameBoard.expansionTiles().forEach((coordKey) {
         Coordinate expCoord = new Coordinate.fromKey(coordKey);
@@ -112,6 +162,19 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
         }));
       });
     }
+
+    // Plots
+    if (store.gameState != BoardSetupState) {
+      store.gameBoard.openPlots().forEach((coordKey) {
+        Coordinate plotCoord = new Coordinate.fromKey(coordKey);
+        children.add(PlotComponent({
+          'actions': actions,
+          'store': store,
+          'coord': plotCoord,
+        }));
+      });
+    }
+
     var boardSvg = React.svg({
       'version': '1.1',
       'xmlns': 'http://www.w3.org/2000/svg',
@@ -149,9 +212,49 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
   }
 }
 
+var PlotComponent = React.registerComponent(() => new _PlotComponent());
+class _PlotComponent extends FluxComponent<GameActions, GameStore> {
+  Coordinate get coord => props['coord'];
+  Terrain get building => props['building'];
+
+  render() {
+    int utility = store.plotUtility(coord);
+    List<int> allUtilities = store.plotUtilities().values;
+    int maxUtility = allUtilities.fold(utility, (val, util) => util > val ? util : val);
+    int sumUtility = allUtilities.fold(utility, (val, util) => val + util);
+    int avgUtility = sumUtility ~/ allUtilities.length;
+
+    Math.Point loc = coordToPoint(coord);
+    num radius = spacing / 6;
+    String color = utilityGradientColor(utility, avgUtility, maxUtility);
+    String stroke = 'darkGray';
+    int strokeWidth = 0;
+
+    return React.circle({
+      'cx': loc.x,
+      'cy': loc.y,
+      'r': utility > avgUtility ? radius : radius / 2,
+      'fill': color,
+      'stroke': stroke,
+      'strokeWidth': strokeWidth,
+      'onClick': _handleClick,
+    });
+  }
+
+  _handleClick(React.SyntheticMouseEvent e) {
+    int utility = store.plotUtility(coord);
+    List<int> allUtilities = store.plotUtilities().values;
+    int maxUtility = allUtilities.fold(utility, (val, util) => util > val ? util : val);
+    int minUtility = allUtilities.fold(utility, (val, util) => util < val ? util : val);
+    int sumUtility = allUtilities.fold(utility, (val, util) => val + util);
+    int avgUtility = sumUtility ~/ allUtilities.length;
+    print('Utility:${utility}, min(${minUtility}), max(${maxUtility}), avg:(${avgUtility})');
+    print(utilityGradientColor(utility, avgUtility, maxUtility));
+  }
+}
+
 
 var TileComponent = React.registerComponent(() => new _TileComponent());
-
 class _TileComponent extends FluxComponent<GameActions, GameStore> {
   Coordinate get coord => props['coord'];
   Terrain get terrain => props['terrain'];
@@ -175,11 +278,14 @@ class _TileComponent extends FluxComponent<GameActions, GameStore> {
     }));
 
     if (terrain != null) {
-      num arc = 2 * Math.PI / terrain.harvest;
-      for(int i = 0; i < terrain.harvest; i++) {
+      int dotCount = chances(terrain.token);
+      num arc = 2 * Math.PI / dotCount;
+      num dotOffset = (radius * 2 / 3);
+      if (dotCount == 1) dotOffset = 0;
+      for(int i = 0; i < dotCount; i++) {
         circles.add(React.circle({
-          'cx': loc.x + Math.cos((i * arc)) * (radius * 2 / 3),
-          'cy': loc.y + Math.sin((i * arc)) * (radius * 2 / 3),
+          'cx': loc.x + Math.cos((i * arc)) * dotOffset,
+          'cy': loc.y + Math.sin((i * arc)) * dotOffset,
           'r': 2,
           'fill': activeColor,
         }));
@@ -187,16 +293,6 @@ class _TileComponent extends FluxComponent<GameActions, GameStore> {
     }
 
     return React.g({}, circles);
-
-    // return React.circle({
-    //   'cx': loc.x,
-    //   'cy': loc.y,
-    //   'r': radius,
-    //   'fill': color,
-    //   'stroke': stroke,
-    //   'strokeWidth': strokeWidth,
-    //   'onClick': _handleClick,
-    // });
   }
 
   _handleClick(React.SyntheticMouseEvent e) {
@@ -206,7 +302,7 @@ class _TileComponent extends FluxComponent<GameActions, GameStore> {
         else if (terrain != null) actions.changeTileType(coord);
         else actions.addTile(coord);
         break;
-      case FrequencySetupState:
+      case TokenSetupState:
         if (terrain != null) actions.changeActiveTile(terrain);
         break;
       default:

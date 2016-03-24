@@ -2,15 +2,6 @@
 
 part of catan.base_model;
 
-List<TerrainType> defaultTiles = [
-  TerrainType.Desert,
-  TerrainType.Pasture, TerrainType.Pasture, TerrainType.Pasture, TerrainType.Pasture,
-  TerrainType.Field, TerrainType.Field, TerrainType.Field, TerrainType.Field,
-  TerrainType.Forest, TerrainType.Forest, TerrainType.Forest, TerrainType.Forest,
-  TerrainType.Hill, TerrainType.Hill, TerrainType.Hill,
-  TerrainType.Mountain, TerrainType.Mountain, TerrainType.Mountain,
-];
-
 // remaining building plots
 
 // open island expansion tiles
@@ -32,16 +23,6 @@ class Board {
   Map<int, Terrain> map = new Map<int, Terrain>(); // Where key is generated from Terrain plot's coordinate
   List<Player> players = new List<Player>();
   Thief thief;
-
-  Board() {
-    Coordinate ic = new Coordinate.initial();
-    map[ic.toKey()] = new Terrain(ic);
-    thief = new Thief(ic);
-  }
-
-  Board.basic() {
-
-  }
 
   // Change Map
 

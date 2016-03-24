@@ -3,7 +3,7 @@
 part of catan.game_module;
 
 const String BoardSetupState = 'Board Setup';
-const String FrequencySetupState = 'Frequency Setup';
+const String TokenSetupState = 'Token Setup';
 const String PlayerSetupState = 'Player Setup';
 const String PlayingState = 'Playing';
 
@@ -13,7 +13,7 @@ class GameStore extends Store {
 
   Board gameBoard = new Board();
 
-  String gameState = BoardSetupState;
+  String gameState = TokenSetupState;
 
   Terrain activeTerrain;
 
@@ -24,7 +24,7 @@ class GameStore extends Store {
       ..removeTile.listen(_handleRemoveTile)
       ..changeState.listen(_handleChangeState)
       ..changeActiveTile.listen(_handleChangeActiveTile)
-      ..changeActiveTileHarvest.listen(_handleChangeActiveTileHarvest);
+      ..changeActiveTileToken.listen(_handleChangeActiveTileToken);
     this.listen(_pushBoardToURI);
 
     String mapParam = Uri.base.queryParameters['map'];
@@ -48,11 +48,11 @@ class GameStore extends Store {
     tileStrings.forEach((tileString) {
       if (tileString.length == 7) {
         int key = int.parse(tileString.substring(0, 4));
-        int harvest = int.parse(tileString.substring(4, 6));
+        int token = int.parse(tileString.substring(4, 6));
         TerrainType type = terrainTypeFromString(tileString.substring(6));
         Terrain terrain = new Terrain(new Coordinate.fromKey(key));
         terrain.changeType(type);
-        terrain.harvest = harvest;
+        terrain.token = token;
         gameBoard.map[key] = terrain;
       }
     });
@@ -60,15 +60,31 @@ class GameStore extends Store {
   }
 
   _newBoard() {
-    Coordinate coord = new Coordinate.initial();
-    Terrain terrain = new Terrain(coord);
-    gameBoard.map[coord.toKey()] = terrain;
+    if (defaultCoordinateKeys.length != 19) print('WARNING!!! Incorrect Default Coordinate Count ${defaultCoordinateKeys.length}');
+    if (defaultTiles.length != 19) print('WARNING!!! Incorrect Default Tile Count ${defaultTiles.length}');
+    if (defaultTokens.length != 18) print('WARNING!!! Incorrect Default Tile Count ${defaultTokens.length}');
+
+    List<TerrainType> types = new List<TerrainType>.from(defaultTiles)..shuffle();
+    List<int> tokens = new List<int>.from(defaultTokens)..shuffle();
+
+    defaultCoordinateKeys.forEach((key) {
+      Coordinate coordinate = new Coordinate.fromKey(key);
+      Terrain terrain = new Terrain(coordinate);
+      gameBoard.map[key] = terrain;
+
+      terrain.changeType(types.first);
+      if (types.first != TerrainType.Desert) {
+        terrain.changeToken(tokens.first);
+        tokens.removeAt(0);
+      }
+      types.removeAt(0);
+    });
   }
 
   _pushBoardToURI(_) {
     List<String> mapParam = new List<String>();
     gameBoard.map.values.forEach((terrain) {
-      mapParam.add('${terrain.coordinate.toKey().toString().padLeft(4, "0")}${terrain.harvest.toString().padLeft(2, "0")}${stringFromTerrainType(terrain.type)}');
+      mapParam.add('${terrain.coordinate.toKey().toString().padLeft(4, "0")}${terrain.token.toString().padLeft(2, "0")}${stringFromTerrainType(terrain.type)}');
     });
     Uri current = Uri.base;
     Map<String, String> params = new Map<String, String>.from(current.queryParameters);
@@ -91,9 +107,10 @@ class GameStore extends Store {
     }
   }
 
-  _handleChangeActiveTileHarvest(int newHarvest) {
+  _handleChangeActiveTileToken(int newToken) {
     if (activeTerrain != null) {
-      activeTerrain.harvest = newHarvest;
+      activeTerrain.token = newToken;
+      print("New Token ${newToken} ${chances(newToken)} ${probability(newToken)}");
       trigger();
     }
   }
@@ -113,5 +130,37 @@ class GameStore extends Store {
   _handleChangeActiveTile(Terrain newActiveTile) {
     activeTerrain = newActiveTile;
     trigger();
+  }
+
+  // Utility Methods
+
+  Map<int, int> plotUtilities() {
+    Map<int, int> utilityMap = new Map<int, int>();
+    gameBoard.openPlots().forEach((plotKey) {
+      utilityMap[plotKey] = plotUtility(new Coordinate.fromKey(plotKey));
+    });
+    return utilityMap;
+  }
+
+  int plotUtility(Coordinate plotCoordinate) {
+    Set<Coordinate> tileNeighbors = new Set<Coordinate>()
+      ..addAll(plotCoordinate.neighbors().where((coord) {
+        return coord.type == CoordinateType.Tile && gameBoard.map.containsKey(coord.toKey());
+      }));
+    List<Terrain> tiles = new List<Terrain>.from(tileNeighbors.map((coord) => gameBoard.map[coord.toKey()]));
+    return tiles.fold(0, (sum, tile) => sum + chances(tile.token));
+  }
+
+  List<Terrain> tilesWithResource(ResourceType type) {
+    return new List<Terrain>.from(gameBoard.map.values.where((terrain) => terrain.resource == type));
+  }
+
+  Map<ResourceType, int> resourceChances() {
+    Map<ResourceType, int> chanceMap = new Map<ResourceType, num>();
+    ResourceType.values.forEach((type) {
+      List<Terrain> tiles = tilesWithResource(type);
+      chanceMap[type] = tiles.fold(0.0, (sum, next) => sum + chances(next.token));
+    });
+    return chanceMap;
   }
 }

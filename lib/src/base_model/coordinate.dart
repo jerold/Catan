@@ -2,15 +2,6 @@
 
 part of catan.base_model;
 
-enum Direction {
-  NorthEast, East, SouthEast, SouthWest, West, NorthWest,
-}
-
-enum CoordinateType {
-  Plot,
-  Tile,
-}
-
 class Coordinate {
   int _x;
   int get x => _x;
@@ -61,5 +52,5 @@ class Coordinate {
     ..addAll(Direction.values.map((pos) => neighbor(pos)));
 
   int toKey() => x * 100 + y;
-  String toString() => "${type == CoordinateType.Plot ? 'P' : 'T'}{${x},${y}}";
+  String toString() => "${coordinateTypeString(type)}{${x},${y}}";
 }
