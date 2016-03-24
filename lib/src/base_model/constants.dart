@@ -9,6 +9,11 @@ List<int> defaultCoordinateKeys = [
   3843, 3738, 3740, 3742
 ];
 
+List<int> standardDealKeys = [
+  3742, 3740, 3738, 3837, 4036, 4137, 4338, 4340, 4342, 4143,
+  4044, 3843, 3841, 3839, 4038, 4139, 4141, 4042, 4040
+];
+
 List<TerrainType> defaultTiles = [
   TerrainType.Desert,
   TerrainType.Pasture, TerrainType.Pasture, TerrainType.Pasture, TerrainType.Pasture,
@@ -29,6 +34,11 @@ List<int> defaultTokens = [
   10, 10,
   11, 11,
   12,
+];
+
+List<int> standardOrderTokens = [
+  5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8,
+  10, 9, 4, 5, 6, 3, 11,
 ];
 
 List<int> chanceList = [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];

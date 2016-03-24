@@ -60,14 +60,14 @@ class GameStore extends Store {
   }
 
   _newBoard() {
-    if (defaultCoordinateKeys.length != 19) print('WARNING!!! Incorrect Default Coordinate Count ${defaultCoordinateKeys.length}');
+    if (standardDealKeys.length != 19) print('WARNING!!! Incorrect Default Coordinate Count ${defaultCoordinateKeys.length}');
     if (defaultTiles.length != 19) print('WARNING!!! Incorrect Default Tile Count ${defaultTiles.length}');
     if (defaultTokens.length != 18) print('WARNING!!! Incorrect Default Tile Count ${defaultTokens.length}');
 
     List<TerrainType> types = new List<TerrainType>.from(defaultTiles)..shuffle();
-    List<int> tokens = new List<int>.from(defaultTokens)..shuffle();
+    List<int> tokens = new List<int>.from(standardOrderTokens);
 
-    defaultCoordinateKeys.forEach((key) {
+    standardDealKeys.forEach((key) {
       Coordinate coordinate = new Coordinate.fromKey(key);
       Terrain terrain = new Terrain(coordinate);
       gameBoard.map[key] = terrain;
