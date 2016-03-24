@@ -228,7 +228,7 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
     num radius = spacing / 6;
     String color = utilityGradientColor(utility, avgUtility, maxUtility);
     String stroke = 'darkGray';
-    int strokeWidth = 0;
+    int strokeWidth = utility == maxUtility ? 1 : 0;
 
     return React.circle({
       'cx': loc.x,
