@@ -3,7 +3,6 @@
 part of catan.game_module;
 
 const String BoardSetupState = 'Board Setup';
-const String TokenSetupState = 'Token Setup';
 const String PlayerSetupState = 'Player Setup';
 const String PlayingState = 'Playing';
 
@@ -13,18 +12,20 @@ class GameStore extends Store {
 
   Board gameBoard = new Board();
 
-  String gameState = TokenSetupState;
+  String gameState = BoardSetupState;
 
   Terrain activeTerrain;
+  bool showTileOverlay = false;
 
   GameStore(this._actions, this._events) {
     _actions
       ..addTile.listen(_handleAddTile)
-      ..changeTileType.listen(_handleChangeTileType)
       ..removeTile.listen(_handleRemoveTile)
       ..changeState.listen(_handleChangeState)
       ..changeActiveTile.listen(_handleChangeActiveTile)
-      ..changeActiveTileToken.listen(_handleChangeActiveTileToken);
+      ..changeActiveTileToken.listen(_handleChangeActiveTileToken)
+      ..changeActiveTileTerrainType.listen(_handleChangeActiveTileTerrainType)
+      ..setShowTileOverlay.listen(_handleSetShowTileOverlay);
     this.listen(_pushBoardToURI);
 
     String mapParam = Uri.base.queryParameters['map'];
@@ -99,31 +100,33 @@ class GameStore extends Store {
     if (gameBoard.addTile(coord)) trigger();
   }
 
-  _handleChangeTileType(Coordinate coord) {
-    Terrain tile = gameBoard.map[coord.toKey()];
-    if (tile != null) {
-      tile.changeType();
-      trigger();
-    }
+  _handleRemoveTile(Coordinate coord) {
+    if (gameBoard.removeTile(coord)) trigger();
   }
 
   _handleChangeActiveTileToken(int newToken) {
     if (activeTerrain != null) {
-      activeTerrain.token = newToken;
-      print("New Token ${newToken} ${chances(newToken)} ${probability(newToken)}");
+      activeTerrain.changeToken(newToken);
       trigger();
     }
   }
 
-  _handleRemoveTile(Coordinate coord) {
-    if (gameBoard.removeTile(coord)) trigger();
+  _handleChangeActiveTileTerrainType(TerrainType newType) {
+    if (activeTerrain != null) {
+      activeTerrain.changeType(newType);
+      trigger();
+    }
+  }
+
+  _handleSetShowTileOverlay(bool show) {
+    showTileOverlay = show;
+    trigger();
   }
 
   // Handle State Actions
 
   _handleChangeState(String newState) {
     gameState = newState;
-    activeTerrain = null;
     trigger();
   }
 
@@ -156,10 +159,10 @@ class GameStore extends Store {
   }
 
   Map<ResourceType, int> resourceChances() {
-    Map<ResourceType, int> chanceMap = new Map<ResourceType, num>();
+    Map<ResourceType, int> chanceMap = new Map<ResourceType, int>();
     ResourceType.values.forEach((type) {
       List<Terrain> tiles = tilesWithResource(type);
-      chanceMap[type] = tiles.fold(0.0, (sum, next) => sum + chances(next.token));
+      chanceMap[type] = tiles.fold(0, (sum, next) => sum + chances(next.token));
     });
     return chanceMap;
   }

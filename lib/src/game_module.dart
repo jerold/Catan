@@ -2,6 +2,7 @@
 
 library catan.game_module;
 
+import 'dart:async' as Async;
 import 'dart:html' as Html;
 import 'dart:math' as Math;
 

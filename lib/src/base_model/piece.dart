@@ -60,7 +60,7 @@ class Terrain extends Piece {
   Set<int> expansionTiles() {
     Set<int> tiles = new Set<int>();
     coordinate.neighbors().forEach((plotCoord) {
-      List<Coordinate> extendedCoords = plotCoord.neighbors().where((coord) => coord.type == CoordinateType.Tile);
+      List<Coordinate> extendedCoords = new List<Coordinate>.from(plotCoord.neighbors().where((coord) => coord.type == CoordinateType.Tile));
       tiles.addAll(extendedCoords.map((coord) => coord.toKey()));
     });
     tiles.remove(coordinate.toKey());
