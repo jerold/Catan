@@ -64,6 +64,16 @@ class Board {
 
   // Convenience Methods
 
+  List<Terrain> tiles() => new List<Terrain>()..addAll(map.values);
+
+  List<int> plots() {
+    Set<int> plotSet = new Set<int>();
+    tiles().forEach((tile) {
+      plotSet.addAll(tile.coordinate.neighbors().map((coord) => coord.toKey()));
+    });
+    return new List<int>.from(plotSet);
+  }
+
   // tile coordinates surrounding those tiles occupied with terrain.
   Set<int> expansionTiles() {
     Set<int> tiles = new Set<int>();

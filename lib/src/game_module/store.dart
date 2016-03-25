@@ -10,8 +10,11 @@ class GameStore extends Store {
   GameActions _actions;
   GameEvents _events;
 
-  Board gameBoard = new Board();
+  Map<int, int> _cachedPlotUtilities = new Map<int, int>();
+  Map<ResourceType, List<Terrain>> _cachedTilesWithResource = new Map<ResourceType, List<Terrain>>();
+  Map<ResourceType, int> _cachedResourceChances = new Map<ResourceType, int>();
 
+  Board gameBoard = new Board();
   String gameState = BoardSetupState;
 
   Terrain activeTerrain;
@@ -32,6 +35,8 @@ class GameStore extends Store {
     List<String> tileStrings = _splitMapParam(mapParam);
     if (tileStrings.length > 0) _pullBoardFromURI(tileStrings);
     else _newBoard();
+
+    _updateCachedValues();
   }
 
   List<String> _splitMapParam(String mapParam) {
@@ -97,16 +102,23 @@ class GameStore extends Store {
   // Handle Tile Actions
 
   _handleAddTile(Coordinate coord) {
-    if (gameBoard.addTile(coord)) trigger();
+    if (gameBoard.addTile(coord)) {
+      _updateCachedValues();
+      trigger();
+    }
   }
 
   _handleRemoveTile(Coordinate coord) {
-    if (gameBoard.removeTile(coord)) trigger();
+    if (gameBoard.removeTile(coord)) {
+      _updateCachedValues();
+      trigger();
+    }
   }
 
   _handleChangeActiveTileToken(int newToken) {
     if (activeTerrain != null) {
       activeTerrain.changeToken(newToken);
+      _updateCachedValues();
       trigger();
     }
   }
@@ -114,6 +126,7 @@ class GameStore extends Store {
   _handleChangeActiveTileTerrainType(TerrainType newType) {
     if (activeTerrain != null) {
       activeTerrain.changeType(newType);
+      _updateCachedValues();
       trigger();
     }
   }
@@ -137,33 +150,47 @@ class GameStore extends Store {
 
   // Utility Methods
 
-  Map<int, int> plotUtilities() {
-    Map<int, int> utilityMap = new Map<int, int>();
-    gameBoard.openPlots().forEach((plotKey) {
-      utilityMap[plotKey] = plotUtility(new Coordinate.fromKey(plotKey));
-    });
-    return utilityMap;
-  }
+  _updateCachedValues() {
+    _cachedPlotUtilities.clear();
+    _cachedTilesWithResource.clear();
+    _cachedResourceChances.clear();
 
-  int plotUtility(Coordinate plotCoordinate) {
-    Set<Coordinate> tileNeighbors = new Set<Coordinate>()
-      ..addAll(plotCoordinate.neighbors().where((coord) {
-        return coord.type == CoordinateType.Tile && gameBoard.map.containsKey(coord.toKey());
-      }));
-    List<Terrain> tiles = new List<Terrain>.from(tileNeighbors.map((coord) => gameBoard.map[coord.toKey()]));
-    return tiles.fold(0, (sum, tile) => sum + chances(tile.token));
-  }
+    List<Terrain> tiles = gameBoard.tiles();
+    List<int> plotKeys = gameBoard.plots();
 
-  List<Terrain> tilesWithResource(ResourceType type) {
-    return new List<Terrain>.from(gameBoard.map.values.where((terrain) => terrain.resource == type));
-  }
-
-  Map<ResourceType, int> resourceChances() {
-    Map<ResourceType, int> chanceMap = new Map<ResourceType, int>();
+    // init empty maps
     ResourceType.values.forEach((type) {
-      List<Terrain> tiles = tilesWithResource(type);
-      chanceMap[type] = tiles.fold(0, (sum, next) => sum + chances(next.token));
+      _cachedTilesWithResource[type] = new List<Terrain>();
+      _cachedResourceChances[type] = 0;
     });
-    return chanceMap;
+
+    // update _cachedTilesWithResource
+    tiles.forEach((tile) {
+      _cachedTilesWithResource[yields(tile.type)].add(tile);
+    });
+
+    // update _cachedResourceChances
+    ResourceType.values.forEach((type) {
+      _cachedResourceChances[type] = _cachedTilesWithResource[type].fold(0, (sum, nextTile) => sum + chances(nextTile.token));
+    });
+
+    // update _cachedPlotUtilities
+    plotKeys.forEach((plotKey) {
+      Coordinate plotCoord = new Coordinate.fromKey(plotKey);
+      Set<Coordinate> tileNeighbors = new Set<Coordinate>()
+        ..addAll(plotCoord.neighbors().where((coord) {
+          return coord.type == CoordinateType.Tile && gameBoard.map.containsKey(coord.toKey());
+        }));
+      List<Terrain> tiles = new List<Terrain>.from(tileNeighbors.map((coord) => gameBoard.map[coord.toKey()]));
+      _cachedPlotUtilities[plotKey] = tiles.fold(0, (sum, tile) => sum + chances(tile.token));
+    });
   }
+
+  Map<int, int> plotUtilities() => new Map<int, int>.from(_cachedPlotUtilities);
+
+  int plotUtility(Coordinate plotCoordinate) => _cachedPlotUtilities[plotCoordinate.toKey()];
+
+  List<Terrain> tilesWithResource(ResourceType type) => _cachedTilesWithResource[type];
+
+  Map<ResourceType, int> resourceChances() => new Map<ResourceType, int>.from(_cachedResourceChances);
 }

@@ -44,7 +44,7 @@ String terrainTypeToColor(TerrainType type) {
   }
 }
 String utilityGradientColor(int val, int average, int max) {
-  num delta = (val - average) / (max - average);
+  num delta = max - average != 0 ? (val - average) / (max - average) : 0;
   num opacity = val > average ? .4 : .1;
   return 'rgba(${(255 - (255 * delta)).toInt()}, ${(255 * delta).toInt()}, 0, ${opacity})';
 }
@@ -213,7 +213,7 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
         'center': coordToPoint(terrain.coordinate),
         'selected': store.activeTerrain == terrain,
         'onClick': (e) => _tileClicked(e, terrain),
-        'onMouseDown': (_) => _tileMouseDown(terrain),
+        'onMouseDown': (e) => _tileMouseDown(e, terrain),
         'onMouseMove': null,
         'onMouseUp': null,
       }));
@@ -296,9 +296,9 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
     if (store.gameState == BoardSetupState && e.shiftKey) actions.removeTile(tile.coordinate);
   }
 
-  void _tileMouseDown(Terrain tile) {
+  void _tileMouseDown(React.SyntheticMouseEvent e, Terrain tile) {
     actions.changeActiveTile(tile);
-    if (store.gameState == BoardSetupState) _startOverlayTimer();
+    if (store.gameState == BoardSetupState && !e.shiftKey) _startOverlayTimer();
   }
 
   void _expansionClicked(React.SyntheticMouseEvent e, Coordinate coord) {
@@ -335,7 +335,7 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
     int utility = store.plotUtility(coord);
     List<int> allUtilities = new List<int>.from(store.plotUtilities().values);
     int maxUtility = allUtilities.fold(utility, (val, util) => util > val ? util : val);
-    int sumUtility = allUtilities.fold(utility, (val, util) => val + util);
+    int sumUtility = allUtilities.fold(0, (val, util) => val + util);
     int avgUtility = sumUtility ~/ allUtilities.length;
 
     Math.Point loc = coordToPoint(coord);
