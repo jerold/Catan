@@ -2,9 +2,11 @@
 
 library catan.game_module;
 
-import 'dart:async' as Async;
-import 'dart:html' as Html;
-import 'dart:math' as Math;
+import 'dart:async';
+import 'dart:html';
+import 'dart:math';
+
+import 'dart:js';
 
 import 'package:react/react.dart' as React;
 import 'package:w_flux/w_flux.dart';
@@ -17,6 +19,16 @@ part 'game_module/api.dart';
 part 'game_module/components.dart';
 part 'game_module/events.dart';
 part 'game_module/store.dart';
+
+part 'game_module/components/board_setup.dart';
+part 'game_module/components/board_svg.dart';
+part 'game_module/components/editing_state_selector.dart';
+part 'game_module/components/editing.dart';
+part 'game_module/components/main_menu.dart';
+part 'game_module/components/new_game_modal.dart';
+part 'game_module/components/pie_chart.dart';
+part 'game_module/components/player_setup.dart';
+part 'game_module/components/round_game_button.dart';
 
 class GameModule extends Module {
   GameApi _api;

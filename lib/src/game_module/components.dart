@@ -2,21 +2,29 @@
 
 part of catan.game_module;
 
+class GameComponents extends ModuleComponents {
+  GameActions _actions;
+  GameStore _store;
+  GameComponents(this._actions, this._store);
+
+  content() => BoardComponent({'actions': _actions, 'store': _store});
+}
+
 const num spacing = 20;
 num get xSpace => spacing;
-num get ySpace => Math.sin(Math.PI * (1 / 3)) * spacing;
-final Math.Point offset = new Math.Point(-30 * xSpace, -30 * ySpace);
+num get ySpace => sin(PI * (1 / 3)) * spacing;
+final Point offset = new Point(-30 * xSpace, -30 * ySpace);
 
-Math.Point coordToPoint(Coordinate coord) => new Math.Point(coord.x * xSpace + ((xSpace / 2) * (coord.y % 2)) + offset.x, coord.y * ySpace + offset.y);
+Point coordToPoint(Coordinate coord) => new Point(coord.x * xSpace + ((xSpace / 2) * (coord.y % 2)) + offset.x, coord.y * ySpace + offset.y);
 
-const Math.Point DEFAULT_CENTER = const Math.Point(0, 0);
-List<Math.Point> ringOfPoints({Math.Point center: DEFAULT_CENTER, num radius: spacing, int count: 3}) {
-  List<Math.Point> points = new List<Math.Point>();
-  num arc = 2 * Math.PI / count;
+const Point DEFAULT_CENTER = const Point(0, 0);
+List<Point> ringOfPoints({Point center: DEFAULT_CENTER, num radius: spacing, int count: 3}) {
+  List<Point> points = new List<Point>();
+  num arc = 2 * PI / count;
   for(int i = 0; i < count; i++) {
-    points.add(new Math.Point(
-      center.x + Math.cos((i * arc)) * radius,
-      center.y + Math.sin((i * arc)) * radius
+    points.add(new Point(
+      center.x + cos((i * arc)) * radius,
+      center.y + sin((i * arc)) * radius
     ));
   }
   return points;
@@ -43,19 +51,13 @@ String terrainTypeToColor(TerrainType type) {
       return 'rgba(151, 148, 136, ${tileOpacity})';
   }
 }
+
 String utilityGradientColor(int val, int average, int max) {
   num delta = max - average != 0 ? (val - average) / (max - average) : 0;
   num opacity = val > average ? .4 : .1;
   return 'rgba(${(255 - (255 * delta)).toInt()}, ${(255 * delta).toInt()}, 0, ${opacity})';
 }
 
-class GameComponents extends ModuleComponents {
-  GameActions _actions;
-  GameStore _store;
-  GameComponents(this._actions, this._store);
-
-  content() => BoardComponent({'actions': _actions, 'store': _store});
-}
 
 var ResourceComponent = React.registerComponent(() => new _ResourceComponent());
 class _ResourceComponent extends FluxComponent<GameActions, GameStore> {
@@ -88,44 +90,10 @@ class _ResourcesComponent extends FluxComponent<GameActions, GameStore> {
   }
 }
 
-var GameOverlayComponent = React.registerComponent(() => new _GameOverlayComponent());
-class _GameOverlayComponent extends FluxComponent<GameActions, GameStore> {
-  render() {
-
-    List stateChangeButtons = new List();
-    [BoardSetupState, PlayerSetupState, PlayingState].forEach((state) {
-      stateChangeButtons.add(React.button({
-        'disabled': store.gameState == state,
-        'onClick': (_) => _handleStateChangeButtonClick(state),
-      }, state));
-    });
-    var stateButtonGroup = React.div({}, stateChangeButtons);
-
-    var resources = ResourcesComponent({'actions': actions, 'store': store});
-
-    return React.div({
-      'style': {
-        'position': 'absolute',
-        'paddingLeft': '10',
-        'fontSize': 18,
-        'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
-        'color': 'darkGray',
-      }
-    }, [
-      stateButtonGroup,
-      resources
-    ]);
-  }
-
-  _handleStateChangeButtonClick(String stateString) {
-    actions.changeState(stateString);
-  }
-}
-
 var TileOverlayComponent = React.registerComponent(() => new _TileOverlayComponent());
 class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
   render() {
-    Math.Point center = coordToPoint(store.activeTerrain.coordinate);
+    Point center = coordToPoint(store.activeTerrain.coordinate);
     List circles = new List();
 
     // Background
@@ -143,7 +111,7 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
 
     // TerrainType
     List<TerrainType> types = new List<TerrainType>.from(TerrainType.values);
-    List<Math.Point> typePoints = ringOfPoints(center: center, radius: spacing * 1.5, count: types.length);
+    List<Point> typePoints = ringOfPoints(center: center, radius: spacing * 1.5, count: types.length);
     for (int i = 0; i < types.length; i++) {
       circles.add(RoundGameButton({
         'fill': terrainTypeToColor(types[i]),
@@ -156,7 +124,7 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
 
     // Token
     List<int> tokens = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
-    List<Math.Point> tokenPoints = ringOfPoints(center: center, radius: spacing * 3, count: tokens.length);
+    List<Point> tokenPoints = ringOfPoints(center: center, radius: spacing * 3, count: tokens.length);
     for (int i = 0; i < tokens.length; i++) {
       circles.add(RoundGameButton({
         'text': tokens[i].toString(),
@@ -184,12 +152,12 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
 const OVERLAY_TIMEOUT = const Duration(milliseconds: 100);
 var BoardComponent = React.registerComponent(() => new _BoardComponent());
 class _BoardComponent extends FluxComponent<GameActions, GameStore> {
-  Async.Timer tileOverlayTimer;
+  Timer tileOverlayTimer;
 
-  Async.StreamSubscription sub;
+  StreamSubscription sub;
 
   void componentWillMount() {
-    sub = Html.document.onMouseUp.listen(_hideOverlay);
+    sub = document.onMouseUp.listen(_hideOverlay);
 
     super.componentWillMount();
   }
@@ -267,29 +235,50 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
       }
     }, children);
 
-    var gameOverlay = GameOverlayComponent({
-      'actions': actions,
-      'store': store,
-    });
-
-    return React.div({
+    var chartDiv = React.div({
       'style': {
         'position': 'absolute',
-        'top': '0',
-        'left': '0',
-        'width': '100%',
-        'height': '100%',
-        'overflow': 'hidden',
-        'outline': '1px solid rgba(200, 200, 200, .75)',
-
-        'WebkitTouchCallout': 'none',
-        'WebkitUserSelect': 'none',
-        'KhtmlUserSelect': 'none',
-        'MozUserSelect': 'none',
-        'MsUserSelect': 'none',
-        'userSelect': 'none',
+        'top': '200px',
+        'left': '100px',
+        'width': '50px',
+        'height': '50px',
       }
-    }, [gameOverlay, boardSvg]);
+    }, PieChart({
+      'callback': _pieChartPressed,
+      'center': new Point(40, 40),
+      'radius': 20,
+      'data': [38, 20, 10],
+      'strokes': ['rgba(200, 50, 50, .5)', 'rgba(50, 200, 50, .5)', 'rgba(50, 50, 200, .5)'],
+    }));
+
+    return React.div({'className': 'content'}, [
+      MainMenu({'actions': actions, 'store': store}),
+      store.gameState == EditingState ? Editing({'actions': actions, 'store': store}) : null,
+      // NewGameModal({'actions': actions, 'store': store}),
+    ]);
+
+    // return React.div({
+    //   'style': {
+    //     'position': 'absolute',
+    //     'top': '0',
+    //     'left': '0',
+    //     'width': '100%',
+    //     'height': '100%',
+    //     'overflow': 'hidden',
+    //     'outline': '1px solid rgba(200, 200, 200, .75)',
+    //
+    //     'WebkitTouchCallout': 'none',
+    //     'WebkitUserSelect': 'none',
+    //     'KhtmlUserSelect': 'none',
+    //     'MozUserSelect': 'none',
+    //     'MsUserSelect': 'none',
+    //     'userSelect': 'none',
+    //   }
+    // }, [gameOverlay, boardSvg, chartDiv]);
+  }
+
+  void _pieChartPressed(int index) {
+    print(index);
   }
 
   void _tileClicked(React.SyntheticMouseEvent e, Terrain tile) {
@@ -307,7 +296,7 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
 
   void _startOverlayTimer() {
     if (tileOverlayTimer != null) tileOverlayTimer.cancel();
-    tileOverlayTimer = new Async.Timer(OVERLAY_TIMEOUT, _showOverlay);
+    tileOverlayTimer = new Timer(OVERLAY_TIMEOUT, _showOverlay);
   }
 
   void _showOverlay() {
@@ -338,7 +327,7 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
     int sumUtility = allUtilities.fold(0, (val, util) => val + util);
     int avgUtility = sumUtility ~/ allUtilities.length;
 
-    Math.Point loc = coordToPoint(coord);
+    Point loc = coordToPoint(coord);
     num radius = spacing / 6;
     String color = utilityGradientColor(utility, avgUtility, maxUtility);
     String stroke = 'darkGray';
@@ -364,65 +353,5 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
     int avgUtility = sumUtility ~/ allUtilities.length;
     print('Utility:${utility}, min(${minUtility}), max(${maxUtility}), avg:(${avgUtility})');
     print(utilityGradientColor(utility, avgUtility, maxUtility));
-  }
-}
-
-typedef void ComponentCallback(React.SyntheticMouseEvent e);
-var RoundGameButton = React.registerComponent(() => new _RoundGameButton());
-class _RoundGameButton extends React.Component {
-  String get text => props['text'] ?? '';
-  int get pipCount => props['pipCount'] ?? 0;
-  String get fill => props['fill'] ?? 'darkGray';
-  num get radius => props['radius'] ?? spacing / 1.5;
-  Math.Point get center => props['center'] ?? new Math.Point(0, 0);
-  bool get selected => props['selected'] ?? false;
-
-  ComponentCallback get onClickCallback => props['onClick'];
-  ComponentCallback get onMouseDownCallback => props['onMouseDown'];
-  ComponentCallback get onMouseMoveCallback => props['onMouseMove'];
-  ComponentCallback get onMouseUpCallback => props['onMouseUp'];
-
-  render() {
-    String stroke = selected ? activeColor : 'none';
-    int strokeWidth = selected ? 2 : 0;
-
-    List children = new List();
-    children.add(React.circle({
-      'cx': center.x,
-      'cy': center.y,
-      'r': radius,
-      'fill': fill,
-      'stroke': stroke,
-      'strokeWidth': strokeWidth,
-      'onClick': onClickCallback,
-      'onMouseDown': onMouseDownCallback,
-      'onMouseMove': onMouseMoveCallback,
-      'onMouseUp': onMouseUpCallback,
-    }));
-
-    List<Math.Point> pipPoints = ringOfPoints(center: center, radius: radius * 2 / 3, count: pipCount);
-    pipPoints.forEach((point) {
-      children.add(React.circle({
-        'cx': point.x,
-        'cy': point.y,
-        'r': 2,
-        'fill': activeColor,
-      }));
-    });
-
-    children.add(React.text({
-      'textAnchor': 'middle',
-      'x': center.x,
-      'y': center.y,
-      'dy': '.3em',
-      'fill': activeColor,
-      'style': {
-        'pointerEvents': 'none',
-        'fontSize': 8,
-        'fontWeight': 'bold',
-        'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
-      }
-    }, text));
-    return React.g({}, children);
   }
 }

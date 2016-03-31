@@ -9,7 +9,8 @@ class Player {
   List<Building> buildings = new List<Building>();
   Map<ResourceType, int> resources = new Map<ResourceType, int>();
 
-  Player() {
+  Player(String color) {
+    changeColor(color);
     ResourceType.values.forEach((type) {
       resources[type] = 0;
     });
@@ -28,5 +29,5 @@ class Player {
     resources[type] = resources[type] - cnt;
   }
 
-  int get count => resources.values.reduce((int prev, int next) => prev + next);
+  int get handCount => resources.values.reduce((int prev, int next) => prev + next);
 }

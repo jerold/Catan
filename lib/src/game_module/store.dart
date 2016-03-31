@@ -2,9 +2,18 @@
 
 part of catan.game_module;
 
+// Primary Helper States
+const String EditingState = 'Editing';
+const String PlayingState = 'Playing';
+
+// Editing Sub States
 const String BoardSetupState = 'Board Setup';
 const String PlayerSetupState = 'Player Setup';
-const String PlayingState = 'Playing';
+const String PieceSetupState = 'Piece Setup';
+
+enum Modals {
+  None, NewGame,
+}
 
 class GameStore extends Store {
   GameActions _actions;
@@ -15,7 +24,13 @@ class GameStore extends Store {
   Map<ResourceType, int> _cachedResourceChances = new Map<ResourceType, int>();
 
   Board gameBoard = new Board();
-  String gameState = BoardSetupState;
+
+  String gameState = EditingState;
+  String editState = BoardSetupState;
+  Modals visibleModal = Modals.None;
+
+  int _activePlayerIndex = 0;
+  Player get activePlayer => gameBoard.players[_activePlayerIndex % gameBoard.players.length];
 
   Terrain activeTerrain;
   bool showTileOverlay = false;
@@ -24,7 +39,11 @@ class GameStore extends Store {
     _actions
       ..addTile.listen(_handleAddTile)
       ..removeTile.listen(_handleRemoveTile)
-      ..changeState.listen(_handleChangeState)
+      ..addPlayer.listen(_handleAddPlayer)
+      ..removePlayer.listen(_handleRemovePlayer)
+      ..showNewGameModal.listen(_handleShowNewGameModal)
+      ..changeEditState.listen(_handleChangeEditState)
+      ..changeGameState.listen(_handleChangeGameState)
       ..changeActiveTile.listen(_handleChangeActiveTile)
       ..changeActiveTileToken.listen(_handleChangeActiveTileToken)
       ..changeActiveTileTerrainType.listen(_handleChangeActiveTileTerrainType)
@@ -96,7 +115,17 @@ class GameStore extends Store {
     Map<String, String> params = new Map<String, String>.from(current.queryParameters);
     params['map'] = mapParam.join('');
     current = current.replace(queryParameters: params);
-    Html.window.history.pushState('', '', current.toString());
+    window.history.pushState('', '', current.toString());
+  }
+
+  // Handle Player Actions
+
+  _handleAddPlayer(Player player) {
+    if (gameBoard.addPlayer(player)) trigger();
+  }
+
+  _handleRemovePlayer(Player player) {
+    if (gameBoard.removePlayer(player)) trigger();
   }
 
   // Handle Tile Actions
@@ -136,12 +165,29 @@ class GameStore extends Store {
     trigger();
   }
 
+  // Handle Modal Actions
+
+  _handleShowNewGameModal(bool show) {
+    context
+      .callMethod(r'$', ['.modal'])
+      .callMethod(r'modal', ['show']);
+    // visibleModal = show ? Modals.NewGame : Modals.None;
+    // trigger();
+  }
+
   // Handle State Actions
 
-  _handleChangeState(String newState) {
+  _handleChangeEditState(String newState) {
+    editState = newState;
+    trigger();
+  }
+
+  _handleChangeGameState(String newState) {
     gameState = newState;
     trigger();
   }
+
+  // Handle Active Change Actions
 
   _handleChangeActiveTile(Terrain newActiveTile) {
     activeTerrain = newActiveTile;
@@ -184,6 +230,14 @@ class GameStore extends Store {
       List<Terrain> tiles = new List<Terrain>.from(tileNeighbors.map((coord) => gameBoard.map[coord.toKey()]));
       _cachedPlotUtilities[plotKey] = tiles.fold(0, (sum, tile) => sum + chances(tile.token));
     });
+  }
+
+  bool playerInGame(String playerColor) {
+    bool playerFound = false;
+    gameBoard.players.forEach((player) {
+      if (player.color == playerColor) playerFound = true;
+    });
+    return playerFound;
   }
 
   Map<int, int> plotUtilities() => new Map<int, int>.from(_cachedPlotUtilities);

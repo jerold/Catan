@@ -2,6 +2,8 @@
 
 library catan.base_model;
 
+import 'dart:math';
+
 part 'base_model/board.dart';
 part 'base_model/constants.dart';
 part 'base_model/coordinate.dart';

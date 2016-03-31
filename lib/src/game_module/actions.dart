@@ -6,8 +6,13 @@ class GameActions {
   Action<Coordinate> addTile = new Action<Coordinate>();
   Action<Coordinate> removeTile = new Action<Coordinate>();
 
-  Action<String> changeState = new Action<String>();
-  
+  Action<Player> addPlayer = new Action<Player>();
+  Action<Player> removePlayer = new Action<Player>();
+
+  Action<bool> showNewGameModal = new Action<bool>();
+  Action<String> changeGameState = new Action<String>();
+  Action<String> changeEditState = new Action<String>();
+
   Action<Terrain> changeActiveTile = new Action<Terrain>();
   Action<int> changeActiveTileToken = new Action<int>();
   Action<TerrainType> changeActiveTileTerrainType = new Action<TerrainType>();

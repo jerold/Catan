@@ -140,18 +140,14 @@ TerrainType terrainTypeFromString(String typeString) {
   }
 }
 
-const String PlayerColorWhite = 'rgb(220, 220, 220)';
-const String PlayerColorBlack = 'rgb(50, 50, 50)';
-const String PlayerColorRed = 'rgb(192, 46, 29)';
-const String PlayerColorOrange = 'rgb(241, 108, 32)';
-const String PlayerColorYellow = 'rgb(235, 200, 68)';
-const String PlayerColorGreen = 'rgb(162, 184, 108)';
-const String PlayerColorBlue = 'rgb(19, 149, 186)';
-const String PlayerColorPurple = 'rgb(13, 60, 85)';
-const String PlayerColorBrown = 'rgb(217, 78, 32)';
+const String PlayerColorRed = 'red';
+const String PlayerColorBlue = 'blue';
+const String PlayerColorGrey = 'grey';
+const String PlayerColorOrange = 'orange';
+const String PlayerColorGreen = 'green';
+const String PlayerColorBrown = 'brown';
 
 List<String> PlayerColors = [
-  PlayerColorWhite, PlayerColorBlack, PlayerColorRed,
-  PlayerColorOrange, PlayerColorYellow, PlayerColorGreen,
-  PlayerColorBlue, PlayerColorPurple, PlayerColorBrown,
+  PlayerColorRed, PlayerColorBlue, PlayerColorGrey,
+  PlayerColorOrange, PlayerColorGreen, PlayerColorBrown,
 ];
