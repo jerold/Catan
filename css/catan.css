@@ -1,0 +1,18 @@
+html {
+  padding: 5px; }
+
+.pie-chart {
+  border-radius: 50%;
+  transform: rotate(-90deg); }
+
+@keyframes fillup {
+  from {
+    stroke-dasharray: 0 100;
+    stroke-dashoffset: 0; } }
+.pie-chart-arc {
+  fill: none;
+  stroke-width: 32;
+  stroke-dasharray: 0 100;
+  animation: fillup 1s ease-in-out; }
+
+/*# sourceMappingURL=catan.css.map */

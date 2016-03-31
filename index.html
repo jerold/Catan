@@ -8,14 +8,40 @@
 
     <title>Catan Helper</title>
 
+    <!-- css -->
+    <link rel="stylesheet" href="assets/icon.min.css">
+    <link rel="stylesheet" href="assets/semantic.min.css">
+    <link rel="stylesheet" type="text/css" href="css/catan.css">
+
     <!-- javascript -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.0/jquery.min.js"></script>
+    <script src="assets/semantic.min.js"></script>
     <script async src="packages/react/react_with_react_dom_prod.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 </head>
 <body>
+    <div class="ui small basic modal">
+        <div class="ui icon header">
+            <i class="warning sign icon"></i>
+        </div>
+        <div class="content">
+            <p>Starting a new game will cause the current game details to be lost. Which could suck, or not. I don\'t know you. You could be into that sort of thing.</p>
+        </div>
+        <div class="actions">
+            <div class="ui red basic cancel inverted button">
+                <i class="remove icon"></i>
+                'Nope, that sounds bad.'
+            </div>
+            <div class="ui green ok inverted button">
+                <i class="checkmark icon"></i>
+                'Please, I know the guac is extra.'
+            </div>
+        </div>
+    </div>
+
     <div id="content"></div>
 
     <!-- execute last -->
     <script type="application/dart" src="main.dart"></script>
-    <script type="text/javascript" src="packages/browser/dart.js"></script>
+    <!-- <script type="text/javascript" src="packages/browser/dart.js"></script> -->
 </body>
