@@ -10,15 +10,12 @@ class GameComponents extends ModuleComponents {
   content() => BoardComponent({'actions': _actions, 'store': _store});
 }
 
-const num spacing = 20;
-num get xSpace => spacing;
-num get ySpace => sin(PI * (1 / 3)) * spacing;
-final Point offset = new Point(-30 * xSpace, -30 * ySpace);
+const num distance_between_coords = 20;
 
-Point coordToPoint(Coordinate coord) => new Point(coord.x * xSpace + ((xSpace / 2) * (coord.y % 2)) + offset.x, coord.y * ySpace + offset.y);
+Point scaledPoint(Coordinate coord) => new Point(coord.point.x * distance_between_coords, coord.point.y * distance_between_coords);
 
 const Point DEFAULT_CENTER = const Point(0, 0);
-List<Point> ringOfPoints({Point center: DEFAULT_CENTER, num radius: spacing, int count: 3}) {
+List<Point> ringOfPoints({Point center: DEFAULT_CENTER, num radius: distance_between_coords, int count: 3}) {
   List<Point> points = new List<Point>();
   num arc = 2 * PI / count;
   for(int i = 0; i < count; i++) {
@@ -93,14 +90,14 @@ class _ResourcesComponent extends FluxComponent<GameActions, GameStore> {
 var TileOverlayComponent = React.registerComponent(() => new _TileOverlayComponent());
 class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
   render() {
-    Point center = coordToPoint(store.activeTerrain.coordinate);
+    Point center = scaledPoint(store.activeTerrain.coordinate);
     List circles = new List();
 
     // Background
     circles.add(React.circle({
       'cx': center.x,
       'cy': center.y,
-      'r': spacing * 4,
+      'r': distance_between_coords * 4,
       'fill': 'white',
       'stroke': 'darkGray',
       'strokeWidth': 2,
@@ -111,11 +108,11 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
 
     // TerrainType
     List<TerrainType> types = new List<TerrainType>.from(TerrainType.values);
-    List<Point> typePoints = ringOfPoints(center: center, radius: spacing * 1.5, count: types.length);
+    List<Point> typePoints = ringOfPoints(center: center, radius: distance_between_coords * 1.5, count: types.length);
     for (int i = 0; i < types.length; i++) {
       circles.add(RoundGameButton({
         'fill': terrainTypeToColor(types[i]),
-        'radius': spacing / 1.5,
+        'radius': distance_between_coords / 1.5,
         'center': typePoints[i],
         'selected': true,
         'onMouseUp': (_) => _terrainTypeMouseUp(types[i]),
@@ -124,13 +121,13 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
 
     // Token
     List<int> tokens = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
-    List<Point> tokenPoints = ringOfPoints(center: center, radius: spacing * 3, count: tokens.length);
+    List<Point> tokenPoints = ringOfPoints(center: center, radius: distance_between_coords * 3, count: tokens.length);
     for (int i = 0; i < tokens.length; i++) {
       circles.add(RoundGameButton({
         'text': tokens[i].toString(),
         'pipCount': chances(tokens[i]),
         'fill': 'rgba(200, 200, 200, .3)',
-        'radius': spacing / 1.5,
+        'radius': distance_between_coords / 1.5,
         'center': tokenPoints[i],
         'selected': true,
         'onMouseUp': (_) => _tokenMouseUp(tokens[i]),
@@ -177,8 +174,8 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
         'text': text,
         'pipCount': chances(terrain.token),
         'fill': terrainTypeToColor(terrain.type),
-        'radius': spacing / 1.5,
-        'center': coordToPoint(terrain.coordinate),
+        'radius': distance_between_coords / 1.5,
+        'center': scaledPoint(terrain.coordinate),
         'selected': store.activeTerrain == terrain,
         'onClick': (e) => _tileClicked(e, terrain),
         'onMouseDown': (e) => _tileMouseDown(e, terrain),
@@ -194,8 +191,8 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
         children.add(RoundGameButton({
           'pipCount': 0,
           'fill': waterColor,
-          'radius': spacing / 2,
-          'center': coordToPoint(expCoord),
+          'radius': distance_between_coords / 2,
+          'center': scaledPoint(expCoord),
           'selected': false,
           'onClick': (e) => _expansionClicked(e, expCoord),
           'onMouseDown': null,
@@ -228,7 +225,7 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
       'xmlns': 'http://www.w3.org/2000/svg',
       'width': '100%',
       'height': '100%',
-      'viewBox': '0 0 ${20 * xSpace} ${20 * ySpace}',
+      'viewBox': '0 0 ${20 * distance_between_coords} ${20 * distance_between_coords}',
       'style': {
         // 'transform': 'scale(3.0)',
         'outline': '1px solid rgba(200, 200, 200, .75)',
@@ -327,8 +324,8 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
     int sumUtility = allUtilities.fold(0, (val, util) => val + util);
     int avgUtility = sumUtility ~/ allUtilities.length;
 
-    Point loc = coordToPoint(coord);
-    num radius = spacing / 6;
+    Point loc = scaledPoint(coord);
+    num radius = distance_between_coords / 6;
     String color = utilityGradientColor(utility, avgUtility, maxUtility);
     String stroke = 'darkGray';
     int strokeWidth = utility == maxUtility ? 1 : 0;

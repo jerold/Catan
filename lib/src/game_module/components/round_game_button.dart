@@ -8,7 +8,7 @@ class _RoundGameButton extends React.Component {
   String get text => props['text'] ?? '';
   int get pipCount => props['pipCount'] ?? 0;
   String get fill => props['fill'] ?? 'darkGray';
-  num get radius => props['radius'] ?? spacing / 1.5;
+  num get radius => props['radius'] ?? distance_between_coords / 1.5;
   Point get center => props['center'] ?? new Point(0, 0);
   bool get selected => props['selected'] ?? false;
 

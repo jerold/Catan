@@ -26,8 +26,8 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
         'text': text,
         'pipCount': chances(terrain.token),
         'fill': terrainTypeToColor(terrain.type),
-        'radius': spacing / 1.5,
-        'center': coordToPoint(terrain.coordinate),
+        'radius': distance_between_coords / 1.5,
+        'center': scaledPoint(terrain.coordinate),
         'selected': store.activeTerrain == terrain,
         'onClick': (e) => _tileClicked(e, terrain),
         'onMouseDown': (e) => _tileMouseDown(e, terrain),
@@ -41,8 +41,8 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
         children.add(RoundGameButton({
           'pipCount': 0,
           'fill': waterColor,
-          'radius': spacing / 2,
-          'center': coordToPoint(expCoord),
+          'radius': distance_between_coords / 2,
+          'center': scaledPoint(expCoord),
           'selected': false,
           'onClick': (e) => _expansionClicked(e, expCoord),
         }));
@@ -72,7 +72,7 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
       'xmlns': 'http://www.w3.org/2000/svg',
       'width': '100%',
       'height': '100%',
-      'viewBox': '0 0 ${20 * xSpace} ${20 * ySpace}',
+      'viewBox': '0 0 ${20 * distance_between_coords} ${20 * distance_between_coords}',
       'style': {
         'WebkitTouchCallout': 'none',
         'WebkitUserSelect': 'none',
