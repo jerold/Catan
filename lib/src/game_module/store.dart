@@ -69,13 +69,13 @@ class GameStore extends Store {
   }
 
   _pullBoardFromURI(List<String> tileStrings) {
-    gameBoard.removeTile(new Coordinate.initial());
+    gameBoard.removeTile(Coordinate.initial());
     tileStrings.forEach((tileString) {
       if (tileString.length == 7) {
         int key = int.parse(tileString.substring(0, 4));
         int token = int.parse(tileString.substring(4, 6));
         TerrainType type = terrainTypeFromString(tileString.substring(6));
-        Terrain terrain = new Terrain(new Coordinate.fromKey(key));
+        Terrain terrain = new Terrain(Coordinate.fromKey(key));
         terrain.changeType(type);
         terrain.token = token;
         gameBoard.map[key] = terrain;
@@ -93,7 +93,7 @@ class GameStore extends Store {
     List<int> tokens = new List<int>.from(standardOrderTokens);
 
     standardDealKeys.forEach((key) {
-      Coordinate coordinate = new Coordinate.fromKey(key);
+      Coordinate coordinate = Coordinate.fromKey(key);
       Terrain terrain = new Terrain(coordinate);
       gameBoard.map[key] = terrain;
 
@@ -222,7 +222,7 @@ class GameStore extends Store {
 
     // update _cachedPlotUtilities
     plotKeys.forEach((plotKey) {
-      Coordinate plotCoord = new Coordinate.fromKey(plotKey);
+      Coordinate plotCoord = Coordinate.fromKey(plotKey);
       Set<Coordinate> tileNeighbors = new Set<Coordinate>()
         ..addAll(plotCoord.neighbors().where((coord) {
           return coord.type == CoordinateType.Tile && gameBoard.map.containsKey(coord.toKey());

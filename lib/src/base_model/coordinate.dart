@@ -7,7 +7,17 @@ final int INITIAL_V = 40;
 final num SPACING_X = 1.0;
 final num SPACING_Y = sin(PI * (1 / 3));
 
+Map<int, Coordinate> _coordCache = new Map<int, Coordinate>();
+
 class Coordinate {
+  static key(int h, int v) => h * 100 + v;
+
+  static Coordinate cached(int key) => _coordCache.putIfAbsent(key, () => new Coordinate(key ~/ 100, key % 100));
+
+  static Coordinate initial() => Coordinate.cached(Coordinate.key(INITIAL_H, INITIAL_V));
+  
+  static Coordinate fromKey(int key) => Coordinate.cached(key);
+
   /// Horizontal key component
   final int _h;
 
@@ -27,10 +37,6 @@ class Coordinate {
       (_v * SPACING_Y) - (INITIAL_V * SPACING_Y)
     );
   }
-
-  factory Coordinate.initial() => new Coordinate(INITIAL_H, INITIAL_V);
-
-  factory Coordinate.fromKey(int key) => new Coordinate(key ~/ 100, key % 100);
 
   Coordinate neighbor(Direction dir) {
     switch(dir) {

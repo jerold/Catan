@@ -187,7 +187,7 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
     // Expansions
     if (store.gameState == BoardSetupState) {
       store.gameBoard.expansionTiles().forEach((coordKey) {
-        Coordinate expCoord = new Coordinate.fromKey(coordKey);
+        Coordinate expCoord = Coordinate.fromKey(coordKey);
         children.add(RoundGameButton({
           'pipCount': 0,
           'fill': waterColor,
@@ -204,7 +204,7 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
 
     // Plots
     store.gameBoard.openPlots().forEach((coordKey) {
-      Coordinate plotCoord = new Coordinate.fromKey(coordKey);
+      Coordinate plotCoord = Coordinate.fromKey(coordKey);
       children.add(PlotComponent({
         'actions': actions,
         'store': store,
