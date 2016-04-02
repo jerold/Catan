@@ -3,11 +3,32 @@
 part of catan.base_model;
 
 class Piece {
-  Coordinate coordinate;
-  CoordinateType legal;
+  final int _key;
 
-  Piece(this.coordinate, this.legal) {
-    if (coordinate.type != legal) {
+  int get key => _key;
+
+  Piece(this._key);
+}
+
+
+class EdgePiece extends Piece {
+  Edge get edge => Edge.fromKey(key);
+
+  EdgePiece(int key) : super(key) {
+    if (Edge.validKey(key)) {
+      print("WARNING!!! ${this.runtimeType} can only exist between two ${CoordinateType.Plot} coordinates");
+    }
+  }
+
+  String toString() => "${this.runtimeType} ${edge}";
+}
+
+
+class NodePiece extends Piece {
+  Coordinate get coordinate => Coordinate.fromKey(key);
+
+  NodePiece(int key, CoordinateType legalType) : super(key) {
+    if (Coordinate.validKey(key) && coordinate.type != legalType) {
       print("WARNING!!! ${this.runtimeType} can not be placed on a ${coordinate.type}");
     }
   }
@@ -15,38 +36,45 @@ class Piece {
   String toString() => "${this.runtimeType} ${coordinate}";
 }
 
-class Thief extends Piece {
-	Thief(Coordinate coordinate) : super(coordinate, CoordinateType.Tile);
+
+class TilePiece extends NodePiece {
+  TilePiece(int key) : super(key, CoordinateType.Tile);
 }
 
-class Building extends Piece {
+
+class PlotPiece extends NodePiece {
+  PlotPiece(int key) : super(key, CoordinateType.Plot);
+}
+
+
+class Building extends PlotPiece {
   int production = 1;
 
-	Building(this.production, Coordinate coordinate) : super(coordinate, CoordinateType.Plot);
+	Building(this.production, int key) : super(key);
 
   Set<int> blockedPlots() {
     Set<int> plots = new Set<int>();
     List<Coordinate> neighborPlots = coordinate.neighbors().where((coord) => coord.type == CoordinateType.Plot);
-    plots.addAll(neighborPlots.map((coord) => coord.toKey()));
-    plots.add(coordinate.toKey());
+    plots.addAll(neighborPlots.map((coord) => coord.key));
+    plots.add(key);
     return plots;
   }
 
   String toString() => "${super.toString()}:${production}";
 }
 
-class Terrain extends Piece {
+class Tile extends TilePiece {
   int _typeIndex = 0;
-  TerrainType get type => TerrainType.values[_typeIndex];
+  TileType get type => TileType.values[_typeIndex];
   int token = 0;
 
   ResourceType get resource => yields(type);
 
-  Terrain(Coordinate coordinate) : super(coordinate, CoordinateType.Tile);
+  Tile(int key) : super(key);
 
-  void changeType([TerrainType type]) {
-    if (type != null) _typeIndex = TerrainType.values.indexOf(type);
-    else _typeIndex = (_typeIndex + 1) % TerrainType.values.length;
+  void changeType([TileType type]) {
+    if (type != null) _typeIndex = TileType.values.indexOf(type);
+    else _typeIndex = (_typeIndex + 1) % TileType.values.length;
   }
 
   void changeToken(newToken) {
@@ -61,9 +89,9 @@ class Terrain extends Piece {
     Set<int> tiles = new Set<int>();
     coordinate.neighbors().forEach((plotCoord) {
       List<Coordinate> extendedCoords = new List<Coordinate>.from(plotCoord.neighbors().where((coord) => coord.type == CoordinateType.Tile));
-      tiles.addAll(extendedCoords.map((coord) => coord.toKey()));
+      tiles.addAll(extendedCoords.map((coord) => coord.key));
     });
-    tiles.remove(coordinate.toKey());
+    tiles.remove(key);
     return tiles;
   }
 }

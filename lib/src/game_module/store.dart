@@ -20,10 +20,12 @@ class GameStore extends Store {
   GameEvents _events;
 
   Map<int, int> _cachedPlotUtilities = new Map<int, int>();
-  Map<ResourceType, List<Terrain>> _cachedTilesWithResource = new Map<ResourceType, List<Terrain>>();
+  Map<ResourceType, List<Tile>> _cachedTilesWithResource = new Map<ResourceType, List<Tile>>();
   Map<ResourceType, int> _cachedResourceChances = new Map<ResourceType, int>();
 
   Board gameBoard = new Board();
+
+  Rectangle viewport = new Rectangle(0, 0, 0, 0);
 
   String gameState = EditingState;
   String editState = BoardSetupState;
@@ -32,7 +34,7 @@ class GameStore extends Store {
   int _activePlayerIndex = 0;
   Player get activePlayer => gameBoard.players[_activePlayerIndex % gameBoard.players.length];
 
-  Terrain activeTerrain;
+  Tile activeTile;
   bool showTileOverlay = false;
 
   GameStore(this._actions, this._events) {
@@ -46,7 +48,7 @@ class GameStore extends Store {
       ..changeGameState.listen(_handleChangeGameState)
       ..changeActiveTile.listen(_handleChangeActiveTile)
       ..changeActiveTileToken.listen(_handleChangeActiveTileToken)
-      ..changeActiveTileTerrainType.listen(_handleChangeActiveTileTerrainType)
+      ..changeActiveTileType.listen(_handleChangeActiveTileType)
       ..setShowTileOverlay.listen(_handleSetShowTileOverlay);
     this.listen(_pushBoardToURI);
 
@@ -56,6 +58,7 @@ class GameStore extends Store {
     else _newBoard();
 
     _updateCachedValues();
+    _updateViewport();
   }
 
   List<String> _splitMapParam(String mapParam) {
@@ -69,16 +72,16 @@ class GameStore extends Store {
   }
 
   _pullBoardFromURI(List<String> tileStrings) {
-    gameBoard.removeTile(Coordinate.initial());
+    gameBoard.removeTile(INITIAL_KEY);
     tileStrings.forEach((tileString) {
       if (tileString.length == 7) {
         int key = int.parse(tileString.substring(0, 4));
         int token = int.parse(tileString.substring(4, 6));
-        TerrainType type = terrainTypeFromString(tileString.substring(6));
-        Terrain terrain = new Terrain(Coordinate.fromKey(key));
-        terrain.changeType(type);
-        terrain.token = token;
-        gameBoard.map[key] = terrain;
+        TileType type = tileTypeFromString(tileString.substring(6));
+        Tile tile = new Tile(key);
+        tile.changeType(type);
+        tile.token = token;
+        gameBoard.map[key] = tile;
       }
     });
     trigger();
@@ -89,17 +92,16 @@ class GameStore extends Store {
     if (defaultTiles.length != 19) print('WARNING!!! Incorrect Default Tile Count ${defaultTiles.length}');
     if (defaultTokens.length != 18) print('WARNING!!! Incorrect Default Tile Count ${defaultTokens.length}');
 
-    List<TerrainType> types = new List<TerrainType>.from(defaultTiles)..shuffle();
+    List<TileType> types = new List<TileType>.from(defaultTiles)..shuffle();
     List<int> tokens = new List<int>.from(standardOrderTokens);
 
     standardDealKeys.forEach((key) {
-      Coordinate coordinate = Coordinate.fromKey(key);
-      Terrain terrain = new Terrain(coordinate);
-      gameBoard.map[key] = terrain;
+      Tile tile = new Tile(key);
+      gameBoard.map[key] = tile;
 
-      terrain.changeType(types.first);
-      if (types.first != TerrainType.Desert) {
-        terrain.changeToken(tokens.first);
+      tile.changeType(types.first);
+      if (types.first != TileType.Desert) {
+        tile.changeToken(tokens.first);
         tokens.removeAt(0);
       }
       types.removeAt(0);
@@ -108,8 +110,8 @@ class GameStore extends Store {
 
   _pushBoardToURI(_) {
     List<String> mapParam = new List<String>();
-    gameBoard.map.values.forEach((terrain) {
-      mapParam.add('${terrain.coordinate.toKey().toString().padLeft(4, "0")}${terrain.token.toString().padLeft(2, "0")}${stringFromTerrainType(terrain.type)}');
+    gameBoard.map.values.forEach((tile) {
+      mapParam.add('${tile.coordinate.key.toString().padLeft(4, "0")}${tile.token.toString().padLeft(2, "0")}${stringFromTileType(tile.type)}');
     });
     Uri current = Uri.base;
     Map<String, String> params = new Map<String, String>.from(current.queryParameters);
@@ -130,31 +132,33 @@ class GameStore extends Store {
 
   // Handle Tile Actions
 
-  _handleAddTile(Coordinate coord) {
-    if (gameBoard.addTile(coord)) {
+  _handleAddTile(int key) {
+    if (gameBoard.addTile(key)) {
       _updateCachedValues();
+      _updateViewport();
       trigger();
     }
   }
 
-  _handleRemoveTile(Coordinate coord) {
-    if (gameBoard.removeTile(coord)) {
+  _handleRemoveTile(int key) {
+    if (gameBoard.removeTile(key)) {
       _updateCachedValues();
+      _updateViewport();
       trigger();
     }
   }
 
   _handleChangeActiveTileToken(int newToken) {
-    if (activeTerrain != null) {
-      activeTerrain.changeToken(newToken);
+    if (activeTile != null) {
+      activeTile.changeToken(newToken);
       _updateCachedValues();
       trigger();
     }
   }
 
-  _handleChangeActiveTileTerrainType(TerrainType newType) {
-    if (activeTerrain != null) {
-      activeTerrain.changeType(newType);
+  _handleChangeActiveTileType(TileType newType) {
+    if (activeTile != null) {
+      activeTile.changeType(newType);
       _updateCachedValues();
       trigger();
     }
@@ -189,24 +193,39 @@ class GameStore extends Store {
 
   // Handle Active Change Actions
 
-  _handleChangeActiveTile(Terrain newActiveTile) {
-    activeTerrain = newActiveTile;
+  _handleChangeActiveTile(Tile newActiveTile) {
+    activeTile = newActiveTile;
     trigger();
   }
 
   // Utility Methods
+
+  _updateViewport() {
+    double maxManDist = 0.0;
+    gameBoard.tiles().forEach((tile) {
+      double posX = tile.coordinate.point.x.toDouble().abs();
+      double posY = tile.coordinate.point.y.toDouble().abs();
+      if (posX > maxManDist) maxManDist = posX;
+      if (posY > maxManDist) maxManDist = posY;
+    });
+    viewport = new Rectangle(
+      -1 * maxManDist - (SPACING_X * 3),
+      -1 * maxManDist - (SPACING_Y * 3),
+      2 * maxManDist + (SPACING_X * 6),
+      2 * maxManDist + (SPACING_Y * 6));
+  }
 
   _updateCachedValues() {
     _cachedPlotUtilities.clear();
     _cachedTilesWithResource.clear();
     _cachedResourceChances.clear();
 
-    List<Terrain> tiles = gameBoard.tiles();
+    List<Tile> tiles = gameBoard.tiles();
     List<int> plotKeys = gameBoard.plots();
 
     // init empty maps
     ResourceType.values.forEach((type) {
-      _cachedTilesWithResource[type] = new List<Terrain>();
+      _cachedTilesWithResource[type] = new List<Tile>();
       _cachedResourceChances[type] = 0;
     });
 
@@ -225,9 +244,9 @@ class GameStore extends Store {
       Coordinate plotCoord = Coordinate.fromKey(plotKey);
       Set<Coordinate> tileNeighbors = new Set<Coordinate>()
         ..addAll(plotCoord.neighbors().where((coord) {
-          return coord.type == CoordinateType.Tile && gameBoard.map.containsKey(coord.toKey());
+          return coord.type == CoordinateType.Tile && gameBoard.map.containsKey(coord.key);
         }));
-      List<Terrain> tiles = new List<Terrain>.from(tileNeighbors.map((coord) => gameBoard.map[coord.toKey()]));
+      List<Tile> tiles = new List<Tile>.from(tileNeighbors.map((coord) => gameBoard.map[coord.key]));
       _cachedPlotUtilities[plotKey] = tiles.fold(0, (sum, tile) => sum + chances(tile.token));
     });
   }
@@ -242,9 +261,9 @@ class GameStore extends Store {
 
   Map<int, int> plotUtilities() => new Map<int, int>.from(_cachedPlotUtilities);
 
-  int plotUtility(Coordinate plotCoordinate) => _cachedPlotUtilities[plotCoordinate.toKey()];
+  int plotUtility(Coordinate plotCoordinate) => _cachedPlotUtilities[plotCoordinate.key];
 
-  List<Terrain> tilesWithResource(ResourceType type) => _cachedTilesWithResource[type];
+  List<Tile> tilesWithResource(ResourceType type) => _cachedTilesWithResource[type];
 
   Map<ResourceType, int> resourceChances() => new Map<ResourceType, int>.from(_cachedResourceChances);
 }

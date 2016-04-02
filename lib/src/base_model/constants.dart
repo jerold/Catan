@@ -14,13 +14,13 @@ List<int> standardDealKeys = [
   4044, 3843, 3841, 3839, 4038, 4139, 4141, 4042, 4040
 ];
 
-List<TerrainType> defaultTiles = [
-  TerrainType.Desert,
-  TerrainType.Pasture, TerrainType.Pasture, TerrainType.Pasture, TerrainType.Pasture,
-  TerrainType.Field, TerrainType.Field, TerrainType.Field, TerrainType.Field,
-  TerrainType.Forest, TerrainType.Forest, TerrainType.Forest, TerrainType.Forest,
-  TerrainType.Hill, TerrainType.Hill, TerrainType.Hill,
-  TerrainType.Mountain, TerrainType.Mountain, TerrainType.Mountain,
+List<TileType> defaultTiles = [
+  TileType.Desert,
+  TileType.Pasture, TileType.Pasture, TileType.Pasture, TileType.Pasture,
+  TileType.Field, TileType.Field, TileType.Field, TileType.Field,
+  TileType.Forest, TileType.Forest, TileType.Forest, TileType.Forest,
+  TileType.Hill, TileType.Hill, TileType.Hill,
+  TileType.Mountain, TileType.Mountain, TileType.Mountain,
 ];
 
 List<int> defaultTokens = [
@@ -58,51 +58,51 @@ enum CoordinateType {
 
 String coordinateTypeString(CoordinateType type) => type == CoordinateType.Plot ? 'Plot' : 'Tile';
 
-const String TerrainStringDesert = 'D';
-const String TerrainStringPasture = 'P';
-const String TerrainStringField = 'F';
-const String TerrainStringForest = 'L';
-const String TerrainStringHill = 'H';
-const String TerrainStringMountain = 'M';
+const String TileStringDesert = 'D';
+const String TileStringPasture = 'P';
+const String TileStringField = 'F';
+const String TileStringForest = 'L';
+const String TileStringHill = 'H';
+const String TileStringMountain = 'M';
 
-enum TerrainType {
+enum TileType {
   Desert, Pasture, Field, Forest, Hill, Mountain,
 }
 enum ResourceType {
   None, Sheep, Wheat, Lumber, Brick, Ore,
 }
 
-ResourceType yields(TerrainType type) {
+ResourceType yields(TileType type) {
   switch(type) {
-    case TerrainType.Pasture:
+    case TileType.Pasture:
       return ResourceType.Sheep;
-    case TerrainType.Field:
+    case TileType.Field:
       return ResourceType.Wheat;
-    case TerrainType.Forest:
+    case TileType.Forest:
       return ResourceType.Lumber;
-    case TerrainType.Hill:
+    case TileType.Hill:
       return ResourceType.Brick;
-    case TerrainType.Mountain:
+    case TileType.Mountain:
       return ResourceType.Ore;
     default:
       return ResourceType.None;
   }
 }
 
-String stringFromTerrainType(TerrainType type) {
+String stringFromTileType(TileType type) {
   switch(type) {
-    case TerrainType.Pasture:
-      return TerrainStringPasture;
-    case TerrainType.Field:
-      return TerrainStringField;
-    case TerrainType.Forest:
-      return TerrainStringForest;
-    case TerrainType.Hill:
-      return TerrainStringHill;
-    case TerrainType.Mountain:
-      return TerrainStringMountain;
+    case TileType.Pasture:
+      return TileStringPasture;
+    case TileType.Field:
+      return TileStringField;
+    case TileType.Forest:
+      return TileStringForest;
+    case TileType.Hill:
+      return TileStringHill;
+    case TileType.Mountain:
+      return TileStringMountain;
     default:
-      return TerrainStringDesert;
+      return TileStringDesert;
   }
 }
 
@@ -123,20 +123,20 @@ String stringFromResourceType(ResourceType type) {
   }
 }
 
-TerrainType terrainTypeFromString(String typeString) {
+TileType tileTypeFromString(String typeString) {
   switch(typeString) {
-    case TerrainStringPasture:
-      return TerrainType.Pasture;
-    case TerrainStringField:
-      return TerrainType.Field;
-    case TerrainStringForest:
-      return TerrainType.Forest;
-    case TerrainStringHill:
-      return TerrainType.Hill;
-    case TerrainStringMountain:
-      return TerrainType.Mountain;
+    case TileStringPasture:
+      return TileType.Pasture;
+    case TileStringField:
+      return TileType.Field;
+    case TileStringForest:
+      return TileType.Forest;
+    case TileStringHill:
+      return TileType.Hill;
+    case TileStringMountain:
+      return TileType.Mountain;
     default:
-      return TerrainType.Desert;
+      return TileType.Desert;
   }
 }
 

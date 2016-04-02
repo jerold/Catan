@@ -14,6 +14,6 @@ class _Editing extends FluxComponent<GameActions, GameStore> {
     } else {
 
     }
-    return React.div({'className': 'ui basic segment'}, editItems);
+    return React.div({'className': 'ui basic center aligned segment'}, editItems);
   }
 }

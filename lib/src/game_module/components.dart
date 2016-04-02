@@ -10,9 +10,11 @@ class GameComponents extends ModuleComponents {
   content() => BoardComponent({'actions': _actions, 'store': _store});
 }
 
-const num distance_between_coords = 20;
+const num distance_between_coords = 36;
 
-Point scaledPoint(Coordinate coord) => new Point(coord.point.x * distance_between_coords, coord.point.y * distance_between_coords);
+Point scaledPoint(Coordinate coord, Rectangle view) => new Point(
+  (coord.point.x) * distance_between_coords,
+  (coord.point.y) * distance_between_coords);
 
 const Point DEFAULT_CENTER = const Point(0, 0);
 List<Point> ringOfPoints({Point center: DEFAULT_CENTER, num radius: distance_between_coords, int count: 3}) {
@@ -32,19 +34,19 @@ final num expOpacity = 0.4;
 final String waterColor = 'rgba(15, 117, 188, ${expOpacity})';
 final String activeColor = 'rgba(0, 0, 0, .4)';
 
-String terrainTypeToColor(TerrainType type) {
+String tileTypeToColor(TileType type) {
   switch(type) {
-    case TerrainType.Desert:
+    case TileType.Desert:
       return 'rgba(246, 220, 107, ${tileOpacity})';
-    case TerrainType.Pasture:
+    case TileType.Pasture:
       return 'rgba(158, 189, 46, ${tileOpacity})';
-    case TerrainType.Field:
+    case TileType.Field:
       return 'rgba(246, 167, 75, ${tileOpacity})';
-    case TerrainType.Forest:
+    case TileType.Forest:
       return 'rgba(10, 128, 65, ${tileOpacity})';
-    case TerrainType.Hill:
+    case TileType.Hill:
       return 'rgba(134, 44, 18, ${tileOpacity})';
-    case TerrainType.Mountain:
+    case TileType.Mountain:
       return 'rgba(151, 148, 136, ${tileOpacity})';
   }
 }
@@ -62,7 +64,7 @@ class _ResourceComponent extends FluxComponent<GameActions, GameStore> {
   num get chance => props['chance'];
 
   render() {
-    List<Terrain> tiles = store.tilesWithResource(type);
+    List<Tile> tiles = store.tilesWithResource(type);
     List tileSpans = new List()..add('${chance.toString().padLeft(2, "0")} ${stringFromResourceType(type)}: ');
     tiles.forEach((tile) {
       tileSpans.add(React.span({
@@ -90,7 +92,7 @@ class _ResourcesComponent extends FluxComponent<GameActions, GameStore> {
 var TileOverlayComponent = React.registerComponent(() => new _TileOverlayComponent());
 class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
   render() {
-    Point center = scaledPoint(store.activeTerrain.coordinate);
+    Point center = scaledPoint(store.activeTile.coordinate, store.viewport);
     List circles = new List();
 
     // Background
@@ -106,20 +108,20 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
       }
     }));
 
-    // TerrainType
-    List<TerrainType> types = new List<TerrainType>.from(TerrainType.values);
+    // TileTypes
+    List<TileType> types = new List<TileType>.from(TileType.values);
     List<Point> typePoints = ringOfPoints(center: center, radius: distance_between_coords * 1.5, count: types.length);
     for (int i = 0; i < types.length; i++) {
       circles.add(RoundGameButton({
-        'fill': terrainTypeToColor(types[i]),
+        'fill': tileTypeToColor(types[i]),
         'radius': distance_between_coords / 1.5,
         'center': typePoints[i],
         'selected': true,
-        'onMouseUp': (_) => _terrainTypeMouseUp(types[i]),
+        'onMouseUp': (_) => _tileTypeMouseUp(types[i]),
       }));
     }
 
-    // Token
+    // Tokens
     List<int> tokens = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
     List<Point> tokenPoints = ringOfPoints(center: center, radius: distance_between_coords * 3, count: tokens.length);
     for (int i = 0; i < tokens.length; i++) {
@@ -137,8 +139,8 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
     return React.g({}, circles);
   }
 
-  _terrainTypeMouseUp(TerrainType type) {
-    actions.changeActiveTileTerrainType(type);
+  _tileTypeMouseUp(TileType type) {
+    actions.changeActiveTileType(type);
   }
 
   _tokenMouseUp(int token) {
@@ -168,17 +170,17 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
   render() {
     List children = new List();
     // Tiles
-    store.gameBoard.map.values.forEach((terrain) {
-      String text = terrain.type != TerrainType.Desert ? terrain.token.toString() : '';
+    store.gameBoard.map.values.forEach((tile) {
+      String text = tile.type != TileType.Desert ? tile.token.toString() : '';
       children.add(RoundGameButton({
         'text': text,
-        'pipCount': chances(terrain.token),
-        'fill': terrainTypeToColor(terrain.type),
+        'pipCount': chances(tile.token),
+        'fill': tileTypeToColor(tile.type),
         'radius': distance_between_coords / 1.5,
-        'center': scaledPoint(terrain.coordinate),
-        'selected': store.activeTerrain == terrain,
-        'onClick': (e) => _tileClicked(e, terrain),
-        'onMouseDown': (e) => _tileMouseDown(e, terrain),
+        'center': scaledPoint(tile.coordinate, store.viewport),
+        'selected': store.activeTile == tile,
+        'onClick': (e) => _tileClicked(e, tile),
+        'onMouseDown': (e) => _tileMouseDown(e, tile),
         'onMouseMove': null,
         'onMouseUp': null,
       }));
@@ -192,9 +194,9 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
           'pipCount': 0,
           'fill': waterColor,
           'radius': distance_between_coords / 2,
-          'center': scaledPoint(expCoord),
+          'center': scaledPoint(expCoord, store.viewport),
           'selected': false,
-          'onClick': (e) => _expansionClicked(e, expCoord),
+          'onClick': (e) => _expansionClicked(e, coordKey),
           'onMouseDown': null,
           'onMouseMove': null,
           'onMouseUp': null,
@@ -278,17 +280,17 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
     print(index);
   }
 
-  void _tileClicked(React.SyntheticMouseEvent e, Terrain tile) {
-    if (store.gameState == BoardSetupState && e.shiftKey) actions.removeTile(tile.coordinate);
+  void _tileClicked(React.SyntheticMouseEvent e, Tile tile) {
+    if (store.gameState == BoardSetupState && e.shiftKey) actions.removeTile(tile.key);
   }
 
-  void _tileMouseDown(React.SyntheticMouseEvent e, Terrain tile) {
+  void _tileMouseDown(React.SyntheticMouseEvent e, Tile tile) {
     actions.changeActiveTile(tile);
     if (store.gameState == BoardSetupState && !e.shiftKey) _startOverlayTimer();
   }
 
-  void _expansionClicked(React.SyntheticMouseEvent e, Coordinate coord) {
-    actions.addTile(coord);
+  void _expansionClicked(React.SyntheticMouseEvent e, int key) {
+    actions.addTile(key);
   }
 
   void _startOverlayTimer() {
@@ -315,7 +317,6 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
 var PlotComponent = React.registerComponent(() => new _PlotComponent());
 class _PlotComponent extends FluxComponent<GameActions, GameStore> {
   Coordinate get coord => props['coord'];
-  Terrain get building => props['building'];
 
   render() {
     int utility = store.plotUtility(coord);
@@ -324,7 +325,7 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
     int sumUtility = allUtilities.fold(0, (val, util) => val + util);
     int avgUtility = sumUtility ~/ allUtilities.length;
 
-    Point loc = scaledPoint(coord);
+    Point loc = scaledPoint(coord, store.viewport);
     num radius = distance_between_coords / 6;
     String color = utilityGradientColor(utility, avgUtility, maxUtility);
     String stroke = 'darkGray';

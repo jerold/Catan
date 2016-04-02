@@ -53,8 +53,8 @@ class _RoundGameButton extends React.Component {
       'fill': activeColor,
       'style': {
         'pointerEvents': 'none',
-        'fontSize': 8,
-        'fontWeight': 'bold',
+        'fontSize': 20,
+        // 'fontWeight': 'bold',
         'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
       }
     }, text));

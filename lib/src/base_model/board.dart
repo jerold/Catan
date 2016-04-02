@@ -10,7 +10,7 @@ part of catan.base_model;
 
 // The Players -> their buildings
 
-// The Terrain
+// The Tile
 
 // The Ships
 
@@ -20,23 +20,21 @@ part of catan.base_model;
 // calculations on resource probability
 
 class Board {
-  Map<int, Terrain> map = new Map<int, Terrain>(); // Where key is generated from Terrain plot's coordinate
+  Map<int, Tile> map = new Map<int, Tile>(); // Where key is generated from Tile's coordinate
   List<Player> players = new List<Player>();
   Thief thief;
 
   // Change Map
 
-  bool addTile(Coordinate coordinate) {
-    int coordKey = coordinate.toKey();
+  bool addTile(int coordKey) {
     if (expansionTiles().contains(coordKey)) {
-      map[coordKey] = new Terrain(coordinate);
+      map[coordKey] = new Tile(coordKey);
       return true;
     }
     return false;
   }
 
-  bool removeTile(Coordinate coordinate) {
-    int coordKey = coordinate.toKey();
+  bool removeTile(int coordKey) {
     if (map.containsKey(coordKey)) {
       map.remove(coordKey);
       return true;
@@ -64,24 +62,24 @@ class Board {
 
   // Convenience Methods
 
-  List<Terrain> tiles() => new List<Terrain>()..addAll(map.values);
+  List<Tile> tiles() => new List<Tile>()..addAll(map.values);
 
   List<int> plots() {
     Set<int> plotSet = new Set<int>();
     tiles().forEach((tile) {
-      plotSet.addAll(tile.coordinate.neighbors().map((coord) => coord.toKey()));
+      plotSet.addAll(tile.coordinate.neighbors().map((coord) => coord.key));
     });
     return new List<int>.from(plotSet);
   }
 
-  // tile coordinates surrounding those tiles occupied with terrain.
+  // tile coordinates directly surrounding actual tiles.
   Set<int> expansionTiles() {
     Set<int> tiles = new Set<int>();
-    map.values.forEach((terrain) {
-      tiles.addAll(terrain.expansionTiles());
+    map.values.forEach((tile) {
+      tiles.addAll(tile.expansionTiles());
     });
-    map.values.forEach((terrain) {
-      tiles.remove(terrain.coordinate.toKey());
+    map.values.forEach((tile) {
+      tiles.remove(tile.coordinate.key);
     });
     return tiles;
   }
@@ -98,18 +96,18 @@ class Board {
 
   Set<int> openPlots() {
     Set<int> plots = new Set<int>();
-    map.values.forEach((terrain) {
-      plots.addAll(terrain.coordinate.neighbors().map((coord) => coord.toKey()));
+    map.values.forEach((tile) {
+      plots.addAll(tile.coordinate.neighbors().map((coord) => coord.key));
     });
     plots.removeAll(blockedPlots());
     return plots;
   }
 
   void describe() {
-    print("Terrain");
+    print("Tiles:");
     print(map.values);
 
-    print("Buildings");
+    print("Buildings:");
     print(players.expand((player) => player.buildings));
 
     print("ExpansionTiles:");

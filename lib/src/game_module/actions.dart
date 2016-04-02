@@ -3,8 +3,8 @@
 part of catan.game_module;
 
 class GameActions {
-  Action<Coordinate> addTile = new Action<Coordinate>();
-  Action<Coordinate> removeTile = new Action<Coordinate>();
+  Action<int> addTile = new Action<int>();
+  Action<int> removeTile = new Action<int>();
 
   Action<Player> addPlayer = new Action<Player>();
   Action<Player> removePlayer = new Action<Player>();
@@ -13,9 +13,9 @@ class GameActions {
   Action<String> changeGameState = new Action<String>();
   Action<String> changeEditState = new Action<String>();
 
-  Action<Terrain> changeActiveTile = new Action<Terrain>();
+  Action<Tile> changeActiveTile = new Action<Tile>();
   Action<int> changeActiveTileToken = new Action<int>();
-  Action<TerrainType> changeActiveTileTerrainType = new Action<TerrainType>();
+  Action<TileType> changeActiveTileType = new Action<TileType>();
 
   Action<bool> setShowTileOverlay = new Action<bool>();
 }

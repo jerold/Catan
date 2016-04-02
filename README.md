@@ -12,5 +12,6 @@ git rebase master
 pub get
 pub build
 git add -f build/web && git commit -m "build commit"
+git push origin --delete gh-pages
 git subtree push --prefix build/web origin gh-pages
 ```

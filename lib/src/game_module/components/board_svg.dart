@@ -20,17 +20,17 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
   render() {
     List children = new List();
     // Tiles
-    store.gameBoard.map.values.forEach((terrain) {
-      String text = terrain.type != TerrainType.Desert ? terrain.token.toString() : '';
+    store.gameBoard.map.values.forEach((tile) {
+      String text = tile.type != TileType.Desert ? tile.token.toString() : '';
       children.add(RoundGameButton({
         'text': text,
-        'pipCount': chances(terrain.token),
-        'fill': terrainTypeToColor(terrain.type),
+        'pipCount': chances(tile.token),
+        'fill': tileTypeToColor(tile.type),
         'radius': distance_between_coords / 1.5,
-        'center': scaledPoint(terrain.coordinate),
-        'selected': store.activeTerrain == terrain,
-        'onClick': (e) => _tileClicked(e, terrain),
-        'onMouseDown': (e) => _tileMouseDown(e, terrain),
+        'center': scaledPoint(tile.coordinate, store.viewport),
+        'selected': store.activeTile == tile,
+        'onClick': (e) => _tileClicked(e, tile),
+        'onMouseDown': (e) => _tileMouseDown(e, tile),
       }));
     });
 
@@ -42,9 +42,9 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
           'pipCount': 0,
           'fill': waterColor,
           'radius': distance_between_coords / 2,
-          'center': scaledPoint(expCoord),
+          'center': scaledPoint(expCoord, store.viewport),
           'selected': false,
-          'onClick': (e) => _expansionClicked(e, expCoord),
+          'onClick': (e) => _expansionClicked(e, coordKey),
         }));
       });
     }
@@ -67,12 +67,18 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
       }));
     }
 
+    Rectangle viewBox = new Rectangle(
+      store.viewport.left * distance_between_coords,
+      store.viewport.top * distance_between_coords,
+      store.viewport.width * distance_between_coords,
+      store.viewport.height * distance_between_coords
+    );
     return React.svg({
       'version': '1.1',
       'xmlns': 'http://www.w3.org/2000/svg',
-      'width': '100%',
-      'height': '100%',
-      'viewBox': '0 0 ${20 * distance_between_coords} ${20 * distance_between_coords}',
+      'width': viewBox.width,
+      'height': viewBox.height,
+      'viewBox': '${viewBox.left} ${viewBox.top} ${viewBox.width} ${viewBox.height}',
       'style': {
         'WebkitTouchCallout': 'none',
         'WebkitUserSelect': 'none',
@@ -86,17 +92,17 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
     }, children);
   }
 
-  void _tileClicked(React.SyntheticMouseEvent e, Terrain tile) {
-    if (store.gameState == EditingState && e.shiftKey) actions.removeTile(tile.coordinate);
+  void _tileClicked(React.SyntheticMouseEvent e, Tile tile) {
+    if (store.gameState == EditingState && e.shiftKey) actions.removeTile(tile.key);
   }
 
-  void _tileMouseDown(React.SyntheticMouseEvent e, Terrain tile) {
+  void _tileMouseDown(React.SyntheticMouseEvent e, Tile tile) {
     actions.changeActiveTile(tile);
     if (store.gameState == EditingState && !e.shiftKey) _startOverlayTimer();
   }
 
-  void _expansionClicked(React.SyntheticMouseEvent e, Coordinate coord) {
-    actions.addTile(coord);
+  void _expansionClicked(React.SyntheticMouseEvent e, int key) {
+    actions.addTile(key);
   }
 
   void _startOverlayTimer() {
