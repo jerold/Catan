@@ -35,7 +35,7 @@ class Board {
       int roll = rollIndex < rolls.length ? rolls[rollIndex] : null;;
       tiles[key] = new Tile(key, type: type, roll: roll);
       if (type == TileType.Desert) {
-        if (rolls[rollIndex] == 0) rollIndex++;
+        if (roll == 0) rollIndex++;
         tiles[key].roll = 0;
         thief = new Thief(key);
       } else {

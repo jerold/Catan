@@ -48,11 +48,12 @@ class GameStore extends Store {
       ..setShowTileOverlay.listen(_handleSetShowTileOverlay);
     this.listen(_pushBoardToURI);
 
+    querySelector('.new-game').onClick.listen(_handleStartNewGame);
+
     String mapParam = Uri.base.queryParameters['map'];
     List<String> tileStrings = _splitMapParam(mapParam);
     if (tileStrings.length > 0) _pullBoardFromURI(tileStrings);
     else _newBoard();
-    _updateViewport();
   }
 
   List<String> _splitMapParam(String mapParam) {
@@ -67,6 +68,8 @@ class GameStore extends Store {
 
   _newBoard() {
     gameBoard = new Board.standard();
+
+    _updateViewport();
     trigger();
   }
 
@@ -82,6 +85,8 @@ class GameStore extends Store {
       }
     });
     gameBoard = new Board(keys, types, rolls);
+
+    _updateViewport();
     trigger();
   }
 
@@ -150,6 +155,10 @@ class GameStore extends Store {
       .callMethod(r'modal', ['show']);
     // visibleModal = show ? Modals.NewGame : Modals.None;
     // trigger();
+  }
+
+  _handleStartNewGame(_) {
+    _newBoard();
   }
 
   // Handle State Actions
