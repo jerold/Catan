@@ -14,7 +14,7 @@ class GameActions {
   Action<String> changeEditState = new Action<String>();
 
   Action<Tile> changeActiveTile = new Action<Tile>();
-  Action<int> changeActiveTileToken = new Action<int>();
+  Action<int> changeActiveTileRoll = new Action<int>();
   Action<TileType> changeActiveTileType = new Action<TileType>();
 
   Action<bool> setShowTileOverlay = new Action<bool>();

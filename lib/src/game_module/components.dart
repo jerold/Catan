@@ -51,7 +51,7 @@ String tileTypeToColor(TileType type) {
   }
 }
 
-String utilityGradientColor(int val, int average, int max) {
+String utilityGradientColor(num val, num average, num max) {
   num delta = max - average != 0 ? (val - average) / (max - average) : 0;
   num opacity = val > average ? .4 : .1;
   return 'rgba(${(255 - (255 * delta)).toInt()}, ${(255 * delta).toInt()}, 0, ${opacity})';
@@ -64,12 +64,12 @@ class _ResourceComponent extends FluxComponent<GameActions, GameStore> {
   num get chance => props['chance'];
 
   render() {
-    List<Tile> tiles = store.tilesWithResource(type);
+    List<Tile> tiles = store.gameBoard.tilesWithResource(type);
     List tileSpans = new List()..add('${chance.toString().padLeft(2, "0")} ${stringFromResourceType(type)}: ');
     tiles.forEach((tile) {
       tileSpans.add(React.span({
         'onClick': (_) => actions.changeActiveTile(tile)
-      }, '[${chances(tile.token)}] '));
+      }, '[${chances(tile.roll)}] '));
     });
     return React.div({}, tileSpans);
   }
@@ -79,7 +79,8 @@ var ResourcesComponent = React.registerComponent(() => new _ResourcesComponent()
 class _ResourcesComponent extends FluxComponent<GameActions, GameStore> {
   render() {
     List resourceGroup = new List();
-    Map<ResourceType, int> chanceMap = store.resourceChances();
+    Map<ResourceType, int> chanceMap = new Map<ResourceType, int>();
+    RESOURCE_TYPES.forEach((type) => chanceMap[type] = store.gameBoard.resourceChances(type));
     chanceMap.forEach((type, chance) {
       if (type != ResourceType.None) {
         resourceGroup.add(ResourceComponent({'actions': actions, 'store': store, 'type': type, 'chance': chance}));
@@ -117,34 +118,34 @@ class _TileOverlayComponent extends FluxComponent<GameActions, GameStore> {
         'radius': distance_between_coords / 1.5,
         'center': typePoints[i],
         'selected': true,
-        'onMouseUp': (_) => _tileTypeMouseUp(types[i]),
+        'onMouseUp': (_) => _typeMouseUp(types[i]),
       }));
     }
 
     // Tokens
-    List<int> tokens = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
-    List<Point> tokenPoints = ringOfPoints(center: center, radius: distance_between_coords * 3, count: tokens.length);
-    for (int i = 0; i < tokens.length; i++) {
+    List<int> rolls = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
+    List<Point> rollPoints = ringOfPoints(center: center, radius: distance_between_coords * 3, count: rolls.length);
+    for (int i = 0; i < rolls.length; i++) {
       circles.add(RoundGameButton({
-        'text': tokens[i].toString(),
-        'pipCount': chances(tokens[i]),
+        'text': rolls[i].toString(),
+        'pipCount': chances(rolls[i]),
         'fill': 'rgba(200, 200, 200, .3)',
         'radius': distance_between_coords / 1.5,
-        'center': tokenPoints[i],
+        'center': rollPoints[i],
         'selected': true,
-        'onMouseUp': (_) => _tokenMouseUp(tokens[i]),
+        'onMouseUp': (_) => _rollMouseUp(rolls[i]),
       }));
     }
 
     return React.g({}, circles);
   }
 
-  _tileTypeMouseUp(TileType type) {
+  _typeMouseUp(TileType type) {
     actions.changeActiveTileType(type);
   }
 
-  _tokenMouseUp(int token) {
-    actions.changeActiveTileToken(token);
+  _rollMouseUp(int roll) {
+    actions.changeActiveTileRoll(roll);
   }
 }
 
@@ -170,11 +171,11 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
   render() {
     List children = new List();
     // Tiles
-    store.gameBoard.map.values.forEach((tile) {
-      String text = tile.type != TileType.Desert ? tile.token.toString() : '';
+    store.gameBoard.tiles.values.forEach((tile) {
+      String text = tile.type != TileType.Desert ? tile.roll.toString() : '';
       children.add(RoundGameButton({
         'text': text,
-        'pipCount': chances(tile.token),
+        'pipCount': chances(tile.roll),
         'fill': tileTypeToColor(tile.type),
         'radius': distance_between_coords / 1.5,
         'center': scaledPoint(tile.coordinate, store.viewport),
@@ -188,7 +189,7 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
 
     // Expansions
     if (store.gameState == BoardSetupState) {
-      store.gameBoard.expansionTiles().forEach((coordKey) {
+      store.gameBoard.expansionTiles.forEach((coordKey) {
         Coordinate expCoord = Coordinate.fromKey(coordKey);
         children.add(RoundGameButton({
           'pipCount': 0,
@@ -205,7 +206,7 @@ class _BoardComponent extends FluxComponent<GameActions, GameStore> {
     }
 
     // Plots
-    store.gameBoard.openPlots().forEach((coordKey) {
+    store.gameBoard.plots.forEach((coordKey) {
       Coordinate plotCoord = Coordinate.fromKey(coordKey);
       children.add(PlotComponent({
         'actions': actions,
@@ -319,22 +320,19 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
   Coordinate get coord => props['coord'];
 
   render() {
-    int utility = store.plotUtility(coord);
-    List<int> allUtilities = new List<int>.from(store.plotUtilities().values);
-    int maxUtility = allUtilities.fold(utility, (val, util) => util > val ? util : val);
-    int sumUtility = allUtilities.fold(0, (val, util) => val + util);
-    int avgUtility = sumUtility ~/ allUtilities.length;
+    int utility = store.gameBoard.utilityOfPlot(coord.key);
+    Statistic utilityStats = store.gameBoard.plotUtilityStats();
 
     Point loc = scaledPoint(coord, store.viewport);
     num radius = distance_between_coords / 6;
-    String color = utilityGradientColor(utility, avgUtility, maxUtility);
+    String color = utilityGradientColor(utility, utilityStats.getAvg(), utilityStats.getMax());
     String stroke = 'darkGray';
-    int strokeWidth = utility == maxUtility ? 1 : 0;
+    int strokeWidth = utility == utilityStats.getMax() ? 1 : 0;
 
     return React.circle({
       'cx': loc.x,
       'cy': loc.y,
-      'r': utility > avgUtility ? radius : radius / 2,
+      'r': utility > utilityStats.getAvg() ? radius : radius / 2,
       'fill': color,
       'stroke': stroke,
       'strokeWidth': strokeWidth,
@@ -343,13 +341,10 @@ class _PlotComponent extends FluxComponent<GameActions, GameStore> {
   }
 
   _handleClick(React.SyntheticMouseEvent e) {
-    int utility = store.plotUtility(coord);
-    List<int> allUtilities = store.plotUtilities().values;
-    int maxUtility = allUtilities.fold(utility, (val, util) => util > val ? util : val);
-    int minUtility = allUtilities.fold(utility, (val, util) => util < val ? util : val);
-    int sumUtility = allUtilities.fold(utility, (val, util) => val + util);
-    int avgUtility = sumUtility ~/ allUtilities.length;
-    print('Utility:${utility}, min(${minUtility}), max(${maxUtility}), avg:(${avgUtility})');
-    print(utilityGradientColor(utility, avgUtility, maxUtility));
+    int utility = store.gameBoard.utilityOfPlot(coord.key);
+    Statistic utilityStats = store.gameBoard.plotUtilityStats();
+
+    print('Utility:${utility}, min(${utilityStats.getMin()}), max(${utilityStats.getMax()}), avg:(${utilityStats.getAvg()})');
+    print(utilityGradientColor(utility, utilityStats.getAvg(), utilityStats.getMax()));
   }
 }

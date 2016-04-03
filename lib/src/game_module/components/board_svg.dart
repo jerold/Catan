@@ -20,11 +20,11 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
   render() {
     List children = new List();
     // Tiles
-    store.gameBoard.map.values.forEach((tile) {
-      String text = tile.type != TileType.Desert ? tile.token.toString() : '';
+    store.gameBoard.tiles.values.forEach((tile) {
+      String text = tile.type != TileType.Desert ? tile.roll.toString() : '';
       children.add(RoundGameButton({
         'text': text,
-        'pipCount': chances(tile.token),
+        'pipCount': chances(tile.roll),
         'fill': tileTypeToColor(tile.type),
         'radius': distance_between_coords / 1.5,
         'center': scaledPoint(tile.coordinate, store.viewport),
@@ -36,7 +36,7 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
 
     // Expansions
     if (store.gameState == EditingState) {
-      store.gameBoard.expansionTiles().forEach((coordKey) {
+      store.gameBoard.expansionTiles.forEach((coordKey) {
         Coordinate expCoord = Coordinate.fromKey(coordKey);
         children.add(RoundGameButton({
           'pipCount': 0,
@@ -50,7 +50,7 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
     }
 
     // Plots
-    store.gameBoard.openPlots().forEach((coordKey) {
+    store.gameBoard.plots.forEach((coordKey) {
       Coordinate plotCoord = Coordinate.fromKey(coordKey);
       children.add(PlotComponent({
         'actions': actions,

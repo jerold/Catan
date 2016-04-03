@@ -10,5 +10,10 @@ part 'base_model/coordinate.dart';
 part 'base_model/edge.dart';
 part 'base_model/piece.dart';
 part 'base_model/player.dart';
+part 'base_model/statistic.dart';
 
+part 'base_model/pieces/city.dart';
+part 'base_model/pieces/road.dart';
+part 'base_model/pieces/settlement.dart';
 part 'base_model/pieces/thief.dart';
+part 'base_model/pieces/tile.dart';

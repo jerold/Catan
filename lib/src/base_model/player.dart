@@ -11,7 +11,7 @@ class Player {
 
   Player(String color) {
     changeColor(color);
-    ResourceType.values.forEach((type) {
+    RESOURCE_TYPES.forEach((type) {
       resources[type] = 0;
     });
   }

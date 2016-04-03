@@ -37,8 +37,8 @@ List<int> defaultTokens = [
 ];
 
 List<int> standardOrderTokens = [
-  5, 2, 6, 3, 8, 10, 9, 12, 11, 4, 8,
-  10, 9, 4, 5, 6, 3, 11,
+  5, 2, 6, 3, 8, 10, 9, 12, 11,
+  4, 8, 10, 9, 4, 5, 6, 3, 11,
 ];
 
 List<int> chanceList = [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
@@ -46,15 +46,6 @@ List<int> chanceList = [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
 int chances(int roll) => roll >= 2 && roll <= 12 ? chanceList[roll - 2] : 0;
 
 num probability(int roll) => chances(roll) / 36;
-
-enum Direction {
-  NorthEast, East, SouthEast, SouthWest, West, NorthWest,
-}
-
-enum CoordinateType {
-  Plot,
-  Tile,
-}
 
 String coordinateTypeString(CoordinateType type) => type == CoordinateType.Plot ? 'Plot' : 'Tile';
 
@@ -65,29 +56,7 @@ const String TileStringForest = 'L';
 const String TileStringHill = 'H';
 const String TileStringMountain = 'M';
 
-enum TileType {
-  Desert, Pasture, Field, Forest, Hill, Mountain,
-}
-enum ResourceType {
-  None, Sheep, Wheat, Lumber, Brick, Ore,
-}
 
-ResourceType yields(TileType type) {
-  switch(type) {
-    case TileType.Pasture:
-      return ResourceType.Sheep;
-    case TileType.Field:
-      return ResourceType.Wheat;
-    case TileType.Forest:
-      return ResourceType.Lumber;
-    case TileType.Hill:
-      return ResourceType.Brick;
-    case TileType.Mountain:
-      return ResourceType.Ore;
-    default:
-      return ResourceType.None;
-  }
-}
 
 String stringFromTileType(TileType type) {
   switch(type) {
