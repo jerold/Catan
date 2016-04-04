@@ -20,28 +20,10 @@
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 </head>
 <body>
-    <div class="ui small basic modal">
-        <div class="ui icon header">
-            <i class="warning sign icon"></i>
-        </div>
-        <div class="content">
-            <p>Starting a new game will cause the current game details to be lost. Which could suck, or not. I don't know you. You could be into that sort of thing.</p>
-        </div>
-        <div class="actions">
-            <div class="ui red basic cancel inverted button">
-                <i class="remove icon"></i>
-                Nope, that sounds bad.
-            </div>
-            <div class="ui green ok inverted button new-game" id="new-game">
-                <i class="checkmark icon"></i>
-                Please, I know the guac is extra.
-            </div>
-        </div>
-    </div>
+    <div class="ui page dimmer" id="new-game-modal"></div>
+    <div class="ui small basic modal" id="control-palette-modal"></div>
 
-    <div class="ui small basic modal" id="control-palette"></div>
-
-    <div id="content"></div>
+    <div id="helper-component"></div>
 
     <!-- execute last -->
     <script type="application/dart" src="main.dart"></script>
