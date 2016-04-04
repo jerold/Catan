@@ -11,9 +11,9 @@ const String BoardSetupState = 'Board Setup';
 const String PlayerSetupState = 'Player Setup';
 const String PieceSetupState = 'Piece Setup';
 
-enum Modals {
-  None, NewGame,
-}
+const String SELECTOR_HELPER_COMPONENT = '#helper-component';
+const String SELECTOR_NEW_GAME_MODAL = '#new-game-modal';
+const String SELECTOR_CONTROL_PALETTE_MODAL = '#control-palette-modal';
 
 class GameStore extends w_flux.Store {
   w_module.DispatchKey _dispatch;
@@ -27,7 +27,6 @@ class GameStore extends w_flux.Store {
 
   String gameState = EditingState;
   String editState = BoardSetupState;
-  Modals visibleModal = Modals.None;
 
   int _activePlayerIndex = 0;
   Player get activePlayer => gameBoard.players[_activePlayerIndex % gameBoard.players.length];
@@ -41,16 +40,20 @@ class GameStore extends w_flux.Store {
       ..removeTile.listen(_handleRemoveTile)
       ..addPlayer.listen(_handleAddPlayer)
       ..removePlayer.listen(_handleRemovePlayer)
-      ..showNewGameModal.listen(_handleShowNewGameModal)
+
       ..changeEditState.listen(_handleChangeEditState)
       ..changeGameState.listen(_handleChangeGameState)
+
       ..changeActiveTile.listen(_handleChangeActiveTile)
       ..changeActiveTileRoll.listen(_handleChangeActiveTileRoll)
       ..changeActiveTileType.listen(_handleChangeActiveTileType)
-      ..setShowTileOverlay.listen(_handleSetShowTileOverlay);
-    this.listen(_pushBoardToURI);
 
-    querySelector('.new-game').onClick.listen(_handleStartNewGame);
+      ..showNewGameDimmer.listen((show) => _handleDimmerVisibility(show, SELECTOR_NEW_GAME_MODAL))
+      ..startNewGame.listen(_handleStartNewGame)
+
+      ..showControlPaletteDimmer.listen((show) => _handleDimmerVisibility(show, SELECTOR_CONTROL_PALETTE_MODAL));
+
+    this.listen(_pushBoardToURI);
 
     String mapParam = Uri.base.queryParameters['map'];
     List<String> tileStrings = _splitMapParam(mapParam);
@@ -144,19 +147,11 @@ class GameStore extends w_flux.Store {
     }
   }
 
-  _handleSetShowTileOverlay(bool show) {
-    showTileOverlay = show;
-    trigger();
-  }
+  // Handle Dimmer Actions
 
-  // Handle Modal Actions
-
-  _handleShowNewGameModal(bool show) {
-    context
-      .callMethod(r'$', ['.modal'])
-      .callMethod(r'modal', ['show']);
-    // visibleModal = show ? Modals.NewGame : Modals.None;
-    // trigger();
+  _handleDimmerVisibility(bool show, String idSelector) {
+    if (show) _events.showModel(idSelector, _dispatch);
+    else _events.hideModel(idSelector, _dispatch);
   }
 
   _handleStartNewGame(_) {
@@ -171,7 +166,6 @@ class GameStore extends w_flux.Store {
   }
 
   _handleChangeGameState(String newState) {
-    if (newState == PlayingState) _events.showPaletteModel(null, _dispatch);
     gameState = newState;
     trigger();
   }

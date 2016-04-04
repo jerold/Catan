@@ -15,8 +15,9 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     children.add(react.polygon({
       'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
       'fill': tileTypeToColor(tile.type),
-      'stroke': activeColor,
-      'strokeWidth': '1',
+      'stroke': 'white',
+      'strokeWidth': '2',
+      'onMouseDown': _handleMouseDown,
       // 'onClick': onClickCallback,
       // 'onMouseDown': onMouseDownCallback,
       // 'onMouseMove': onMouseMoveCallback,
@@ -48,5 +49,9 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       }
     }, '${tile.type != TileType.Desert ? tile.roll.toString() : ""}'));
     return react.g({}, children);
+  }
+
+  _handleMouseDown(react.SyntheticMouseEvent e) {
+    if (e.shiftKey) actions.removeTile(tile.key);
   }
 }

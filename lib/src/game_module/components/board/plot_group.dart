@@ -41,6 +41,7 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         'strokeWidth': utility == utilityStats.getMax() ? '3' : '0',
       }));
     });
+
     return react.g({}, children);
   }
 }

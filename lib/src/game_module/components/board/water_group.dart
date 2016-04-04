@@ -3,7 +3,7 @@
 part of catan.game_module;
 
 
-const String WATER_COLOR = 'rgb(38, 169, 224)';
+const String WATER_COLOR = 'rgba(38, 169, 224, 0.2)';
 
 
 var WaterGroup = react.registerComponent(() => new _WaterGroup());
@@ -20,8 +20,6 @@ class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         'onMouseDown': (_) => actions.addTile(key),
       }));
     });
-    return react.g({
-      'opacity': '0.2',
-    }, children);
+    return react.g({}, children);
   }
 }

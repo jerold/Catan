@@ -4,7 +4,13 @@
 
 The Catan helper allows the user to create a random valid Catan board, or create their own. It then displays the utility values of building plots within that board.
 
-# Deployment
+# SASS watcher
+```bash
+cd Catan/web/
+sass --watch css/catan.scss:css/catan.css
+```
+
+# Deployment with github.io
 
 ```bash
 git checkout gh-pages

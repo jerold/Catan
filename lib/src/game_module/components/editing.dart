@@ -7,13 +7,14 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     List editItems = new List();
     editItems.add(EditingStateSelector({'actions': actions, 'store': store}));
-    if (store.editState == BoardSetupState) {
+    editItems.add(react.div({'className': 'ui hidden divider'}));
+
+    if (store.editState == BoardSetupState || store.editState == PieceSetupState) {
       editItems.add(BoardSetup({'actions': actions, 'store': store}));
     } else if (store.editState == PlayerSetupState) {
       editItems.add(PlayerSetup({'actions': actions, 'store': store}));
-    } else {
-
     }
+    
     return react.div({'className': 'ui basic center aligned segment'}, editItems);
   }
 }

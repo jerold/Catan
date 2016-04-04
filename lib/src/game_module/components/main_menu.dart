@@ -24,7 +24,7 @@ class _MainMenu extends w_flux.FluxComponent<GameActions, GameStore> {
     );
   }
 
-  _handleStartNewGame() => actions.showNewGameModal(true);
+  _handleStartNewGame() => actions.showNewGameDimmer(true);
 
   _handleStateChange(String newState) => actions.changeGameState(newState);
 }

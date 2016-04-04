@@ -2,11 +2,8 @@
 
 library catan.game_module;
 
-import 'dart:async';
 import 'dart:html';
 import 'dart:math';
-
-import 'dart:js';
 
 import 'package:react/react.dart' as react;
 import 'package:w_flux/w_flux.dart' as w_flux;

@@ -11,18 +11,20 @@ main() async {
   await module.load();
 
   react_client.setClientConfiguration();
-  react_dom.render(module.components.content(), querySelector('#content'));
-  react_dom.render(module.components.palette(), querySelector('#control-palette'));
 
-  module.events.showPaletteModel.listen((_) {
+  react_dom.render(module.components.content(), querySelector(SELECTOR_HELPER_COMPONENT));
+  react_dom.render(module.components.newGameDimmer(), querySelector(SELECTOR_NEW_GAME_MODAL));
+  react_dom.render(module.components.controlPaletteDimmer(), querySelector(SELECTOR_CONTROL_PALETTE_MODAL));
+
+  module.events.showModel.listen((idSelector) {
     context
-      .callMethod(r'$', ['#control-palette'])
-      .callMethod(r'modal', ['show']);
+      .callMethod(r'$', [idSelector])
+      .callMethod(r'dimmer', ['show']);
   });
 
-  module.events.hidePaletteModel.listen((_) {
+  module.events.hideModel.listen((idSelector) {
     context
-      .callMethod(r'$', ['#control-palette'])
-      .callMethod(r'modal', ['hide']);
+      .callMethod(r'$', [idSelector])
+      .callMethod(r'dimmer', ['hide']);
   });
 }

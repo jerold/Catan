@@ -12,9 +12,11 @@ class GameComponents extends w_module.ModuleComponents {
   GameStore _store;
   GameComponents(this._actions, this._store);
 
-  content() => BoardComponent({'actions': _actions, 'store': _store});
+  content() => HelperComponent({'actions': _actions, 'store': _store});
 
-  palette() => BoardComponent({'actions': _actions, 'store': _store});
+  newGameDimmer() => NewGameDimmer({'actions': _actions, 'store': _store});
+
+  controlPaletteDimmer() => PieChart({'data': [10.0, 20.0, 30.0], 'strokes': ['rgb(50,50,50)', 'rgb(100,100,100)', 'rgb(150,150,150)']});
 }
 
 Point scaledPoint(Coordinate coord, Rectangle view) => new Point(
@@ -69,67 +71,13 @@ String tileTypeToColor(TileType type) {
   }
 }
 
-const OVERLAY_TIMEOUT = const Duration(milliseconds: 100);
-var BoardComponent = react.registerComponent(() => new _BoardComponent());
-class _BoardComponent extends w_flux.FluxComponent<GameActions, GameStore> {
-  Timer tileOverlayTimer;
-
-  StreamSubscription sub;
-
-  void componentWillMount() {
-    sub = document.onMouseUp.listen(_hideOverlay);
-
-    super.componentWillMount();
-  }
-
-  void componentWillUnmount() {
-    sub.cancel();
-
-    super.componentWillMount();
-  }
-
+var HelperComponent = react.registerComponent(() => new _HelperComponent());
+class _HelperComponent extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     return react.div({'className': 'content'}, [
       MainMenu({'actions': actions, 'store': store}),
       store.gameState == EditingState ? Editing({'actions': actions, 'store': store}) : null,
-      // NewGameModal({'actions': actions, 'store': store}),
+      // NewGameDimmer({'actions': actions, 'store': store}),
     ]);
-  }
-
-  void _pieChartPressed(int index) {
-    print(index);
-  }
-
-  void _tileClicked(react.SyntheticMouseEvent e, Tile tile) {
-    if (store.gameState == BoardSetupState && e.shiftKey) actions.removeTile(tile.key);
-  }
-
-  void _tileMouseDown(react.SyntheticMouseEvent e, Tile tile) {
-    actions.changeActiveTile(tile);
-    if (store.gameState == BoardSetupState && !e.shiftKey) _startOverlayTimer();
-  }
-
-  void _expansionClicked(react.SyntheticMouseEvent e, int key) {
-    actions.addTile(key);
-  }
-
-  void _startOverlayTimer() {
-    if (tileOverlayTimer != null) tileOverlayTimer.cancel();
-    tileOverlayTimer = new Timer(OVERLAY_TIMEOUT, _showOverlay);
-  }
-
-  void _showOverlay() {
-    if (store.gameState == BoardSetupState) {
-      actions.setShowTileOverlay(true);
-    }
-  }
-
-  void _hideOverlay(_) {
-    if (tileOverlayTimer != null) tileOverlayTimer.cancel();
-    tileOverlayTimer = null;
-
-    if (store.gameState == BoardSetupState) {
-      actions.setShowTileOverlay(false);
-    }
   }
 }
