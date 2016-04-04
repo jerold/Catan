@@ -8,9 +8,9 @@ import 'dart:math';
 
 import 'dart:js';
 
-import 'package:react/react.dart' as React;
-import 'package:w_flux/w_flux.dart';
-import 'package:w_module/w_module.dart';
+import 'package:react/react.dart' as react;
+import 'package:w_flux/w_flux.dart' as w_flux;
+import 'package:w_module/w_module.dart' as w_module;
 
 import 'base_model.dart';
 
@@ -21,16 +21,19 @@ part 'game_module/events.dart';
 part 'game_module/store.dart';
 
 part 'game_module/components/board_setup.dart';
-part 'game_module/components/board_svg.dart';
 part 'game_module/components/editing_state_selector.dart';
 part 'game_module/components/editing.dart';
 part 'game_module/components/main_menu.dart';
 part 'game_module/components/new_game_modal.dart';
 part 'game_module/components/pie_chart.dart';
 part 'game_module/components/player_setup.dart';
-part 'game_module/components/round_game_button.dart';
 
-class GameModule extends Module {
+part 'game_module/components/board/board_svg.dart';
+part 'game_module/components/board/plot_group.dart';
+part 'game_module/components/board/tile_group.dart';
+part 'game_module/components/board/water_group.dart';
+
+class GameModule extends w_module.Module {
   GameApi _api;
   GameComponents _components;
   GameEvents _events;
@@ -40,9 +43,11 @@ class GameModule extends Module {
   GameEvents get events => _events;
 
   GameModule() {
+    w_module.DispatchKey dispatch = new w_module.DispatchKey('GameEvents');
+
     GameActions actions = new GameActions();
-    _events = new GameEvents();
-    GameStore store = new GameStore(actions, _events);
+    _events = new GameEvents(dispatch);
+    GameStore store = new GameStore(actions, _events, dispatch);
 
     _api = new GameApi(actions);
     _components = new GameComponents(actions, store);

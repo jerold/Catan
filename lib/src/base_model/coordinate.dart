@@ -19,6 +19,10 @@ final int INITIAL_V = 40;
 final num SPACING_X = 1.0;
 final num SPACING_Y = sin(PI * (1 / 3));
 
+Direction opposite(Direction fromDir) => DIRECTIONS[DIRECTIONS.indexOf(fromDir) + 3 % DIRECTIONS.length];
+Direction clockwise(Direction fromDir) => DIRECTIONS[DIRECTIONS.indexOf(fromDir) + 1 % DIRECTIONS.length];
+Direction counterClockwise(Direction fromDir) => DIRECTIONS[DIRECTIONS.indexOf(fromDir) - 1 % DIRECTIONS.length];
+
 int _coordHKey(int key) => key ~/ 100;
 int _coordVKey(int key) => key % 100;
 

@@ -15,7 +15,9 @@ enum Modals {
   None, NewGame,
 }
 
-class GameStore extends Store {
+class GameStore extends w_flux.Store {
+  w_module.DispatchKey _dispatch;
+
   GameActions _actions;
   GameEvents _events;
 
@@ -33,7 +35,7 @@ class GameStore extends Store {
   Tile activeTile;
   bool showTileOverlay = false;
 
-  GameStore(this._actions, this._events) {
+  GameStore(this._actions, this._events, this._dispatch) {
     _actions
       ..addTile.listen(_handleAddTile)
       ..removeTile.listen(_handleRemoveTile)
@@ -169,6 +171,7 @@ class GameStore extends Store {
   }
 
   _handleChangeGameState(String newState) {
+    if (newState == PlayingState) _events.showPaletteModel(null, _dispatch);
     gameState = newState;
     trigger();
   }

@@ -2,21 +2,21 @@
 
 part of catan.game_module;
 
-var MainMenu = React.registerComponent(() => new _MainMenu());
-class _MainMenu extends FluxComponent<GameActions, GameStore> {
+var MainMenu = react.registerComponent(() => new _MainMenu());
+class _MainMenu extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     String currentState = store.gameState;
-    return React.div({'className': 'ui inverted segment'},
-      React.div({'className': 'ui inverted menu'}, [
-        React.a({
+    return react.div({'className': 'ui inverted segment'},
+      react.div({'className': 'ui inverted menu'}, [
+        react.a({
           'className': 'blue item ${currentState == EditingState ? "active" : ""}',
           'onClick': (_) => _handleStateChange(EditingState),
         }, '${currentState == EditingState ? "Editing" : "Edit"}'),
-        React.a({
+        react.a({
           'className': 'green item ${currentState == PlayingState ? "active" : ""}',
           'onClick': (_) => _handleStateChange(PlayingState),
         }, '${currentState == PlayingState ? "Playing" : "Play"}'),
-        React.a({
+        react.a({
           'className': 'red item right',
           'onClick': (_) => _handleStartNewGame(),
         }, 'New Game'),

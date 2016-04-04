@@ -2,8 +2,8 @@
 
 part of catan.game_module;
 
-var Editing = React.registerComponent(() => new _Editing());
-class _Editing extends FluxComponent<GameActions, GameStore> {
+var Editing = react.registerComponent(() => new _Editing());
+class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     List editItems = new List();
     editItems.add(EditingStateSelector({'actions': actions, 'store': store}));
@@ -14,6 +14,6 @@ class _Editing extends FluxComponent<GameActions, GameStore> {
     } else {
 
     }
-    return React.div({'className': 'ui basic center aligned segment'}, editItems);
+    return react.div({'className': 'ui basic center aligned segment'}, editItems);
   }
 }

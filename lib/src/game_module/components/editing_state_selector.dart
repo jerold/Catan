@@ -2,22 +2,22 @@
 
 part of catan.game_module;
 
-var EditingStateSelector = React.registerComponent(() => new _EditingStateSelector());
-class _EditingStateSelector extends FluxComponent<GameActions, GameStore> {
+var EditingStateSelector = react.registerComponent(() => new _EditingStateSelector());
+class _EditingStateSelector extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     String currentState = store.editState;
-    return React.div({'className': 'ui horizontal link list'}, [
-      React.a({
+    return react.div({'className': 'ui horizontal link list'}, [
+      react.a({
         'className': 'item ${currentState == BoardSetupState ? "active" : ""}',
         'onClick': (_) => _handleClick(BoardSetupState),
       }, BoardSetupState),
-      React.i({'className': 'right chevron icon divider'}),
-      React.a({
+      react.i({'className': 'right chevron icon divider'}),
+      react.a({
         'className': 'item ${currentState == PlayerSetupState ? "active" : ""}',
         'onClick': (_) => _handleClick(PlayerSetupState),
       }, PlayerSetupState),
-      React.i({'className': 'right chevron icon divider'}),
-      React.a({
+      react.i({'className': 'right chevron icon divider'}),
+      react.a({
         'className': 'item ${currentState == PieceSetupState ? "active" : ""}',
         'onClick': (_) => _handleClick(PieceSetupState),
       }, PieceSetupState),

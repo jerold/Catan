@@ -4,8 +4,8 @@ part of catan.game_module;
 
 typedef void PieChartArcClickCallback(int index);
 
-var PieChart = React.registerComponent(() => new _PieChart());
-class _PieChart extends React.Component {
+var PieChart = react.registerComponent(() => new _PieChart());
+class _PieChart extends react.Component {
   PieChartArcClickCallback get callback => props['callback'];
   List<num> get data => props['data'];
   List<String> get strokes => props['strokes'];
@@ -25,7 +25,7 @@ class _PieChart extends React.Component {
       count = count + 1;
       cumulative = cumulative + datum;
     });
-    return React.svg({
+    return react.svg({
       'className': 'pie-chart',
       'viewBox': '0 0 32 32',
       'width': '100%',
@@ -34,8 +34,8 @@ class _PieChart extends React.Component {
   }
 }
 
-var PieChartArc = React.registerComponent(() => new _PieChartArc());
-class _PieChartArc extends React.Component {
+var PieChartArc = react.registerComponent(() => new _PieChartArc());
+class _PieChartArc extends react.Component {
   PieChartArcClickCallback get callback => props['callback'];
   num get percentage => props['percentage'];
   num get cumulative => props['cumulative'];
@@ -43,7 +43,7 @@ class _PieChartArc extends React.Component {
   String get stroke => props['stroke'];
 
   render() {
-    return React.circle({
+    return react.circle({
       'className': 'pie-chart-arc',
       'r': 16,
       'cx': 16,

@@ -2,8 +2,9 @@
 
 part of catan.game_module;
 
-var BoardSvg = React.registerComponent(() => new _BoardSvg());
-class _BoardSvg extends FluxComponent<GameActions, GameStore> {
+
+var BoardSvg = react.registerComponent(() => new _BoardSvg());
+class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
   Timer tileOverlayTimer;
   StreamSubscription sub;
 
@@ -19,61 +20,38 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
 
   render() {
     List children = new List();
-    // Tiles
-    store.gameBoard.tiles.values.forEach((tile) {
-      String text = tile.type != TileType.Desert ? tile.roll.toString() : '';
-      children.add(RoundGameButton({
-        'text': text,
-        'pipCount': chances(tile.roll),
-        'fill': tileTypeToColor(tile.type),
-        'radius': distance_between_coords / 1.5,
-        'center': scaledPoint(tile.coordinate, store.viewport),
-        'selected': store.activeTile == tile,
-        'onClick': (e) => _tileClicked(e, tile),
-        'onMouseDown': (e) => _tileMouseDown(e, tile),
-      }));
-    });
 
     // Expansions
     if (store.gameState == EditingState) {
-      store.gameBoard.expansionTiles.forEach((coordKey) {
-        Coordinate expCoord = Coordinate.fromKey(coordKey);
-        children.add(RoundGameButton({
-          'pipCount': 0,
-          'fill': waterColor,
-          'radius': distance_between_coords / 2,
-          'center': scaledPoint(expCoord, store.viewport),
-          'selected': false,
-          'onClick': (e) => _expansionClicked(e, coordKey),
-        }));
-      });
+      children.add(WaterGroup({'actions': actions, 'store': store}));
     }
 
-    // Plots
-    store.gameBoard.plots.forEach((coordKey) {
-      Coordinate plotCoord = Coordinate.fromKey(coordKey);
-      children.add(PlotComponent({
+    // Tiles
+    store.gameBoard.tiles.values.forEach((tile) {
+      children.add(TileGroup({
         'actions': actions,
         'store': store,
-        'coord': plotCoord,
-      }));
+        'tile': tile}));
     });
 
+    // Plots
+    children.add(PlotGroup({'actions': actions, 'store': store}));
+
     // Tile Overlay
-    if (store.showTileOverlay) {
-      children.add(TileOverlayComponent({
-        'actions': actions,
-        'store': store,
-      }));
-    }
+    // if (store.showTileOverlay) {
+    //   children.add(TileOverlayComponent({
+    //     'actions': actions,
+    //     'store': store,
+    //   }));
+    // }
 
     Rectangle viewBox = new Rectangle(
-      store.viewport.left * distance_between_coords,
-      store.viewport.top * distance_between_coords,
-      store.viewport.width * distance_between_coords,
-      store.viewport.height * distance_between_coords
+      store.viewport.left * COORD_SPACING,
+      store.viewport.top * COORD_SPACING,
+      store.viewport.width * COORD_SPACING,
+      store.viewport.height * COORD_SPACING
     );
-    return React.svg({
+    return react.svg({
       'version': '1.1',
       'xmlns': 'http://www.w3.org/2000/svg',
       'width': viewBox.width,
@@ -92,16 +70,16 @@ class _BoardSvg extends FluxComponent<GameActions, GameStore> {
     }, children);
   }
 
-  void _tileClicked(React.SyntheticMouseEvent e, Tile tile) {
+  void _tileClicked(react.SyntheticMouseEvent e, Tile tile) {
     if (store.gameState == EditingState && e.shiftKey) actions.removeTile(tile.key);
   }
 
-  void _tileMouseDown(React.SyntheticMouseEvent e, Tile tile) {
+  void _tileMouseDown(react.SyntheticMouseEvent e, Tile tile) {
     actions.changeActiveTile(tile);
     if (store.gameState == EditingState && !e.shiftKey) _startOverlayTimer();
   }
 
-  void _expansionClicked(React.SyntheticMouseEvent e, int key) {
+  void _expansionClicked(react.SyntheticMouseEvent e, int key) {
     actions.addTile(key);
   }
 
