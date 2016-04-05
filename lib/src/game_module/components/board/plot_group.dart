@@ -15,6 +15,7 @@ var PlotGroup = react.registerComponent(() => new _PlotGroup());
 class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     Statistic utilityStats = store.gameBoard.plotUtilityStats();
+    num utilityRange = utilityStats.getMax() - utilityStats.getMin();
 
     List children = new List();
     store.gameBoard.plots.forEach((key) {
@@ -29,9 +30,11 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         'fill': 'white',
         'stroke': 'rgba(0, 0, 0, 0.1)',
         'strokeWidth': '1',
+        'onMouseDown': (react.SyntheticMouseEvent e) => _handleMouseDown(e, key),
+        'onTouchStart': (react.SyntheticTouchEvent e) => _handleTouchStart(e, key),
       }));
 
-      num opacity = (utility - utilityStats.getMin()) / (utilityStats.getMax() - utilityStats.getMin());
+      num opacity = utilityRange > 0 ? (utility - utilityStats.getMin()) / utilityRange : 0.0;
       List<Point> hexPoints = ringOfPoints(center: center, radius: (PLOT_RADIUS * 2 / 3) * opacity, count: 6);
       children.add(react.polygon({
         'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
@@ -39,9 +42,22 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         'opacity': opacity,
         'stroke': activeColor,
         'strokeWidth': utility == utilityStats.getMax() ? '3' : '0',
+        'style': {
+          'pointerEvents': 'none',
+        }
       }));
     });
 
     return react.g({}, children);
+  }
+
+  _handleMouseDown(react.SyntheticMouseEvent e, int key) {
+    print('PLOT _handleMouseDown ${new Point(e.clientX, e.clientY)} ${key}');
+    actions.configureControlPalette(new ControlPaletteConfig());
+  }
+
+  _handleTouchStart(react.SyntheticTouchEvent e, int key) {
+    print('PLOT _handleTouchStart ${e.touches} ${key}');
+    actions.configureControlPalette(new ControlPaletteConfig());
   }
 }

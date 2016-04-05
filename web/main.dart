@@ -12,19 +12,14 @@ main() async {
 
   react_client.setClientConfiguration();
 
-  react_dom.render(module.components.content(), querySelector(SELECTOR_HELPER_COMPONENT));
-  react_dom.render(module.components.newGameDimmer(), querySelector(SELECTOR_NEW_GAME_MODAL));
-  react_dom.render(module.components.controlPaletteDimmer(), querySelector(SELECTOR_CONTROL_PALETTE_MODAL));
+  react_dom.render(module.components.content(), querySelector(SELECTOR_CONTENT));
+  react_dom.render(module.components.dimmer(), querySelector(SELECTOR_DIMMER));
 
-  module.events.showModel.listen((idSelector) {
+  module.events.setDimmerVisibility.listen((bool show) {
+    String dimmerSetting = show ? 'show' : 'hide';
     context
-      .callMethod(r'$', [idSelector])
-      .callMethod(r'dimmer', ['show']);
-  });
-
-  module.events.hideModel.listen((idSelector) {
-    context
-      .callMethod(r'$', [idSelector])
-      .callMethod(r'dimmer', ['hide']);
+      .callMethod(r'$', [SELECTOR_DIMMER])
+      .callMethod(r'dimmer', [dimmerSetting]);
+    module.api.dimmerVisibilitySet(show);
   });
 }

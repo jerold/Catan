@@ -18,10 +18,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       'stroke': 'white',
       'strokeWidth': '2',
       'onMouseDown': _handleMouseDown,
-      // 'onClick': onClickCallback,
-      // 'onMouseDown': onMouseDownCallback,
-      // 'onMouseMove': onMouseMoveCallback,
-      // 'onMouseUp': onMouseUpCallback,
+      'onTouchStart': _handleTouchStart,
     }));
 
     // List<Point> pipPoints = ringOfPoints(center: center, radius: radius * 2 / 3, count: pipCount);
@@ -44,7 +41,6 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       'style': {
         'pointerEvents': 'none',
         'fontSize': 20,
-        // 'fontWeight': 'bold',
         'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
       }
     }, '${tile.type != TileType.Desert ? tile.roll.toString() : ""}'));
@@ -52,6 +48,14 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _handleMouseDown(react.SyntheticMouseEvent e) {
+    print('TILE _handleMouseDown ${new Point(e.clientX, e.clientY)} ${tile.key}');
     if (e.shiftKey) actions.removeTile(tile.key);
+    else actions.configureControlPalette(new ControlPaletteConfig());
+  }
+
+  _handleTouchStart(react.SyntheticTouchEvent e) {
+    print('TILE _handleTouchStart ${e.touches} ${tile.key}');
+    if (e.shiftKey) actions.removeTile(tile.key);
+    else actions.configureControlPalette(new ControlPaletteConfig());
   }
 }

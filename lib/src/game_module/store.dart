@@ -11,9 +11,8 @@ const String BoardSetupState = 'Board Setup';
 const String PlayerSetupState = 'Player Setup';
 const String PieceSetupState = 'Piece Setup';
 
-const String SELECTOR_HELPER_COMPONENT = '#helper-component';
-const String SELECTOR_NEW_GAME_MODAL = '#new-game-modal';
-const String SELECTOR_CONTROL_PALETTE_MODAL = '#control-palette-modal';
+const String SELECTOR_CONTENT = '#helper-content';
+const String SELECTOR_DIMMER = '#helper-dimmer';
 
 class GameStore extends w_flux.Store {
   w_module.DispatchKey _dispatch;
@@ -32,7 +31,12 @@ class GameStore extends w_flux.Store {
   Player get activePlayer => gameBoard.players[_activePlayerIndex % gameBoard.players.length];
 
   Tile activeTile;
-  bool showTileOverlay = false;
+
+  ControlPaletteConfig paletteConfig;
+
+  bool dimmerVisible = false;
+  bool confirmNewGameDimmerVisible = false;
+  bool controlPaletteDimmerVisible = false;
 
   GameStore(this._actions, this._events, this._dispatch) {
     _actions
@@ -48,10 +52,12 @@ class GameStore extends w_flux.Store {
       ..changeActiveTileRoll.listen(_handleChangeActiveTileRoll)
       ..changeActiveTileType.listen(_handleChangeActiveTileType)
 
-      ..showNewGameDimmer.listen((show) => _handleDimmerVisibility(show, SELECTOR_NEW_GAME_MODAL))
       ..startNewGame.listen(_handleStartNewGame)
+      ..configureControlPalette.listen(_handleConfigControlPalette)
 
-      ..showControlPaletteDimmer.listen((show) => _handleDimmerVisibility(show, SELECTOR_CONTROL_PALETTE_MODAL));
+      ..showNewGameDimmer.listen(_handleShowNewGameDimmer)
+      ..showControlPaletteDimmer.listen(_handleShowControlPaletteDimmer)
+      ..dimmerVisibilitySet.listen(_handleDimmerVisibilitySet);
 
     this.listen(_pushBoardToURI);
 
@@ -149,13 +155,32 @@ class GameStore extends w_flux.Store {
 
   // Handle Dimmer Actions
 
-  _handleDimmerVisibility(bool show, String idSelector) {
-    if (show) _events.showModel(idSelector, _dispatch);
-    else _events.hideModel(idSelector, _dispatch);
+  _handleShowNewGameDimmer(bool show) {
+    confirmNewGameDimmerVisible = show;
+    _handleDimmerVisibility(show);
+  }
+
+  _handleShowControlPaletteDimmer(bool show) {
+    controlPaletteDimmerVisible = show;
+    _handleDimmerVisibility(show);
+  }
+
+  _handleDimmerVisibility(bool show) {
+    _events.setDimmerVisibility(show, _dispatch);
+  }
+
+  _handleDimmerVisibilitySet(bool isVisible) {
+    dimmerVisible = isVisible;
+    trigger();
   }
 
   _handleStartNewGame(_) {
     _newBoard();
+  }
+
+  _handleConfigControlPalette(ControlPaletteConfig newConfig) {
+    paletteConfig = newConfig;
+    trigger();
   }
 
   // Handle State Actions

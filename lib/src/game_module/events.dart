@@ -3,11 +3,9 @@
 part of catan.game_module;
 
 class GameEvents {
-  w_module.Event<String> showModel;
-  w_module.Event<String> hideModel;
+  w_module.Event<bool> setDimmerVisibility;
 
   GameEvents(w_module.DispatchKey dispatch) {
-    showModel = new w_module.Event<String>(dispatch);
-    hideModel = new w_module.Event<String>(dispatch);
+    setDimmerVisibility = new w_module.Event<bool>(dispatch);
   }
 }

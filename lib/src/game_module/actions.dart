@@ -22,4 +22,8 @@ class GameActions {
 
   // Control Palette
   w_flux.Action<bool> showControlPaletteDimmer = new w_flux.Action<bool>();
+  w_flux.Action<ControlPaletteConfig> configureControlPalette = new w_flux.Action<ControlPaletteConfig>();
+
+  // Dimmer updates
+  w_flux.Action<bool> dimmerVisibilitySet = new w_flux.Action<bool>();
 }

@@ -2,6 +2,7 @@
 
 library catan.game_module;
 
+import 'dart:async';
 import 'dart:html';
 import 'dart:math';
 
@@ -18,10 +19,12 @@ part 'game_module/events.dart';
 part 'game_module/store.dart';
 
 part 'game_module/components/board_setup.dart';
+part 'game_module/components/confirm_new_game.dart';
+part 'game_module/components/control_palette.dart';
+part 'game_module/components/dimmer.dart';
 part 'game_module/components/editing_state_selector.dart';
 part 'game_module/components/editing.dart';
 part 'game_module/components/main_menu.dart';
-part 'game_module/components/new_game_modal.dart';
 part 'game_module/components/pie_chart.dart';
 part 'game_module/components/player_setup.dart';
 

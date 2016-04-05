@@ -14,9 +14,7 @@ class GameComponents extends w_module.ModuleComponents {
 
   content() => HelperComponent({'actions': _actions, 'store': _store});
 
-  newGameDimmer() => NewGameDimmer({'actions': _actions, 'store': _store});
-
-  controlPaletteDimmer() => PieChart({'data': [10.0, 20.0, 30.0], 'strokes': ['rgb(50,50,50)', 'rgb(100,100,100)', 'rgb(150,150,150)']});
+  dimmer() => Dimmer({'actions': _actions, 'store': _store});
 }
 
 Point scaledPoint(Coordinate coord, Rectangle view) => new Point(
