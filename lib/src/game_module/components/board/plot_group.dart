@@ -13,15 +13,22 @@ String utilityGradient(num val, num average, num max) {
 
 var PlotGroup = react.registerComponent(() => new _PlotGroup());
 class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
+
+  @override
+  List<w_flux.Store> redrawOn() {
+    if (store is GameStore) return [store.boardStore];
+    else return [];
+  }
+
   render() {
-    Statistic utilityStats = store.gameBoard.plotUtilityStats();
+    Statistic utilityStats = store.boardStore.board.plotUtilityStats();
     num utilityRange = utilityStats.getMax() - utilityStats.getMin();
 
     List children = new List();
-    store.gameBoard.plots.forEach((key) {
+    store.boardStore.board.plots.forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
-      int utility = store.gameBoard.utilityOfPlot(key);
-      Point center = scaledPoint(coord, store.viewport);
+      int utility = store.boardStore.board.utilityOfPlot(key);
+      Point center = scaledPoint(coord, store.boardStore.viewport);
 
       children.add(react.circle({
         'cx': center.x,
@@ -53,11 +60,11 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
 
   _handleMouseDown(react.SyntheticMouseEvent e, int key) {
     print('PLOT _handleMouseDown ${new Point(e.clientX, e.clientY)} ${key}');
-    actions.configureControlPalette(new ControlPaletteConfig());
+    // actions.configureControlPalette(new ControlPaletteConfig());
   }
 
   _handleTouchStart(react.SyntheticTouchEvent e, int key) {
     print('PLOT _handleTouchStart ${e.touches} ${key}');
-    actions.configureControlPalette(new ControlPaletteConfig());
+    // actions.configureControlPalette(new ControlPaletteConfig());
   }
 }

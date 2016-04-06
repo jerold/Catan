@@ -75,7 +75,7 @@ class _HelperComponent extends w_flux.FluxComponent<GameActions, GameStore> {
     return react.div({'className': 'content'}, [
       MainMenu({'actions': actions, 'store': store}),
       store.gameState == EditingState ? Editing({'actions': actions, 'store': store}) : null,
-      // NewGameDimmer({'actions': actions, 'store': store}),
+      store.gameState == PlayingState ? Playing({'actions': actions, 'store': store}) : null,
     ]);
   }
 }

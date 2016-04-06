@@ -28,6 +28,10 @@ class Board {
     tiles = new Map<int, Tile>();
     players = new List<Player>();
 
+    addPlayer(new Player(PlayerColorRed));
+    addPlayer(new Player(PlayerColorGrey));
+    addPlayer(new Player(PlayerColorBlue));
+
     int typeIndex = 0;
     int rollIndex = 0;
     keys.forEach((key) {
@@ -96,6 +100,14 @@ class Board {
       return true;
     }
     return false;
+  }
+
+  bool playerInGame(String playerColor) {
+    bool playerFound = false;
+    players.forEach((player) {
+      if (player.color == playerColor) playerFound = true;
+    });
+    return playerFound;
   }
 
   // Utility Methods

@@ -3,12 +3,32 @@
 part of catan.game_module;
 
 
+class TileControlPaletteConfig extends ControlPaletteConfig {
+  factory TileControlPaletteConfig(Tile tile, GameActions actions) {
+    List<PaletteOption> options = [
+      new PaletteOption('theme', () => print('change type')),
+      new PaletteOption('cube', () => print('change roll')),
+      new PaletteOption('remove', () => actions.removeTile(tile.key)),
+    ];
+    return new TileControlPaletteConfig._internal(options);
+  }
+
+  TileControlPaletteConfig._internal(List<PaletteOption> options) : super(options);
+}
+
+
 var TileGroup = react.registerComponent(() => new _TileGroup());
 class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   Tile get tile => props['tile'];
 
+  @override
+  List<w_flux.Store> redrawOn() {
+    if (store is GameStore) return [store.boardStore];
+    else return [];
+  }
+
   render() {
-    Point center = scaledPoint(tile.coordinate, store.viewport);
+    Point center = scaledPoint(tile.coordinate, store.boardStore.viewport);
 
     List children = new List();
     List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
@@ -50,12 +70,12 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   _handleMouseDown(react.SyntheticMouseEvent e) {
     print('TILE _handleMouseDown ${new Point(e.clientX, e.clientY)} ${tile.key}');
     if (e.shiftKey) actions.removeTile(tile.key);
-    else actions.configureControlPalette(new ControlPaletteConfig());
+    else actions.configureControlPalette(new TileControlPaletteConfig(tile, actions));
   }
 
   _handleTouchStart(react.SyntheticTouchEvent e) {
     print('TILE _handleTouchStart ${e.touches} ${tile.key}');
     if (e.shiftKey) actions.removeTile(tile.key);
-    else actions.configureControlPalette(new ControlPaletteConfig());
+    else actions.configureControlPalette(new TileControlPaletteConfig(tile, actions));
   }
 }

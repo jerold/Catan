@@ -4,10 +4,17 @@ part of catan.game_module;
 
 var PlayerSetup = react.registerComponent(() => new _PlayerSetup());
 class _PlayerSetup extends w_flux.FluxComponent<GameActions, GameStore> {
+
+  @override
+  List<w_flux.Store> redrawOn() {
+    if (store is GameStore) return [store.boardStore];
+    else return [];
+  }
+
   render() {
-    List<Player> players = new List<Player>.from(store.gameBoard.players);
+    List<Player> players = new List<Player>.from(store.boardStore.board.players);
     List<String> addableColors = new List<String>.from(PlayerColors.where((color) {
-      return !store.playerInGame(color);
+      return !store.boardStore.board.playerInGame(color);
     }));
 
     List addItems = new List.from(addableColors.map((color) {
@@ -24,7 +31,7 @@ class _PlayerSetup extends w_flux.FluxComponent<GameActions, GameStore> {
       return react.a({
         'className': classes.join(' '),
         'onClick': (_) => actions.removePlayer(player),
-      }, [react.i({'className': 'remove user icon'}), ' Player ${turn++}']);
+      }, [react.i({'className': 'remove user icon'}), ' P${turn++}']);
     }));
 
     return react.div({'className': 'ui center aligned basic segment'}, [
