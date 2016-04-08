@@ -40,11 +40,11 @@ class _ConfirmNewGame extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _handleCancel(_) {
-    actions.showNewGameDimmer(false);
+    actions.hideDimmer();
   }
 
   _handleConfirm(_) {
     actions.startNewGame();
-    actions.showNewGameDimmer(false);
+    actions.hideDimmer();
   }
 }

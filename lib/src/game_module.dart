@@ -26,6 +26,7 @@ part 'game_module/components/control_palette.dart';
 part 'game_module/components/dimmer.dart';
 part 'game_module/components/editing_state_selector.dart';
 part 'game_module/components/editing.dart';
+part 'game_module/components/helper.dart';
 part 'game_module/components/main_menu.dart';
 part 'game_module/components/pie_chart.dart';
 part 'game_module/components/player_setup.dart';

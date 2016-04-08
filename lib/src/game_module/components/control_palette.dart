@@ -30,42 +30,69 @@ class ControlPaletteConfig {
   ControlPaletteConfig(this.options);
 }
 
-const SHOW_PALETTE_DELAY = const Duration(milliseconds: 200);
+class TileControlPaletteConfig extends ControlPaletteConfig {
+  factory TileControlPaletteConfig(Tile tile, GameActions actions) {
+    List<PaletteOption> options = [
+      new PaletteOption('theme', () => print('change type')),
+      new PaletteOption('cube', () => print('change roll')),
+      new PaletteOption('user', () => actions.moveThiefToActiveTile()),
+      new PaletteOption('remove', () => actions.removeTile(tile.key)),
+    ];
+    return new TileControlPaletteConfig._internal(options);
+  }
+
+  TileControlPaletteConfig._internal(List<PaletteOption> options) : super(options);
+}
 
 
 var ControlPalette = react.registerComponent(() => new _ControlPalette());
 class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
-  Timer _showPaletteTimer;
   List<StreamSubscription> _subs = new List<StreamSubscription>();
 
   Map<String, Function> _handlers = new Map<String, Function>();
 
   Point get startPoint => state['startPoint'];
-
   Point get currentPoint => state['currentPoint'];
+  ControlPaletteConfig get config => state['config'];
 
-  getInitialState() => {
-    'startPoint': new Point(0, 0),
-    'currentPoint': new Point(0, 0),
-  };
+  getInitialState() => stateFromStore();
 
-  Element get startIcon => react.findDOMNode(ref('start-icon'));
+  stateFromStore() {
+    Map<String, dynamic> storeState = new Map<String, dynamic>();
+    if (store.currentDimmer == DimmerType.TileOptions) {
+      Tile activeTile = store.boardStore.activeTile;
+      storeState['config'] = new TileControlPaletteConfig(activeTile, actions);
+    } else if (store.currentDimmer == DimmerType.PlotOptions) {
+      print('PLOT CONFIG');
+      Tile activeTile = store.boardStore.activeTile;
+      storeState['config'] = new TileControlPaletteConfig(activeTile, actions);
+    }
+    storeState['startPoint'] = store.boardStore.activatePoint;
+    storeState['currentPoint'] = store.boardStore.activatePoint;
+    return storeState;
+  }
+
+  setStateFromStore() => setState(stateFromStore());
+
+  Map<w_flux.Store, Function> getStoreHandlers() => { store: (_) => setStateFromStore() };
+
+  bool shouldComponentUpdate(_, nextState) => nextState['currentPoint'] != currentPoint;
 
   componentWillMount() {
     super.componentWillMount();
 
-    _handlers['_handleMouseDown'] = _handleMouseDown;
+    // _handlers['_handleMouseDown'] = _handleMouseDown;
     _handlers['_handleMouseMove'] = _handleMouseMove;
     _handlers['_handleMouseUp'] = _handleMouseUp;
-    _handlers['_handleTouchStart'] = _handleTouchStart;
+    // _handlers['_handleTouchStart'] = _handleTouchStart;
     _handlers['_handleTouchMove'] = _handleTouchMove;
     _handlers['_handleTouchEnd'] = _handleTouchEnd;
     _handlers['_handleTouchCancel'] = _handleTouchCancel;
 
-    _subs.add(document.onMouseDown.listen(_handlers['_handleMouseDown']));
+    // _subs.add(document.onMouseDown.listen(_handlers['_handleMouseDown']));
     _subs.add(document.onMouseMove.listen(_handlers['_handleMouseMove']));
     _subs.add(document.onMouseUp.listen(_handlers['_handleMouseUp']));
-    _subs.add(document.onTouchStart.listen(_handlers['_handleTouchStart']));
+    // _subs.add(document.onTouchStart.listen(_handlers['_handleTouchStart']));
     _subs.add(document.onTouchMove.listen(_handlers['_handleTouchMove']));
     _subs.add(document.onTouchEnd.listen(_handlers['_handleTouchEnd']));
     _subs.add(document.onTouchCancel.listen(_handlers['_handleTouchCancel']));
@@ -79,9 +106,9 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   render() {
     int optIndex = 0;
-    List<Point> points = _getOptionPoints(store.paletteConfig?.options);
+    List<Point> points = _getOptionPoints(config.options);
     List optionItems = new List();
-    if (store.paletteConfig != null) store.paletteConfig.options.forEach((opt) {
+    config.options.forEach((opt) {
       num dist = points[optIndex].distanceTo(currentPoint);
       optionItems.add(opt.component(points[optIndex], dist < ROUND_BUTTON_RADIUS ? 'white' : 'blue'));
       optIndex++;
@@ -119,67 +146,47 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   // Specific Handlers
 
-  _handleMouseDown(MouseEvent e) => interactionBegan(e.client, false);
+  // _handleMouseDown(MouseEvent e) => interactionBegan(e.client, false);
   _handleMouseMove(MouseEvent e) => interactionMoved(e.client);
   _handleMouseUp(MouseEvent e) => interactionEnded(e.client);
 
-  _handleTouchStart(TouchEvent e) => interactionBegan(e.touches.first.client, true);
+  // _handleTouchStart(TouchEvent e) => interactionBegan(e.touches.first.client, true);
   _handleTouchMove(TouchEvent e) => interactionMoved(e.touches.first.client);
   _handleTouchEnd(TouchEvent e) => interactionEnded(e.touches.first.client);
   _handleTouchCancel(TouchEvent e) => interactionEnded(e.touches.first.client);
 
   // Generic Handlers
 
-  interactionBegan(Point p, bool touch) {
-    if (store.paletteConfig == null) return;
-    setState({'startPoint': p, 'currentPoint': p});
-    if (touch) showPalette();
-    else startTimer();
-  }
+  // interactionBegan(Point p, bool touch) {
+  //   if (store.paletteConfig == null) return;
+  //   setState({'startPoint': p, 'currentPoint': p});
+  //   if (touch) showPalette();
+  //   else startTimer();
+  // }
 
   interactionMoved(Point p) {
-    if (store.paletteConfig == null) return;
-    setState({'currentPoint': p});
+    if (store.currentDimmer == DimmerType.TileOptions || store.currentDimmer == DimmerType.PlotOptions) {
+      if (startPoint.x == 0 && startPoint.y == 0) {
+        print('Need a better way of getting startPoint for control palette!');
+        setState({'currentPoint': p, 'startPoint': p});
+      } else {
+        setState({'currentPoint': p});
+      }
+    }
   }
 
   interactionEnded(Point p) {
-    if (store.paletteConfig == null) return;
-    // callbackSelectedOption();
-    cancelTimer();
-    if (store.dimmerVisible) hidePalette();
-    actions.configureControlPalette(null);
+    callbackSelectedOption();
+    actions.hideDimmer();
   }
 
-  // callbackSelectedOption() {
-  //   int optIndex = 0;
-  //   List<Point> points = _getOptionPoints(store.paletteConfig.options);
-  //   points.forEach((point) {
-  //     num dist = point.distanceTo(currentPoint);
-  //     if (dist < ROUND_BUTTON_RADIUS) store.paletteConfig.options[optIndex].callback();
-  //     optIndex++;
-  //   });
-  // }
-
-  // Timer Methods
-
-  startTimer() {
-    _showPaletteTimer = new Timer(SHOW_PALETTE_DELAY, showPalette);
-  }
-
-  cancelTimer() {
-    if (_showPaletteTimer != null) _showPaletteTimer.cancel();
-    _showPaletteTimer = null;
-  }
-
-  // Palette Visibility Methods
-
-  showPalette() {
-    setState({'paletteVisible': true});
-    actions.showControlPaletteDimmer(true);
-  }
-
-  hidePalette() {
-    setState({'paletteVisible': false});
-    actions.showControlPaletteDimmer(false);
+  callbackSelectedOption() {
+    int optIndex = 0;
+    List<Point> points = _getOptionPoints(config.options);
+    points.forEach((point) {
+      num dist = point.distanceTo(currentPoint);
+      if (dist < ROUND_BUTTON_RADIUS) config.options[optIndex].callback();
+      optIndex++;
+    });
   }
 }

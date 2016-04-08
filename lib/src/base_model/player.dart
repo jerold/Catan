@@ -2,11 +2,20 @@
 
 part of catan.base_model;
 
+
+enum PlayerPieceType { Road, Settlement, City }
+int MAX_ROADS = 15;
+int MAX_SETTLEMENTS = 5;
+int MAX_CITIES = 4;
+
 class Player {
   int _colorIndex = 0;
   String get color => PlayerColors[_colorIndex];
 
-  List<Building> buildings = new List<Building>();
+  List<Road> roads = new List<Road>();
+  List<Settlement> settlements = new List<Settlement>();
+  List<City> cities = new List<City>();
+
   Map<ResourceType, int> resources = new Map<ResourceType, int>();
 
   Player(String color) {

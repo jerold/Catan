@@ -20,6 +20,5 @@ main() async {
     context
       .callMethod(r'$', [SELECTOR_DIMMER])
       .callMethod(r'dimmer', [dimmerSetting]);
-    module.api.dimmerVisibilitySet(show);
   });
 }

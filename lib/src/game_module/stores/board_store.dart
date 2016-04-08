@@ -13,12 +13,38 @@ class BoardStore extends w_flux.Store {
   Rectangle _viewport = new Rectangle(0, 0, 0, 0);
   Rectangle get viewport => _viewport;
 
+  Player _activePlayer;
+  Player get activePlayer => _activePlayer;
+
+  Tile _activeTile;
+  Tile get activeTile => _activeTile;
+
+  int _activePlot;
+  int get activePlot => _activePlot;
+
+  Point _activatePoint = new Point(0,0);
+  Point get activatePoint => _activatePoint;
+
   BoardStore(this._actions, this._events, this._dispatch) {
     _actions
       ..addTile.listen(_handleAddTile)
       ..removeTile.listen(_handleRemoveTile)
+
       ..addPlayer.listen(_handleAddPlayer)
       ..removePlayer.listen(_handleRemovePlayer)
+
+      ..setActiveTileRoll.listen(_handleSetActiveTileRoll)
+      ..setActiveTileType.listen(_handleSetActiveTileType)
+
+      ..setActiveTile.listen(_handleSetActiveTile)
+      ..setActivePlot.listen(_handleSetActivePlot)
+      ..setActivePlayer.listen(_handleSetActivePlayer)
+      ..setActivatePoint.listen(_handleSetActivatePoint)
+
+      ..buildOnActivePlot.listen(_handleBuildOnActivePlot)
+      ..moveThiefToActiveTile.listen(_handleMoveThiefToActiveTile)
+      ..roll.listen(_handleRoll)
+
       ..startNewGame.listen(_startNewGame);
 
       String mapParam = Uri.base.queryParameters['map'];
@@ -29,7 +55,7 @@ class BoardStore extends w_flux.Store {
 
   _startNewGame([_]) {
     _board = new Board.standard();
-    _update();
+    _updateBoard();
   }
 
   _startNewGameFromURI(List<String> tileStrings) {
@@ -44,10 +70,10 @@ class BoardStore extends w_flux.Store {
       }
     });
     _board = new Board(keys, types, rolls);
-    _update();
+    _updateBoard();
   }
 
-  _update() {
+  _updateBoard() {
     double maxManDist = 0.0;
     board.tiles.forEach((_, tile) {
       double posX = tile.coordinate.point.x.toDouble().abs();
@@ -62,7 +88,6 @@ class BoardStore extends w_flux.Store {
       2 * maxManDist + (SPACING_Y * 6));
 
     _pushBoardToURI();
-    print('BoardStore._update()');
     trigger();
   }
 
@@ -98,13 +123,57 @@ class BoardStore extends w_flux.Store {
     if (board.removePlayer(player)) trigger();
   }
 
+  _handleSetActivePlayer(Player player) {
+    _activePlayer = player;
+    trigger();
+  }
+
   // Handle Tile Actions
 
   _handleAddTile(int key) {
-    if (board.addTile(key)) _update();
+    if (board.addTile(key)) _updateBoard();
   }
 
   _handleRemoveTile(int key) {
-    if (board.removeTile(key)) _update();
+    if (board.removeTile(key)) _updateBoard();
+  }
+
+  _handleSetActiveTileRoll(int newRoll) {
+    _activeTile.roll = newRoll;
+    trigger();
+  }
+
+  _handleSetActiveTileType(TileType newType) {
+    _activeTile.type = newType;
+    trigger();
+  }
+
+  _handleSetActiveTile(Tile tile) {
+    _activeTile = tile;
+    trigger();
+  }
+
+  _handleSetActivePlot(int plot) {
+    _activePlot = plot;
+    trigger();
+  }
+
+  _handleSetActivatePoint(Point newPoint) {
+    _activatePoint = newPoint;
+  }
+
+  _handleBuildOnActivePlot(PlayerPieceType pieceType) {
+
+  }
+
+  _handleMoveThiefToActiveTile(_) {
+    if (activeTile != null) {
+      board.thiefTileKey = activeTile.key;
+      trigger();
+    }
+  }
+
+  _handleRoll(int roll) {
+
   }
 }

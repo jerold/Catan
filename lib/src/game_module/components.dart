@@ -12,7 +12,7 @@ class GameComponents extends w_module.ModuleComponents {
   GameStore _store;
   GameComponents(this._actions, this._store);
 
-  content() => HelperComponent({'actions': _actions, 'store': _store});
+  content() => Helper({'actions': _actions, 'store': _store});
 
   dimmer() => Dimmer({'actions': _actions, 'store': _store});
 }
@@ -66,16 +66,5 @@ String tileTypeToColor(TileType type) {
       return '#be6447';
     case TileType.Mountain:
       return '#606060';
-  }
-}
-
-var HelperComponent = react.registerComponent(() => new _HelperComponent());
-class _HelperComponent extends w_flux.FluxComponent<GameActions, GameStore> {
-  render() {
-    return react.div({'className': 'content'}, [
-      MainMenu({'actions': actions, 'store': store}),
-      store.gameState == EditingState ? Editing({'actions': actions, 'store': store}) : null,
-      store.gameState == PlayingState ? Playing({'actions': actions, 'store': store}) : null,
-    ]);
   }
 }

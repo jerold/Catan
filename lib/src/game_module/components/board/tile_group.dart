@@ -2,21 +2,6 @@
 
 part of catan.game_module;
 
-
-class TileControlPaletteConfig extends ControlPaletteConfig {
-  factory TileControlPaletteConfig(Tile tile, GameActions actions) {
-    List<PaletteOption> options = [
-      new PaletteOption('theme', () => print('change type')),
-      new PaletteOption('cube', () => print('change roll')),
-      new PaletteOption('remove', () => actions.removeTile(tile.key)),
-    ];
-    return new TileControlPaletteConfig._internal(options);
-  }
-
-  TileControlPaletteConfig._internal(List<PaletteOption> options) : super(options);
-}
-
-
 var TileGroup = react.registerComponent(() => new _TileGroup());
 class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   Tile get tile => props['tile'];
@@ -41,41 +26,57 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       'onTouchStart': _handleTouchStart,
     }));
 
-    // List<Point> pipPoints = ringOfPoints(center: center, radius: radius * 2 / 3, count: pipCount);
-    List<Point> points = pipPoints(center: center, radius: COORD_SPACING * 0.5, count: chances(tile.roll));
-    points.forEach((point) {
+    if (store.boardStore.board.thiefTileKey == tile.key) {
       children.add(react.circle({
-        'cx': point.x,
-        'cy': point.y,
-        'r': 2,
+        'cx': center.x,
+        'cy': center.y,
+        'r': COORD_SPACING / 5,
         'fill': activeColor,
       }));
-    });
-
-    children.add(react.text({
-      'textAnchor': 'middle',
-      'x': center.x,
-      'y': center.y,
-      'dy': '.3em',
-      'fill': activeColor,
-      'style': {
-        'pointerEvents': 'none',
-        'fontSize': 20,
-        'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
-      }
-    }, '${tile.type != TileType.Desert ? tile.roll.toString() : ""}'));
+    } else {
+      List<Point> points = pipPoints(center: center, radius: COORD_SPACING * 0.5, count: chances(tile.roll));
+      points.forEach((point) {
+        children.add(react.circle({
+          'cx': point.x,
+          'cy': point.y,
+          'r': 2,
+          'fill': activeColor,
+        }));
+      });
+      children.add(react.text({
+        'textAnchor': 'middle',
+        'x': center.x,
+        'y': center.y,
+        'dy': '.3em',
+        'fill': activeColor,
+        'style': {
+          'pointerEvents': 'none',
+          'fontSize': 20,
+          'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
+        }
+      }, '${tile.type != TileType.Desert ? tile.roll.toString() : ""}'));
+    }
     return react.g({}, children);
   }
 
   _handleMouseDown(react.SyntheticMouseEvent e) {
-    print('TILE _handleMouseDown ${new Point(e.clientX, e.clientY)} ${tile.key}');
-    if (e.shiftKey) actions.removeTile(tile.key);
-    else actions.configureControlPalette(new TileControlPaletteConfig(tile, actions));
+    Point client = new Point(e.clientX, e.clientY);
+    interactionBegan(e.shiftKey, client);
   }
 
   _handleTouchStart(react.SyntheticTouchEvent e) {
-    print('TILE _handleTouchStart ${e.touches} ${tile.key}');
-    if (e.shiftKey) actions.removeTile(tile.key);
-    else actions.configureControlPalette(new TileControlPaletteConfig(tile, actions));
+    var firstTouch = e.touches.first;
+    Point client = new Point(firstTouch.clientX, firstTouch.clientY);
+    interactionBegan(e.shiftKey, client);
+  }
+
+  interactionBegan(bool shiftKey, Point client) {
+    if (shiftKey) {
+      actions.removeTile(tile.key);
+    } else {
+      actions.setActiveTile(tile);
+      actions.setActivatePoint(client);
+      actions.showDimmer(DimmerType.TileOptions);
+    }
   }
 }

@@ -5,7 +5,7 @@ part of catan.base_model;
 
 class Board {
   Map<int, Tile> tiles = new Map<int, Tile>();
-  Thief thief;
+  int thiefTileKey;
   List<Player> players = new List<Player>();
 
   Statistic _plotUtilityStats = new Statistic();
@@ -41,7 +41,7 @@ class Board {
       if (type == TileType.Desert) {
         if (roll == 0) rollIndex++;
         tiles[key].roll = 0;
-        thief = new Thief(key);
+        thiefTileKey = key;
       } else {
         rollIndex++;
       }

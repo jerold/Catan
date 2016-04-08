@@ -5,24 +5,23 @@ part of catan.game_module;
 var EditingStateSelector = react.registerComponent(() => new _EditingStateSelector());
 class _EditingStateSelector extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
-    String currentState = store.editState;
     return react.div({'className': 'ui horizontal link list'}, [
       react.a({
-        'className': 'item ${currentState == BoardSetupState ? "active" : ""}',
-        'onClick': (_) => _handleClick(BoardSetupState),
+        'className': 'item ${store.editState == EditState.BoardSetup ? "active" : ""}',
+        'onClick': (_) => _handleClick(EditState.BoardSetup),
       }, BoardSetupState),
       react.i({'className': 'right chevron icon divider'}),
       react.a({
-        'className': 'item ${currentState == PlayerSetupState ? "active" : ""}',
-        'onClick': (_) => _handleClick(PlayerSetupState),
+        'className': 'item ${store.editState == EditState.PlayerSetup ? "active" : ""}',
+        'onClick': (_) => _handleClick(EditState.PlayerSetup),
       }, PlayerSetupState),
       react.i({'className': 'right chevron icon divider'}),
       react.a({
-        'className': 'item ${currentState == PieceSetupState ? "active" : ""}',
-        'onClick': (_) => _handleClick(PieceSetupState),
+        'className': 'item ${store.editState == EditState.PieceSetup ? "active" : ""}',
+        'onClick': (_) => _handleClick(EditState.PieceSetup),
       }, PieceSetupState),
     ]);
   }
 
-  _handleClick(String newState) => actions.changeEditState(newState);
+  _handleClick(EditState newState) => actions.setEditState(newState);
 }

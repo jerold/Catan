@@ -4,6 +4,9 @@ part of catan.game_module;
 
 var Playing = react.registerComponent(() => new _Playing());
 class _Playing extends w_flux.FluxComponent<GameActions, GameStore> {
+
+  bool shouldComponentUpdate(_, nextState) => false;
+
   render() {
     return react.div({'className': 'ui basic vertical center aligned segment'}, [
       Players({'actions': actions, 'store': store}),

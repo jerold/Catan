@@ -14,6 +14,10 @@ const String PieceSetupState = 'Piece Setup';
 const String SELECTOR_CONTENT = '#helper-content';
 const String SELECTOR_DIMMER = '#helper-dimmer';
 
+enum DimmerType { ConfirmNewGame, TileOptions, PlotOptions, Roll, Trade, None }
+enum GameState { Editing, Playing }
+enum EditState { BoardSetup, PlayerSetup, PieceSetup }
+
 class GameStore extends w_flux.Store {
   w_module.DispatchKey _dispatch;
   GameActions _actions;
@@ -22,62 +26,48 @@ class GameStore extends w_flux.Store {
   BoardStore _boardStore;
   BoardStore get boardStore => _boardStore;
 
-  String gameState = EditingState;
-  String editState = BoardSetupState;
+  GameState gameState = GameState.Editing;
+  EditState editState = EditState.BoardSetup;
 
-  int _activePlayerIndex = 0;
-  Player get activePlayer => boardStore.board.players[_activePlayerIndex % boardStore.board.players.length];
+  bool _dimmerVisible = false;
+  bool get dimmerVisible => _dimmerVisible;
 
-  ControlPaletteConfig paletteConfig;
-
-  bool dimmerVisible = false;
-  bool confirmNewGameDimmerVisible = false;
-  bool controlPaletteDimmerVisible = false;
+  DimmerType _currentDimmer = DimmerType.None;
+  DimmerType get currentDimmer => _currentDimmer;
 
   GameStore(this._actions, this._events, this._dispatch) {
     _actions
-      ..changeEditState.listen(_handleChangeEditState)
-      ..changeGameState.listen(_handleChangeGameState)
+      ..setEditState.listen(_handleSetEditState)
+      ..setGameState.listen(_handleSetGameState)
 
-      ..configureControlPalette.listen(_handleConfigControlPalette)
-
-      ..showNewGameDimmer.listen(_handleShowNewGameDimmer)
-      ..showControlPaletteDimmer.listen(_handleShowControlPaletteDimmer)
-      ..dimmerVisibilitySet.listen(_handleDimmerVisibilitySet);
+      ..showDimmer.listen(_handleShowDimmer)
+      ..hideDimmer.listen(_handleHideDimmer);
 
     _boardStore = new BoardStore(_actions, _events, _dispatch);
   }
 
   // Handle Dimmer Actions
 
-  _handleShowNewGameDimmer(bool show) {
-    confirmNewGameDimmerVisible = show;
-    _events.setDimmerVisibility(show, _dispatch);
-  }
-
-  _handleShowControlPaletteDimmer(bool show) {
-    controlPaletteDimmerVisible = show;
-    _events.setDimmerVisibility(show, _dispatch);
-  }
-
-  _handleDimmerVisibilitySet(bool isVisible) {
-    dimmerVisible = isVisible;
+  _handleShowDimmer(DimmerType newDimmer) {
+    _currentDimmer = newDimmer;
+    _events.setDimmerVisibility(true, _dispatch);
     trigger();
   }
 
-  _handleConfigControlPalette(ControlPaletteConfig newConfig) {
-    paletteConfig = newConfig;
+  _handleHideDimmer(_) {
+    _currentDimmer = DimmerType.None;
+    _events.setDimmerVisibility(false, _dispatch);
     trigger();
   }
 
   // Handle State Actions
 
-  _handleChangeEditState(String newState) {
+  _handleSetEditState(EditState newState) {
     editState = newState;
     trigger();
   }
 
-  _handleChangeGameState(String newState) {
+  _handleSetGameState(GameState newState) {
     gameState = newState;
     trigger();
   }

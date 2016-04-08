@@ -5,17 +5,16 @@ part of catan.game_module;
 var MainMenu = react.registerComponent(() => new _MainMenu());
 class _MainMenu extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
-    String currentState = store.gameState;
     return react.div({'className': 'ui inverted segment'},
       react.div({'className': 'ui inverted menu'}, [
         react.a({
-          'className': 'blue item ${currentState == EditingState ? "active" : ""}',
-          'onClick': (_) => _handleStateChange(EditingState),
-        }, '${currentState == EditingState ? "Editing" : "Edit"}'),
+          'className': 'blue item ${store.gameState == GameState.Editing ? "active" : ""}',
+          'onClick': (_) => _handleStateChange(GameState.Editing),
+        }, '${store.gameState == GameState.Editing ? "Editing" : "Edit"}'),
         react.a({
-          'className': 'green item ${currentState == PlayingState ? "active" : ""}',
-          'onClick': (_) => _handleStateChange(PlayingState),
-        }, '${currentState == PlayingState ? "Playing" : "Play"}'),
+          'className': 'green item ${store.gameState == GameState.Playing ? "active" : ""}',
+          'onClick': (_) => _handleStateChange(GameState.Playing),
+        }, '${store.gameState == GameState.Playing ? "Playing" : "Play"}'),
         react.a({
           'className': 'red item right',
           'onClick': (_) => _handleStartNewGame(),
@@ -24,7 +23,7 @@ class _MainMenu extends w_flux.FluxComponent<GameActions, GameStore> {
     );
   }
 
-  _handleStartNewGame() => actions.showNewGameDimmer(true);
+  _handleStartNewGame() => actions.showDimmer(DimmerType.ConfirmNewGame);
 
-  _handleStateChange(String newState) => actions.changeGameState(newState);
+  _handleStateChange(GameState newState) => actions.setGameState(newState);
 }

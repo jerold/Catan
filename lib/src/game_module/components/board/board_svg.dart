@@ -13,6 +13,7 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   render() {
+    print('BoardSvg.render()');
     List children = new List();
 
     // Expansions
@@ -27,7 +28,7 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
     });
 
     // Plots
-    if (store.gameState == EditingState && store.editState == PieceSetupState) {
+    if (store.gameState == GameState.Editing && store.editState == EditState.PieceSetup) {
       children.add(PlotGroup({'actions': actions, 'store': store}));
     }
 
