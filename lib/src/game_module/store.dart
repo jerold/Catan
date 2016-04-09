@@ -14,7 +14,7 @@ const String PieceSetupState = 'Piece Setup';
 const String SELECTOR_CONTENT = '#helper-content';
 const String SELECTOR_DIMMER = '#helper-dimmer';
 
-enum DimmerType { ConfirmNewGame, TileOptions, PlotOptions, Roll, Trade, None }
+enum DimmerType { ConfirmNewGame, TileOptions, PlotOptions, WaterOptions, Roll, Trade, None }
 enum GameState { Editing, Playing }
 enum EditState { BoardSetup, PlayerSetup, PieceSetup }
 

@@ -24,9 +24,31 @@ class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       children.add(react.polygon({
         'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
         'fill': WATER_COLOR,
-        'onMouseDown': (_) => actions.addTile(key),
+        'onMouseDown': (react.SyntheticMouseEvent e) => _handleMouseDown(e, key),
+        'onTouchStart': (react.SyntheticTouchEvent e) => _handleTouchStart(e, key),
       }));
     });
     return react.g({}, children);
+  }
+
+  _handleMouseDown(react.SyntheticMouseEvent e, int key) {
+    Point client = new Point(e.clientX, e.clientY);
+    interactionBegan(e.shiftKey, client, key);
+  }
+
+  _handleTouchStart(react.SyntheticTouchEvent e, int key) {
+    var firstTouch = e.touches.first;
+    Point client = new Point(firstTouch.clientX, firstTouch.clientY);
+    interactionBegan(e.shiftKey, client, key);
+  }
+
+  interactionBegan(bool shiftKey, Point client, int key) {
+    if (shiftKey) {
+      actions.addTile(key);
+    } else {
+      actions.setActiveTileKey(key);
+      actions.setActivatePoint(client);
+      actions.showDimmer(DimmerType.WaterOptions);
+    }
   }
 }

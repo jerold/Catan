@@ -20,7 +20,9 @@ class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
   bool shouldComponentUpdate(_, nextState) => nextState['currentDimmer'] != currentDimmer;
 
   render() {
-    if (currentDimmer == DimmerType.TileOptions) {
+    if (currentDimmer == DimmerType.TileOptions
+        || currentDimmer == DimmerType.PlotOptions
+        || currentDimmer == DimmerType.WaterOptions) {
       return ControlPalette({'actions': actions, 'store': store});
     } else if (currentDimmer == DimmerType.ConfirmNewGame) {
       return ConfirmNewGame({'actions': actions, 'store': store});

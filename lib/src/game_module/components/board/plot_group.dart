@@ -58,13 +58,31 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     return react.g({}, children);
   }
 
+  // _handleMouseDown(react.SyntheticMouseEvent e, int key) {
+  //   print('PLOT _handleMouseDown ${new Point(e.clientX, e.clientY)} ${key}');
+  //   // actions.configureControlPalette(new ControlPaletteConfig());
+  // }
+  //
+  // _handleTouchStart(react.SyntheticTouchEvent e, int key) {
+  //   print('PLOT _handleTouchStart ${e.touches} ${key}');
+  //   // actions.configureControlPalette(new ControlPaletteConfig());
+  // }
+
+
   _handleMouseDown(react.SyntheticMouseEvent e, int key) {
-    print('PLOT _handleMouseDown ${new Point(e.clientX, e.clientY)} ${key}');
-    // actions.configureControlPalette(new ControlPaletteConfig());
+    Point client = new Point(e.clientX, e.clientY);
+    interactionBegan(e.shiftKey, client, key);
   }
 
   _handleTouchStart(react.SyntheticTouchEvent e, int key) {
-    print('PLOT _handleTouchStart ${e.touches} ${key}');
-    // actions.configureControlPalette(new ControlPaletteConfig());
+    var firstTouch = e.touches.first;
+    Point client = new Point(firstTouch.clientX, firstTouch.clientY);
+    interactionBegan(e.shiftKey, client, key);
+  }
+
+  interactionBegan(bool shiftKey, Point client, int key) {
+    actions.setActivePlotKey(key);
+    actions.setActivatePoint(client);
+    actions.showDimmer(DimmerType.PlotOptions);
   }
 }

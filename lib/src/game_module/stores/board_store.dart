@@ -13,14 +13,16 @@ class BoardStore extends w_flux.Store {
   Rectangle _viewport = new Rectangle(0, 0, 0, 0);
   Rectangle get viewport => _viewport;
 
-  Player _activePlayer;
-  Player get activePlayer => _activePlayer;
+  int _activePlayerIndex = 0;
+  int get activePlayerIndex => _activePlayerIndex;
+  Player get activePlayer => _board.players.length > 0 ? _board.players[_activePlayerIndex] : null;
 
-  Tile _activeTile;
-  Tile get activeTile => _activeTile;
+  int _activeTileKey;
+  int get activeTileKey => _activeTileKey;
+  Tile get activeTile => _board.tiles[_activeTileKey];
 
-  int _activePlot;
-  int get activePlot => _activePlot;
+  int _activePlotKey;
+  int get activePlotKey => _activePlotKey;
 
   Point _activatePoint = new Point(0,0);
   Point get activatePoint => _activatePoint;
@@ -36,13 +38,15 @@ class BoardStore extends w_flux.Store {
       ..setActiveTileRoll.listen(_handleSetActiveTileRoll)
       ..setActiveTileType.listen(_handleSetActiveTileType)
 
-      ..setActiveTile.listen(_handleSetActiveTile)
-      ..setActivePlot.listen(_handleSetActivePlot)
+      ..setActiveTileKey.listen(_handleSetActiveTileKey)
+      ..setActivePlotKey.listen(_handleSetActivePlotKey)
       ..setActivePlayer.listen(_handleSetActivePlayer)
       ..setActivatePoint.listen(_handleSetActivatePoint)
 
-      ..buildOnActivePlot.listen(_handleBuildOnActivePlot)
-      ..moveThiefToActiveTile.listen(_handleMoveThiefToActiveTile)
+      ..build.listen(_handleBuild)
+      ..unbuild.listen(_handleUnbuild)
+
+      ..moveThief.listen(_handleMoveThief)
       ..roll.listen(_handleRoll)
 
       ..startNewGame.listen(_startNewGame);
@@ -124,7 +128,7 @@ class BoardStore extends w_flux.Store {
   }
 
   _handleSetActivePlayer(Player player) {
-    _activePlayer = player;
+    _activePlayerIndex = _board.players.indexOf(player);
     trigger();
   }
 
@@ -139,22 +143,22 @@ class BoardStore extends w_flux.Store {
   }
 
   _handleSetActiveTileRoll(int newRoll) {
-    _activeTile.roll = newRoll;
+    activeTile.roll = newRoll;
     trigger();
   }
 
   _handleSetActiveTileType(TileType newType) {
-    _activeTile.type = newType;
+    activeTile.type = newType;
     trigger();
   }
 
-  _handleSetActiveTile(Tile tile) {
-    _activeTile = tile;
+  _handleSetActiveTileKey(int tileKey) {
+    _activeTileKey = tileKey;
     trigger();
   }
 
-  _handleSetActivePlot(int plot) {
-    _activePlot = plot;
+  _handleSetActivePlotKey(int plotKey) {
+    _activePlotKey = plotKey;
     trigger();
   }
 
@@ -162,11 +166,26 @@ class BoardStore extends w_flux.Store {
     _activatePoint = newPoint;
   }
 
-  _handleBuildOnActivePlot(PlayerPieceType pieceType) {
+  _handleBuild(PlayerPieceType pieceType) {
+    if (activePlayer == null) return;
+    switch(pieceType) {
+      case PlayerPieceType.Road:
+        activePlayer.roads.add(new Road(activePlotKey));
+        break;
+      case PlayerPieceType.Settlement:
+        activePlayer.settlements.add(new Settlement(activePlotKey));
+        break;
+      case PlayerPieceType.City:
+        activePlayer.cities.add(new City(activePlotKey));
+    }
+    trigger();
+  }
+
+  _handleUnbuild(_) {
 
   }
 
-  _handleMoveThiefToActiveTile(_) {
+  _handleMoveThief(_) {
     if (activeTile != null) {
       board.thiefTileKey = activeTile.key;
       trigger();

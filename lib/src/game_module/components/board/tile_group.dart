@@ -32,6 +32,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         'cy': center.y,
         'r': COORD_SPACING / 5,
         'fill': activeColor,
+        'pointerEvents': 'none',
       }));
     } else {
       List<Point> points = pipPoints(center: center, radius: COORD_SPACING * 0.5, count: chances(tile.roll));
@@ -74,7 +75,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     if (shiftKey) {
       actions.removeTile(tile.key);
     } else {
-      actions.setActiveTile(tile);
+      actions.setActiveTileKey(tile.key);
       actions.setActivatePoint(client);
       actions.showDimmer(DimmerType.TileOptions);
     }

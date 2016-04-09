@@ -13,7 +13,6 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   render() {
-    print('BoardSvg.render()');
     List children = new List();
 
     // Expansions
@@ -31,6 +30,9 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
     if (store.gameState == GameState.Editing && store.editState == EditState.PieceSetup) {
       children.add(PlotGroup({'actions': actions, 'store': store}));
     }
+
+    // Buildings
+    children.add(BuildingGroup({'actions': actions, 'store': store}));
 
     Rectangle viewBox = new Rectangle(
       store.boardStore.viewport.left * COORD_SPACING,

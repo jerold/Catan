@@ -4,7 +4,6 @@ library catan.game_module;
 
 import 'dart:async';
 import 'dart:html';
-import 'dart:js';
 import 'dart:math';
 
 import 'package:react/react.dart' as react;
@@ -34,9 +33,14 @@ part 'game_module/components/playing.dart';
 part 'game_module/components/players.dart';
 
 part 'game_module/components/board/board_svg.dart';
+part 'game_module/components/board/building_group.dart';
 part 'game_module/components/board/plot_group.dart';
 part 'game_module/components/board/tile_group.dart';
 part 'game_module/components/board/water_group.dart';
+
+part 'game_module/palette_configs/plot_config.dart';
+part 'game_module/palette_configs/tile_config.dart';
+part 'game_module/palette_configs/water_config.dart';
 
 part 'game_module/stores/board_store.dart';
 

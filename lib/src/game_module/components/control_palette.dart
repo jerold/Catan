@@ -30,21 +30,6 @@ class ControlPaletteConfig {
   ControlPaletteConfig(this.options);
 }
 
-class TileControlPaletteConfig extends ControlPaletteConfig {
-  factory TileControlPaletteConfig(Tile tile, GameActions actions) {
-    List<PaletteOption> options = [
-      new PaletteOption('theme', () => print('change type')),
-      new PaletteOption('cube', () => print('change roll')),
-      new PaletteOption('user', () => actions.moveThiefToActiveTile()),
-      new PaletteOption('remove', () => actions.removeTile(tile.key)),
-    ];
-    return new TileControlPaletteConfig._internal(options);
-  }
-
-  TileControlPaletteConfig._internal(List<PaletteOption> options) : super(options);
-}
-
-
 var ControlPalette = react.registerComponent(() => new _ControlPalette());
 class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   List<StreamSubscription> _subs = new List<StreamSubscription>();
@@ -60,12 +45,11 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   stateFromStore() {
     Map<String, dynamic> storeState = new Map<String, dynamic>();
     if (store.currentDimmer == DimmerType.TileOptions) {
-      Tile activeTile = store.boardStore.activeTile;
-      storeState['config'] = new TileControlPaletteConfig(activeTile, actions);
+      storeState['config'] = new TileControlPaletteConfig(store.boardStore.activeTile, actions);
     } else if (store.currentDimmer == DimmerType.PlotOptions) {
-      print('PLOT CONFIG');
-      Tile activeTile = store.boardStore.activeTile;
-      storeState['config'] = new TileControlPaletteConfig(activeTile, actions);
+      storeState['config'] = new PlotControlPaletteConfig(store.boardStore.activePlotKey, actions);
+    } else if (store.currentDimmer == DimmerType.WaterOptions) {
+      storeState['config'] = new WaterControlPaletteConfig(store.boardStore.activeTileKey, actions);
     }
     storeState['startPoint'] = store.boardStore.activatePoint;
     storeState['currentPoint'] = store.boardStore.activatePoint;
@@ -76,7 +60,11 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   Map<w_flux.Store, Function> getStoreHandlers() => { store: (_) => setStateFromStore() };
 
-  bool shouldComponentUpdate(_, nextState) => nextState['currentPoint'] != currentPoint;
+  bool shouldComponentUpdate(_, nextState) {
+    return state['startPoint'] != startPoint
+        || nextState['currentPoint'] != currentPoint
+        || nextState['config'] != config;
+  }
 
   componentWillMount() {
     super.componentWillMount();
@@ -165,19 +153,16 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   // }
 
   interactionMoved(Point p) {
-    if (store.currentDimmer == DimmerType.TileOptions || store.currentDimmer == DimmerType.PlotOptions) {
-      if (startPoint.x == 0 && startPoint.y == 0) {
-        print('Need a better way of getting startPoint for control palette!');
-        setState({'currentPoint': p, 'startPoint': p});
-      } else {
-        setState({'currentPoint': p});
-      }
+    if (store.currentDimmer == DimmerType.TileOptions
+        || store.currentDimmer == DimmerType.PlotOptions
+        || store.currentDimmer == DimmerType.WaterOptions) {
+      setState({'currentPoint': p});
     }
   }
 
   interactionEnded(Point p) {
-    callbackSelectedOption();
     actions.hideDimmer();
+    callbackSelectedOption();
   }
 
   callbackSelectedOption() {
