@@ -19,9 +19,7 @@ enum GameState { Editing, Playing }
 enum EditState { BoardSetup, PlayerSetup, PieceSetup }
 
 class GameStore extends w_flux.Store {
-  w_module.DispatchKey _dispatch;
   GameActions _actions;
-  GameEvents _events;
 
   BoardStore _boardStore;
   BoardStore get boardStore => _boardStore;
@@ -35,7 +33,7 @@ class GameStore extends w_flux.Store {
   DimmerType _currentDimmer = DimmerType.None;
   DimmerType get currentDimmer => _currentDimmer;
 
-  GameStore(this._actions, this._events, this._dispatch) {
+  GameStore(this._actions) {
     _actions
       ..setEditState.listen(_handleSetEditState)
       ..setGameState.listen(_handleSetGameState)
@@ -43,20 +41,30 @@ class GameStore extends w_flux.Store {
       ..showDimmer.listen(_handleShowDimmer)
       ..hideDimmer.listen(_handleHideDimmer);
 
-    _boardStore = new BoardStore(_actions, _events, _dispatch);
+    _boardStore = new BoardStore(_actions);
   }
 
   // Handle Dimmer Actions
 
   _handleShowDimmer(DimmerType newDimmer) {
+    print('_handleShowDimmer');
     _currentDimmer = newDimmer;
-    _events.setDimmerVisibility(true, _dispatch);
+    _dimmerVisible = true;
+    // _events.setDimmerVisibility.call(true, _dispatch);
+
+    // context.callMethod(r'$', [SELECTOR_DIMMER]).callMethod(r'dimmer', ['show']);
+
     trigger();
   }
 
   _handleHideDimmer(_) {
+    print('_handleHideDimmer');
     _currentDimmer = DimmerType.None;
-    _events.setDimmerVisibility(false, _dispatch);
+    _dimmerVisible = false;
+    // _events.setDimmerVisibility(false, _dispatch);
+
+    // context.callMethod(r'$', [SELECTOR_DIMMER]).callMethod(r'dimmer', ['hide']);
+
     trigger();
   }
 

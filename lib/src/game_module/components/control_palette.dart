@@ -134,23 +134,20 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   // Specific Handlers
 
-  // _handleMouseDown(MouseEvent e) => interactionBegan(e.client, false);
-  _handleMouseMove(MouseEvent e) => interactionMoved(e.client);
+  _handleMouseMove(MouseEvent e) {
+    interactionMoved(e.client);
+    e.preventDefault();
+  }
   _handleMouseUp(MouseEvent e) => interactionEnded(e.client);
 
-  // _handleTouchStart(TouchEvent e) => interactionBegan(e.touches.first.client, true);
-  _handleTouchMove(TouchEvent e) => interactionMoved(e.touches.first.client);
+  _handleTouchMove(TouchEvent e) {
+    interactionMoved(e.touches.first.client);
+    e.preventDefault();
+  }
   _handleTouchEnd(TouchEvent e) => interactionEnded(e.touches.first.client);
   _handleTouchCancel(TouchEvent e) => interactionEnded(e.touches.first.client);
 
   // Generic Handlers
-
-  // interactionBegan(Point p, bool touch) {
-  //   if (store.paletteConfig == null) return;
-  //   setState({'startPoint': p, 'currentPoint': p});
-  //   if (touch) showPalette();
-  //   else startTimer();
-  // }
 
   interactionMoved(Point p) {
     if (store.currentDimmer == DimmerType.TileOptions

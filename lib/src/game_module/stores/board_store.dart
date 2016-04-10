@@ -3,9 +3,7 @@
 part of catan.game_module;
 
 class BoardStore extends w_flux.Store {
-  w_module.DispatchKey _dispatch;
   GameActions _actions;
-  GameEvents _events;
 
   Board _board;
   Board get board => _board;
@@ -27,7 +25,7 @@ class BoardStore extends w_flux.Store {
   Point _activatePoint = new Point(0,0);
   Point get activatePoint => _activatePoint;
 
-  BoardStore(this._actions, this._events, this._dispatch) {
+  BoardStore(this._actions) {
     _actions
       ..addTile.listen(_handleAddTile)
       ..removeTile.listen(_handleRemoveTile)

@@ -45,22 +45,13 @@ part 'game_module/palette_configs/water_config.dart';
 part 'game_module/stores/board_store.dart';
 
 class GameModule extends w_module.Module {
-  GameApi _api;
   GameComponents _components;
-  GameEvents _events;
-
-  GameApi get api => _api;
   GameComponents get components => _components;
-  GameEvents get events => _events;
 
   GameModule() {
-    w_module.DispatchKey dispatch = new w_module.DispatchKey('GameEvents');
-
     GameActions actions = new GameActions();
-    _events = new GameEvents(dispatch);
-    GameStore store = new GameStore(actions, _events, dispatch);
+    GameStore store = new GameStore(actions);
 
-    _api = new GameApi(actions);
     _components = new GameComponents(actions, store);
   }
 }
