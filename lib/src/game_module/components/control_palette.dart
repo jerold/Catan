@@ -69,18 +69,16 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   componentWillMount() {
     super.componentWillMount();
 
-    // _handlers['_handleMouseDown'] = _handleMouseDown;
+    _handlers['_handleKeyDown'] = _handleKeyDown;
     _handlers['_handleMouseMove'] = _handleMouseMove;
     _handlers['_handleMouseUp'] = _handleMouseUp;
-    // _handlers['_handleTouchStart'] = _handleTouchStart;
     _handlers['_handleTouchMove'] = _handleTouchMove;
     _handlers['_handleTouchEnd'] = _handleTouchEnd;
     _handlers['_handleTouchCancel'] = _handleTouchCancel;
 
-    // _subs.add(document.onMouseDown.listen(_handlers['_handleMouseDown']));
+    _subs.add(document.onKeyDown.listen(_handlers['_handleKeyDown']));
     _subs.add(document.onMouseMove.listen(_handlers['_handleMouseMove']));
     _subs.add(document.onMouseUp.listen(_handlers['_handleMouseUp']));
-    // _subs.add(document.onTouchStart.listen(_handlers['_handleTouchStart']));
     _subs.add(document.onTouchMove.listen(_handlers['_handleTouchMove']));
     _subs.add(document.onTouchEnd.listen(_handlers['_handleTouchEnd']));
     _subs.add(document.onTouchCancel.listen(_handlers['_handleTouchCancel']));
@@ -134,16 +132,32 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   // Specific Handlers
 
-  _handleMouseMove(MouseEvent e) {
-    interactionMoved(e.client);
-    e.preventDefault();
+  // TEMP keyboard event handling until better tile config UX is in
+  _handleKeyDown(KeyboardEvent e) {
+    if (e.keyCode == KeyCode.ONE) actions.setActiveTileType(TILE_TYPES[1]);
+    if (e.keyCode == KeyCode.TWO) actions.setActiveTileType(TILE_TYPES[2]);
+    if (e.keyCode == KeyCode.THREE) actions.setActiveTileType(TILE_TYPES[3]);
+    if (e.keyCode == KeyCode.FOUR) actions.setActiveTileType(TILE_TYPES[4]);
+    if (e.keyCode == KeyCode.FIVE) actions.setActiveTileType(TILE_TYPES[5]);
+    if (e.keyCode == KeyCode.SIX) actions.setActiveTileType(TILE_TYPES[0]);
+
+    if (e.keyCode == KeyCode.TAB) actions.setActiveTileRoll(0);
+    if (e.keyCode == KeyCode.Q) actions.setActiveTileRoll(2);
+    if (e.keyCode == KeyCode.W) actions.setActiveTileRoll(3);
+    if (e.keyCode == KeyCode.E) actions.setActiveTileRoll(4);
+    if (e.keyCode == KeyCode.R) actions.setActiveTileRoll(5);
+    if (e.keyCode == KeyCode.T) actions.setActiveTileRoll(6);
+    if (e.keyCode == KeyCode.Y) actions.setActiveTileRoll(8);
+    if (e.keyCode == KeyCode.U) actions.setActiveTileRoll(9);
+    if (e.keyCode == KeyCode.I) actions.setActiveTileRoll(10);
+    if (e.keyCode == KeyCode.O) actions.setActiveTileRoll(11);
+    if (e.keyCode == KeyCode.P) actions.setActiveTileRoll(12);
   }
+
+  _handleMouseMove(MouseEvent e) => interactionMoved(e.client);
   _handleMouseUp(MouseEvent e) => interactionEnded(e.client);
 
-  _handleTouchMove(TouchEvent e) {
-    interactionMoved(e.touches.first.client);
-    e.preventDefault();
-  }
+  _handleTouchMove(TouchEvent e) => interactionMoved(e.touches.first.client);
   _handleTouchEnd(TouchEvent e) => interactionEnded(e.touches.first.client);
   _handleTouchCancel(TouchEvent e) => interactionEnded(e.touches.first.client);
 
