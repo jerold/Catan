@@ -21,9 +21,15 @@ class Statistic {
   }
 
   bool _updateCache() {
-    if (_values.length > 0) _cachedAvg = _values.fold(0.0, (sum, next) => sum + next) / _values.length;
-    _cachedMax = _values.reduce(max);
-    _cachedMin = _values.reduce(min);
+    if (_values.length > 0) {
+      _cachedAvg = _values.fold(0.0, (sum, next) => sum + next) / _values.length;
+      _cachedMax = _values.reduce(max);
+      _cachedMin = _values.reduce(min);
+    } else {
+      _cachedAvg = 0.0;
+      _cachedMax = 0.0;
+      _cachedMin = 0.0;
+    }
 
     return _perfectCache = true;
   }

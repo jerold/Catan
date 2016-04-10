@@ -25,7 +25,7 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     num utilityRange = utilityStats.getMax() - utilityStats.getMin();
 
     List children = new List();
-    store.boardStore.board.plots.forEach((key) {
+    store.boardStore.board.openPlots().forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
       int utility = store.boardStore.board.utilityOfPlot(key);
       Point center = scaledPoint(coord, store.boardStore.viewport);

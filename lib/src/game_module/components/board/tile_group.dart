@@ -26,7 +26,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       'onTouchStart': _handleTouchStart,
     }));
 
-    if (store.boardStore.board.thiefTileKey == tile.key) {
+    if (store.boardStore.board.thiefKey == tile.key) {
       children.add(react.circle({
         'cx': center.x,
         'cy': center.y,

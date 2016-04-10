@@ -38,5 +38,18 @@ class Player {
     resources[type] = resources[type] - cnt;
   }
 
+  void give(ResourceType resource, int count) {
+    resources[resource] = resources[resource] + count;
+  }
+
+  bool has(ResourceType resource, int count) => resources[resource] >= count;
+
+  void take(ResourceType resource, int count) {
+    resources[resource] = resources[resource] - count;
+  }
+
+  // TODO: Account for longest road & biggest army & VP cards
+  int score() => settlements.length + cities.length * 2;
+
   int get handCount => resources.values.reduce((int prev, int next) => prev + next);
 }

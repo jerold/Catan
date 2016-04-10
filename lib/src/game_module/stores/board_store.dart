@@ -15,7 +15,7 @@ class BoardStore extends w_flux.Store {
 
   int _activePlayerIndex = 0;
   int get activePlayerIndex => _activePlayerIndex;
-  Player get activePlayer => _board.players.length > 0 ? _board.players[_activePlayerIndex] : null;
+  Player get activePlayer => _activePlayerIndex < _board.players.length ? _board.players[_activePlayerIndex] : null;
 
   int _activeTileKey;
   int get activeTileKey => _activeTileKey;
@@ -168,16 +168,7 @@ class BoardStore extends w_flux.Store {
 
   _handleBuild(PlayerPieceType pieceType) {
     if (activePlayer == null) return;
-    switch(pieceType) {
-      case PlayerPieceType.Road:
-        activePlayer.roads.add(new Road(activePlotKey));
-        break;
-      case PlayerPieceType.Settlement:
-        activePlayer.settlements.add(new Settlement(activePlotKey));
-        break;
-      case PlayerPieceType.City:
-        activePlayer.cities.add(new City(activePlotKey));
-    }
+    _board.build(pieceType, activePlotKey, activePlayer);
     trigger();
   }
 
@@ -187,7 +178,7 @@ class BoardStore extends w_flux.Store {
 
   _handleMoveThief(_) {
     if (activeTile != null) {
-      board.thiefTileKey = activeTile.key;
+      board.thiefKey = activeTile.key;
       trigger();
     }
   }

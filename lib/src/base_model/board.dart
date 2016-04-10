@@ -5,15 +5,24 @@ part of catan.base_model;
 
 class Board {
   Map<int, Tile> tiles = new Map<int, Tile>();
-  int thiefTileKey;
+  int thiefKey;
   List<Player> players = new List<Player>();
 
-  Statistic _plotUtilityStats = new Statistic();
+  Economy economy;
+
+  // Tile Dependent Caches
   Set<int> _cachedExpansionTiles = new Set<int>();
   Set<int> _cachedPlots = new Set<int>();
-  Map<int, int> _cachedPlotUtilities = new Map<int, int>();
   Map<ResourceType, List<Tile>> _cachedTilesWithResource = new Map<ResourceType, List<Tile>>();
   Map<ResourceType, int> _cachedResourceChances = new Map<ResourceType, int>();
+  Map<int, int> _cachedPlotUtilities = new Map<int, int>();
+
+  // Tile AND Building Dependent Caches
+  Map<Player, Set<int>> _cachedHandyPlots = new Map<Player, Set<int>>();
+  Map<Player, Set<int>> _cachedHandyEdges = new Map<Player, Set<int>>();
+  Set<int> _cachedOpenPlots = new Set<int>();
+  Set<int> _cachedBlockedPlots = new Set<int>();
+  Statistic _plotUtilityStats = new Statistic(); // stats limited to open plots
 
   List<int> get expansionTiles => new List<int>.from(_cachedExpansionTiles);
   List<int> get plots => new List<int>.from(_cachedPlots);
@@ -21,6 +30,8 @@ class Board {
   Board(List<int> keys, [List<TileType> types, List<int> rolls]) {
     types = types ?? new List<TileType>();
     rolls = rolls ?? new List<int>();
+
+    economy = new Economy(this);
 
     Coordinate.clear();
     Edge.clear();
@@ -41,13 +52,13 @@ class Board {
       if (type == TileType.Desert) {
         if (roll == 0) rollIndex++;
         tiles[key].roll = 0;
-        thiefTileKey = key;
+        thiefKey = key;
       } else {
         rollIndex++;
       }
       typeIndex++;
     });
-    _updateCache();
+    _updateTileDependentCaches();
   }
 
   factory Board.standard() => new Board(
@@ -63,7 +74,7 @@ class Board {
   bool addTile(int key) {
     if (!tiles.containsKey(key)) {
       tiles[key] = new Tile(key);
-      _updateCache();
+      _updateTileDependentCaches();
       return true;
     }
     return false;
@@ -72,13 +83,13 @@ class Board {
   void changeTile(int key, {TileType newType, int newRoll}) {
     if (newType != null) tiles[key].type = newType;
     if (newRoll != null) tiles[key].roll = newRoll;
-    _updateCache();
+    _updateTileDependentCaches();
   }
 
   bool removeTile(int key) {
     if (tiles.containsKey(key)) {
       tiles.remove(key);
-      _updateCache();
+      _updateTileDependentCaches();
       return true;
     }
     return false;
@@ -110,6 +121,22 @@ class Board {
     return playerFound;
   }
 
+  // Building
+
+  void build(PlayerPieceType pieceType, int ployKey, Player player) {
+    switch(pieceType) {
+      case PlayerPieceType.Road:
+        player.roads.add(new Road(ployKey));
+        break;
+      case PlayerPieceType.Settlement:
+        player.settlements.add(new Settlement(ployKey));
+        break;
+      case PlayerPieceType.City:
+        player.cities.add(new City(ployKey));
+    }
+    _updateBuildingDependentCaches();
+  }
+
   // Utility Methods
 
   Statistic plotUtilityStats() => _plotUtilityStats;
@@ -120,8 +147,15 @@ class Board {
 
   int resourceChances(ResourceType type) => _cachedResourceChances[type];
 
-  _updateCache() {
-    _plotUtilityStats.clear();
+  List<int> handyPlots(Player player) => new List<int>.from(_cachedHandyPlots[player]);
+
+  List<int> handyEdges(Player player) => new List<int>.from(_cachedHandyEdges[player]);
+
+  List<int> openPlots() => new List<int>.from(_cachedOpenPlots);
+
+  List<int> blockedPlots() => new List<int>.from(_cachedBlockedPlots);
+
+  _updateTileDependentCaches() {
     _cachedExpansionTiles.clear();
     _cachedPlots.clear();
     _cachedPlotUtilities.clear();
@@ -156,7 +190,57 @@ class Board {
         }).map((key) => tiles[key])
       );
       _cachedPlotUtilities[key] = nTiles.fold(0, (sum, tile) => sum + chances(tile.roll));
+    });
+
+    _updateBuildingDependentCaches();
+  }
+
+  _updateBuildingDependentCaches() {
+    _plotUtilityStats.clear();
+    _cachedBlockedPlots.clear();
+    _cachedOpenPlots.clear();
+    _cachedHandyEdges.clear();
+    _cachedHandyPlots.clear();
+
+    // update _cachedBlockedPlots
+    // Set<int> _cachedBlockedPlots = new Set<int>();
+    // _cachedBlockedPlots = new Set<int>.from(_cachedPlots);
+    players.forEach((player) {
+      List<Building> buildings = new List<Building>();
+      buildings.addAll(player.settlements);
+      buildings.addAll(player.cities);
+      buildings.forEach((building) {
+        _cachedBlockedPlots.add(building.key);
+        _cachedBlockedPlots.addAll(building.neighbors(PieceType.Plot));
+      });
+    });
+    _cachedBlockedPlots = _cachedBlockedPlots.intersection(_cachedPlots);
+
+    // update _cachedOpenPlots
+    _cachedOpenPlots = new Set<int>.from(_cachedPlots);
+    _cachedOpenPlots.removeAll(_cachedBlockedPlots);
+
+    // update _plotUtilityStats
+    _cachedOpenPlots.forEach((key) {
       _plotUtilityStats.add(_cachedPlotUtilities[key]);
+    });
+
+    // update _cachedHandyPlots AND _cachedHandyEdges
+    players.forEach((player) {
+      _cachedHandyPlots[player] = new Set<int>();
+      _cachedHandyEdges[player] = new Set<int>();
+      player.roads.forEach((road) {
+        road.edge.ends().forEach((end) {
+          _cachedHandyPlots[player].add(end.key);
+          end.neighbors(ofType: CoordinateType.Plot).forEach((_, key) {
+            if (plots.contains(key)) {
+              _cachedHandyEdges[player].add(Edge.getKey(end.key, key));
+            }
+          });
+        });
+        _cachedHandyPlots[player].addAll(road.edge.ends().map((end) => end.key));
+      });
+      blockedPlots().forEach((key) => _cachedHandyPlots[player].remove(key));
     });
   }
 }
