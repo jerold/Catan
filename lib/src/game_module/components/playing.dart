@@ -12,8 +12,9 @@ class _Playing extends w_flux.FluxComponent<GameActions, GameStore> {
       Players({'actions': actions, 'store': store}),
       react.div({'className': 'ui horizontal divider'}, 'Player 1\'s turn'),
       BoardSvg({'actions': actions, 'store': store}),
+      CurrentTurnOptions({'actions': actions, 'store': store}),
       react.div({'className': 'ui horizontal divider'}, 'History'),
-      History({'actions': actions, 'store': store}),
+      HistoryList({'actions': actions, 'store': store}),
     ]);
   }
 }

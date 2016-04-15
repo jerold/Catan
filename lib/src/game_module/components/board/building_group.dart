@@ -15,7 +15,7 @@ class _BuildingGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     List children = new List();
     store.boardStore.board.players.forEach((player) {
-      player.settlements.forEach((settlement) {
+      player.settlements.forEach((sKey, settlement) {
         Coordinate coord = Coordinate.fromKey(settlement.key);
         Point center = scaledPoint(coord, store.boardStore.viewport);
         children.add(react.circle({
@@ -29,7 +29,7 @@ class _BuildingGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         }));
       });
 
-      player.cities.forEach((city) {
+      player.cities.forEach((cKey, city) {
         Coordinate coord = Coordinate.fromKey(city.key);
         Point center = scaledPoint(coord, store.boardStore.viewport);
         children.add(react.circle({

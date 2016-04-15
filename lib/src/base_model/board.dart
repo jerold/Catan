@@ -121,22 +121,6 @@ class Board {
     return playerFound;
   }
 
-  // Building
-
-  void build(PlayerPieceType pieceType, int ployKey, Player player) {
-    switch(pieceType) {
-      case PlayerPieceType.Road:
-        player.roads.add(new Road(ployKey));
-        break;
-      case PlayerPieceType.Settlement:
-        player.settlements.add(new Settlement(ployKey));
-        break;
-      case PlayerPieceType.City:
-        player.cities.add(new City(ployKey));
-    }
-    _updateBuildingDependentCaches();
-  }
-
   // Utility Methods
 
   Statistic plotUtilityStats() => _plotUtilityStats;
@@ -203,12 +187,10 @@ class Board {
     _cachedHandyPlots.clear();
 
     // update _cachedBlockedPlots
-    // Set<int> _cachedBlockedPlots = new Set<int>();
-    // _cachedBlockedPlots = new Set<int>.from(_cachedPlots);
     players.forEach((player) {
       List<Building> buildings = new List<Building>();
-      buildings.addAll(player.settlements);
-      buildings.addAll(player.cities);
+      buildings.addAll(new List<Building>.from(player.settlements.values));
+      buildings.addAll(new List<Building>.from(player.cities.values));
       buildings.forEach((building) {
         _cachedBlockedPlots.add(building.key);
         _cachedBlockedPlots.addAll(building.neighbors(PieceType.Plot));
@@ -229,7 +211,7 @@ class Board {
     players.forEach((player) {
       _cachedHandyPlots[player] = new Set<int>();
       _cachedHandyEdges[player] = new Set<int>();
-      player.roads.forEach((road) {
+      player.roads.forEach((rKey, road) {
         road.edge.ends().forEach((end) {
           _cachedHandyPlots[player].add(end.key);
           end.neighbors(ofType: CoordinateType.Plot).forEach((_, key) {

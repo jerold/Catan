@@ -19,58 +19,133 @@ final Map<PlayerPieceType, Map<ResourceType, int>> RATES = new Map<PlayerPieceTy
     ResourceType.Wheat: 2,
   };
 
-
 class TradePayload {
   Map<ResourceType, int> _exchange = new Map<ResourceType, int>();
   Map<ResourceType, int> get exchange => new Map<ResourceType, int>.from(_exchange);
 
-  Player _player;
-  Player get player => _player;
+  Player _payee;
+  Player get payee => _payee;
 
-  TradePayload(this._player);
+  Player _payer;
+  Player get payer => _payer;
 
-  bool deposit(ResourceType resource, int count) {
-    if (_player.has(resource, count)) {
-      if (!_exchange.containsKey(resource)) _exchange[resource] = 0;
-      _exchange[resource] = _exchange[resource] + count;
-      _player.take(resource, count);
-      return true;
-    }
-    return false;
+  TradePayload({Player payee, Player payer}) : _payee = payee, _payer = payer;
+
+  /// the [trade] function takes # resources from _player and give them to _recipient.
+  trade(ResourceType resource, int count) {
+    if (resource == null || count <= 0) return false;
+
+    if (!_exchange.containsKey(resource)) _exchange[resource] = 0;
+    _exchange[resource] = _exchange[resource] + count;
+
+    if (_payer != null) _payer.removeResource(count, resource);
+    if (_payee != null) _payee.addResource(count, resource);
+
+    if (_payer != null) print('Payer ${_payer.color} - ${count} ${resource}');
+    if (_payee != null) print('Payee ${_payee.color} + ${count} ${resource}');
   }
 
-  /// The [cancel] function returns deposit to the player
-  void cancel() {
-    _exchange.forEach((resource, count) => _player.give(resource, count));
+  /// the [revoke] function returns any traded resources to the payer.
+  void revoke() {
+    _exchange.forEach((resource, count) {
+      _payer.addResource(count, resource);
+      if (_payee != null) _payee.removeResource(count, resource);
+      _exchange[resource] = 0;
+    });
+  }
+}
+
+class BuildPayload extends TradePayload {
+  PlayerPieceType _piece;
+  PlayerPieceType get piece => _piece;
+
+  int _key;
+  int get key => _key;
+
+  bool _built = false;
+  bool get built => _built;
+
+  BuildPayload(Player player) : super(payer: player);
+
+  build(PlayerPieceType piece, int key) {
+    if (_built) return false;
+
+    RATES[piece].forEach((resource, count) {
+      _piece = piece;
+      _key = key;
+      trade(resource, count);
+    });
+
+    payer.addPiece(_key, _piece);
+
+    if (_payer != null) print('Build ${_payer.color} + ${_piece} ${_key}');
   }
 
-  /// The [complete] function gives the deposit to a recipient or returns it to the void.
-  void complete([Player recipient]) {
-    if (recipient != null) {
-      _exchange.forEach((resource, count) => recipient.give(resource, count));
-    }
+  @override
+  void revoke() {
+    payer.removePiece(_key, _piece);
+    super.revoke();
+  }
+}
+
+class RollPayload {
+  int roll;
+
+  List<TradePayload> _harvestTrades = new List<TradePayload>();
+  List<TradePayload> get harvestTrades => _harvestTrades;
+
+  RollPayload(this.roll);
+
+  harvest(int count, ResourceType resource, Player player) {
+    TradePayload payload = new TradePayload(payee: player);
+    payload.trade(resource, count);
+    _harvestTrades.add(payload);
+  }
+
+  void revoke() {
+    _harvestTrades.forEach((trade) => trade.revoke());
   }
 }
 
 class Economy {
+  List<RollPayload> rolls = new List<RollPayload>();
+  List<TradePayload> trades = new List<TradePayload>();
+  List<BuildPayload> builds = new List<BuildPayload>();
+
   Board _board;
 
   Economy(this._board);
 
-  canAfford(PlayerPieceType pieceType, Player player) {
+  canBuild(PlayerPieceType piece, Player player) {
     bool stillCan = true;
-    RATES[pieceType].forEach((resource, count) {
-      stillCan = stillCan && player.has(resource, count);
+    RATES[piece].forEach((resource, count) {
+      stillCan = stillCan && player.resourceCount(resource) >= count;
     });
     return stillCan;
   }
 
-  doBuy(PlayerPieceType pieceType, Player player) {
-    RATES[pieceType].forEach((resource, count) => player.take(resource, count));
+  doBuild(PlayerPieceType piece, int key, Player player) {
+    BuildPayload payload = new BuildPayload(player)
+      ..build(piece, key);
+    builds.insert(0, payload);
   }
 
-  doTrade(TradePayload dis, [TradePayload dat]) {
-    dis.complete(dat?.player);
-    dat?.complete(dis.player);
+  doRoll(int roll) {
+    RollPayload payload = new RollPayload(roll);
+    _board.tiles.forEach((key, tile) {
+      if (tile.roll == roll) {
+        tile.neighbors(PieceType.Plot).forEach((key) {
+          _board.players.forEach((player) {
+            Building piece = (player.getPiece(key) as Building);
+            if (piece != null) payload.harvest(piece.production, tile.resource, player);
+          });
+        });
+      }
+    });
+    rolls.insert(0, payload);
+  }
+
+  doTrade(TradePayload payload) {
+    trades.insert(0, payload);
   }
 }

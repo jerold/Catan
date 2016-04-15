@@ -166,8 +166,12 @@ class BoardStore extends w_flux.Store {
 
   _handleBuild(PlayerPieceType pieceType) {
     if (activePlayer == null) return;
-    _board.build(pieceType, activePlotKey, activePlayer);
-    trigger();
+    if (_board.economy.canBuild(pieceType, activePlayer)) {
+      _board.economy.doBuild(pieceType, activePlotKey, activePlayer);
+      trigger();
+    } else {
+      print('Player ${activePlayer.color} can not afford a ${pieceType}');
+    }
   }
 
   _handleUnbuild(_) {
@@ -182,6 +186,7 @@ class BoardStore extends w_flux.Store {
   }
 
   _handleRoll(int roll) {
-
+    _board.economy.doRoll(roll);
+    trigger();
   }
 }

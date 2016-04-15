@@ -20,7 +20,6 @@ class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
   Map<w_flux.Store, Function> getStoreHandlers() => { store: (_) => setStateFromStore() };
 
   bool shouldComponentUpdate(_, nextState) {
-    print('shouldComponentUpdate');
     return nextState['currentDimmer'] != currentDimmer || nextState['visible'] != visible;
   }
 
@@ -32,6 +31,8 @@ class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
       dimmerChild = ControlPalette({'actions': actions, 'store': store});
     } else if (currentDimmer == DimmerType.ConfirmNewGame) {
       dimmerChild = ConfirmNewGame({'actions': actions, 'store': store});
+    } else if (currentDimmer == DimmerType.Roll) {
+      dimmerChild = Roll({'actions': actions, 'store': store});
     }
     return react.div({
       'className': 'ui page dimmer',

@@ -19,13 +19,11 @@ part 'game_module/events.dart';
 part 'game_module/store.dart';
 
 part 'game_module/components/board_setup.dart';
-part 'game_module/components/confirm_new_game.dart';
-part 'game_module/components/history.dart';
-part 'game_module/components/control_palette.dart';
-part 'game_module/components/dimmer.dart';
+part 'game_module/components/current_turn_options.dart';
 part 'game_module/components/editing_state_selector.dart';
 part 'game_module/components/editing.dart';
 part 'game_module/components/helper.dart';
+part 'game_module/components/history_list.dart';
 part 'game_module/components/main_menu.dart';
 part 'game_module/components/pie_chart.dart';
 part 'game_module/components/player_setup.dart';
@@ -37,6 +35,11 @@ part 'game_module/components/board/building_group.dart';
 part 'game_module/components/board/plot_group.dart';
 part 'game_module/components/board/tile_group.dart';
 part 'game_module/components/board/water_group.dart';
+
+part 'game_module/components/dimmers/confirm_new_game.dart';
+part 'game_module/components/dimmers/control_palette.dart';
+part 'game_module/components/dimmers/dimmer.dart';
+part 'game_module/components/dimmers/roll.dart';
 
 part 'game_module/palette_configs/plot_config.dart';
 part 'game_module/palette_configs/tile_config.dart';

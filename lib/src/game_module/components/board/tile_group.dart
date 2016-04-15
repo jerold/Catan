@@ -22,6 +22,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       'fill': tileTypeToColor(tile.type),
       'stroke': 'white',
       'strokeWidth': '2',
+      'onClick': _handleOnClick,
       'onMouseDown': _handleMouseDown,
       'onTouchStart': _handleTouchStart,
     }));
@@ -69,6 +70,10 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     var firstTouch = e.touches.first;
     Point client = new Point(firstTouch.clientX, firstTouch.clientY);
     interactionBegan(e.shiftKey, client);
+  }
+
+  _handleOnClick(react.SyntheticEvent e) {
+    print('_handleOnClick ${e.runtimeType}');
   }
 
   interactionBegan(bool shiftKey, Point client) {

@@ -17,6 +17,7 @@ const String SELECTOR_DIMMER = '#helper-dimmer';
 enum DimmerType { ConfirmNewGame, TileOptions, PlotOptions, WaterOptions, Roll, Trade, None }
 enum GameState { Editing, Playing }
 enum EditState { BoardSetup, PlayerSetup, PieceSetup }
+enum PlayState { Roll, Trade, Build }
 
 class GameStore extends w_flux.Store {
   GameActions _actions;
@@ -47,7 +48,6 @@ class GameStore extends w_flux.Store {
   // Handle Dimmer Actions
 
   _handleShowDimmer(DimmerType newDimmer) {
-    print('_handleShowDimmer');
     _currentDimmer = newDimmer;
     _dimmerVisible = true;
     // _events.setDimmerVisibility.call(true, _dispatch);
@@ -58,7 +58,6 @@ class GameStore extends w_flux.Store {
   }
 
   _handleHideDimmer(_) {
-    print('_handleHideDimmer');
     _currentDimmer = DimmerType.None;
     _dimmerVisible = false;
     // _events.setDimmerVisibility(false, _dispatch);

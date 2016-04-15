@@ -2,29 +2,9 @@
 
 part of catan.game_module;
 
-var History = react.registerComponent(() => new _History());
-class _History extends w_flux.FluxComponent<GameActions, GameStore> {
+var HistoryList = react.registerComponent(() => new _HistoryList());
+class _HistoryList extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
-    var topItem = react.div({'className': 'ui center aligned inverted segment'}, [
-      react.div({'className': 'ui three column very relaxed grid'}, [
-        react.div({'className': 'column'}, [
-          react.h4({'className': 'header'}, 'Roll'),
-        ]),
-        react.div({'className': 'ui vertical divider'}, [
-          react.i({'className': 'inverted chevron right icon'}),
-        ]),
-        react.div({'className': 'column'}, [
-          react.h4({'className': 'header'}, 'Trade'),
-        ]),
-        react.div({'className': 'ui vertical divider'}, [
-          react.i({'className': 'inverted chevron right icon'}),
-        ]),
-        react.div({'className': 'column'}, [
-          react.h4({'className': 'header'}, 'Build'),
-        ]),
-      ]),
-    ]);
-
     List historyItems = new List();
     [PlayerColorRed, PlayerColorBlue, PlayerColorGrey].forEach((color) {
       historyItems.add(react.div({'className': 'ui grid'}, [
@@ -50,9 +30,8 @@ class _History extends w_flux.FluxComponent<GameActions, GameStore> {
         ]),
       ]));
     });
-    
+
     return react.div({'className': 'ui left aligned basic segment'}, [
-      topItem,
       react.div({'className': 'ui divided items'}, historyItems),
     ]);
   }
