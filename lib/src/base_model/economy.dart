@@ -128,12 +128,13 @@ class Economy {
     BuildPayload payload = new BuildPayload(player)
       ..build(piece, key);
     builds.insert(0, payload);
+    _board._updateBuildingDependentCaches();
   }
 
   doRoll(int roll) {
     RollPayload payload = new RollPayload(roll);
     _board.tiles.forEach((key, tile) {
-      if (tile.roll == roll) {
+      if (tile.roll == roll && key != _board.thiefKey) {
         tile.neighbors(PieceType.Plot).forEach((key) {
           _board.players.forEach((player) {
             Building piece = (player.getPiece(key) as Building);
