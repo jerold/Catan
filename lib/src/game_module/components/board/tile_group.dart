@@ -19,7 +19,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
     children.add(react.polygon({
       'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
-      'fill': tileTypeToColor(tile.type),
+      'fill': tileTypeToColor(tile.terrain),
       'stroke': 'white',
       'strokeWidth': '2',
       'onClick': _handleOnClick,
@@ -56,7 +56,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
           'fontSize': 20,
           'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
         }
-      }, '${tile.type != TileType.Desert ? tile.roll.toString() : ""}'));
+      }, '${tile.type != Terrain.Desert ? tile.roll.toString() : ""}'));
     }
     return react.g({}, children);
   }

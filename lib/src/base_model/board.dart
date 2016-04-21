@@ -4,17 +4,23 @@ part of catan.base_model;
 
 
 class Board {
-  Map<int, Tile> tiles = new Map<int, Tile>();
+  Map<PieceType, Map<int, Piece>> _pieces;
+
+  Map<int, EdgePiece> get edges => _pieces[PieceType.Edge]; // roads
+  Map<int, PlotPiece> get plots => _pieces[PieceType.Plot]; // buildings
+  Map<int, TilePiece> get tiles => _pieces[PieceType.Tile]; // tiles and ports
+
+  List<Player> players;
+
   int thiefKey;
-  List<Player> players = new List<Player>();
 
   Economy economy;
 
   // Tile Dependent Caches
   Set<int> _cachedExpansionTiles = new Set<int>();
   Set<int> _cachedPlots = new Set<int>();
-  Map<ResourceType, List<Tile>> _cachedTilesWithResource = new Map<ResourceType, List<Tile>>();
-  Map<ResourceType, int> _cachedResourceChances = new Map<ResourceType, int>();
+  Map<Resource, List<Tile>> _cachedTilesWithResource = new Map<Resource, List<Tile>>();
+  Map<Resource, int> _cachedResourceChances = new Map<Resource, int>();
   Map<int, int> _cachedPlotUtilities = new Map<int, int>();
 
   // Tile AND Building Dependent Caches
@@ -25,10 +31,10 @@ class Board {
   Statistic _plotUtilityStats = new Statistic(); // stats limited to open plots
 
   List<int> get expansionTiles => new List<int>.from(_cachedExpansionTiles);
-  List<int> get plots => new List<int>.from(_cachedPlots);
+  // List<int> get plots => new List<int>.from(_cachedPlots);
 
-  Board(List<int> keys, [List<TileType> types, List<int> rolls]) {
-    types = types ?? new List<TileType>();
+  Board(List<int> keys, [List<Terrain> terrains, List<int> rolls]) {
+    terrains = terrains ?? new List<Terrain>();
     rolls = rolls ?? new List<int>();
 
     economy = new Economy(this);
@@ -36,34 +42,38 @@ class Board {
     Coordinate.clear();
     Edge.clear();
 
-    tiles = new Map<int, Tile>();
+    _pieces = new Map<PieceType, Map<int, Piece>>();
+    _pieces[PieceType.Edge] = new Map<int, EdgePiece>();
+    _pieces[PieceType.Plot] = new Map<int, PlotPiece>();
+    _pieces[PieceType.Tile] = new Map<int, TilePiece>();
+
     players = new List<Player>();
 
     addPlayer(new Player(PlayerColorRed));
     addPlayer(new Player(PlayerColorGrey));
     addPlayer(new Player(PlayerColorBlue));
 
-    int typeIndex = 0;
+    int terrainIndex = 0;
     int rollIndex = 0;
     keys.forEach((key) {
-      TileType type = typeIndex < types.length ? types[typeIndex] : null;
+      Terrain terrain = terrainIndex < terrains.length ? terrains[terrainIndex] : null;
       int roll = rollIndex < rolls.length ? rolls[rollIndex] : null;;
-      tiles[key] = new Tile(key, type: type, roll: roll);
-      if (type == TileType.Desert) {
+      tiles[key] = new Tile(key, terrain: terrain, roll: roll);
+      if (terrain == Terrain.Desert) {
         if (roll == 0) rollIndex++;
-        tiles[key].roll = 0;
+        (tiles[key] as Tile).roll = 0;
         thiefKey = key;
       } else {
         rollIndex++;
       }
-      typeIndex++;
+      terrainIndex++;
     });
     _updateTileDependentCaches();
   }
 
   factory Board.standard() => new Board(
     standardDealKeys,
-    new List<TileType>.from(defaultTiles)..shuffle(),
+    new List<Terrain>.from(defaultTiles)..shuffle(),
     standardOrderTokens
   );
 
@@ -80,9 +90,9 @@ class Board {
     return false;
   }
 
-  void changeTile(int key, {TileType newType, int newRoll}) {
-    if (newType != null) tiles[key].type = newType;
-    if (newRoll != null) tiles[key].roll = newRoll;
+  void changeTile(int key, {Terrain terrain, int roll}) {
+    if (terrain != null) (tiles[key] as Tile).terrain = terrain;
+    if (roll != null) (tiles[key] as Tile).roll = roll;
     _updateTileDependentCaches();
   }
 
@@ -121,15 +131,21 @@ class Board {
     return playerFound;
   }
 
+  // Change Pieces
+
+  addPiece(Piece piece) => _pieces[piece.type][piece.key] = piece;
+
+  removePiece(Piece piece) => _pieces[piece.type].remove(piece.key);
+
   // Utility Methods
 
   Statistic plotUtilityStats() => _plotUtilityStats;
 
   int utilityOfPlot(int key) => _cachedPlotUtilities[key];
 
-  List<Tile> tilesWithResource(ResourceType type) => new List<Tile>.from(_cachedTilesWithResource[type]);
+  List<Tile> tilesWithResource(Resource type) => new List<Tile>.from(_cachedTilesWithResource[type]);
 
-  int resourceChances(ResourceType type) => _cachedResourceChances[type];
+  int resourceChances(Resource type) => _cachedResourceChances[type];
 
   List<int> handyPlots(Player player) => new List<int>.from(_cachedHandyPlots[player]);
 
@@ -147,9 +163,9 @@ class Board {
     _cachedResourceChances.clear();
 
     // init empty tiles-with-resources maps
-    RESOURCE_TYPES.forEach((type) {
-      _cachedTilesWithResource[type] = new List<Tile>();
-      _cachedResourceChances[type] = 0;
+    RESOURCES.forEach((resource) {
+      _cachedTilesWithResource[resource] = new List<Tile>();
+      _cachedResourceChances[resource] = 0;
     });
 
     // update _cachedTilesWithResource, _cachedExpansionTiles, and _cachedPlots
@@ -161,8 +177,8 @@ class Board {
     _cachedExpansionTiles.removeAll(tiles.keys);
 
     // update _cachedResourceChances
-    RESOURCE_TYPES.forEach((type) {
-      _cachedResourceChances[type] = _cachedTilesWithResource[type].fold(0, (sum, next) => sum + chances(next.roll));
+    RESOURCES.forEach((resource) {
+      _cachedResourceChances[resource] = _cachedTilesWithResource[resource].fold(0, (sum, next) => sum + chances(next.roll));
     });
 
     // update _cachedPlotUtilities
@@ -187,14 +203,9 @@ class Board {
     _cachedHandyPlots.clear();
 
     // update _cachedBlockedPlots
-    players.forEach((player) {
-      List<Building> buildings = new List<Building>();
-      buildings.addAll(new List<Building>.from(player.settlements.values));
-      buildings.addAll(new List<Building>.from(player.cities.values));
-      buildings.forEach((building) {
-        _cachedBlockedPlots.add(building.key);
-        _cachedBlockedPlots.addAll(building.neighbors(PieceType.Plot));
-      });
+    plots.forEach((pKey, plot) {
+      _cachedBlockedPlots.add(pKey);
+      _cachedBlockedPlots.addAll(plot.neighbors(PieceType.Plot));
     });
     _cachedBlockedPlots = _cachedBlockedPlots.intersection(_cachedPlots);
 
@@ -211,17 +222,22 @@ class Board {
     players.forEach((player) {
       _cachedHandyPlots[player] = new Set<int>();
       _cachedHandyEdges[player] = new Set<int>();
-      player.roads.forEach((rKey, road) {
+    });
+    edges.forEach((eKey, edge) {
+      if (edge is Road) {
+        Road road = edge;
         road.edge.ends().forEach((end) {
-          _cachedHandyPlots[player].add(end.key);
+          _cachedHandyPlots[road.owner].add(end.key);
           end.neighbors(ofType: CoordinateType.Plot).forEach((_, key) {
-            if (plots.contains(key)) {
-              _cachedHandyEdges[player].add(Edge.getKey(end.key, key));
+            if (_cachedOpenPlots.contains(key)) {
+              _cachedHandyEdges[road.owner].add(Edge.getKey(end.key, key));
             }
           });
         });
-        _cachedHandyPlots[player].addAll(road.edge.ends().map((end) => end.key));
-      });
+        _cachedHandyPlots[road.owner].addAll(road.edge.ends().map((end) => end.key));
+      }
+    });
+    players.forEach((player) {
       blockedPlots().forEach((key) => _cachedHandyPlots[player].remove(key));
     });
   }

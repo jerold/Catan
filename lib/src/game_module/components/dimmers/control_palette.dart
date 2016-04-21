@@ -134,12 +134,12 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   // TEMP keyboard event handling until better tile config UX is in
   _handleKeyDown(KeyboardEvent e) {
-    if (e.keyCode == KeyCode.ONE) actions.setActiveTileType(TILE_TYPES[1]);
-    if (e.keyCode == KeyCode.TWO) actions.setActiveTileType(TILE_TYPES[2]);
-    if (e.keyCode == KeyCode.THREE) actions.setActiveTileType(TILE_TYPES[3]);
-    if (e.keyCode == KeyCode.FOUR) actions.setActiveTileType(TILE_TYPES[4]);
-    if (e.keyCode == KeyCode.FIVE) actions.setActiveTileType(TILE_TYPES[5]);
-    if (e.keyCode == KeyCode.SIX) actions.setActiveTileType(TILE_TYPES[0]);
+    if (e.keyCode == KeyCode.ONE) actions.setActiveTerrain(TERRAINS[1]);
+    if (e.keyCode == KeyCode.TWO) actions.setActiveTerrain(TERRAINS[2]);
+    if (e.keyCode == KeyCode.THREE) actions.setActiveTerrain(TERRAINS[3]);
+    if (e.keyCode == KeyCode.FOUR) actions.setActiveTerrain(TERRAINS[4]);
+    if (e.keyCode == KeyCode.FIVE) actions.setActiveTerrain(TERRAINS[5]);
+    if (e.keyCode == KeyCode.SIX) actions.setActiveTerrain(TERRAINS[0]);
 
     if (e.keyCode == KeyCode.TAB) actions.setActiveTileRoll(0);
     if (e.keyCode == KeyCode.Q) actions.setActiveTileRoll(2);

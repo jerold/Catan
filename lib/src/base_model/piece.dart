@@ -2,9 +2,14 @@
 
 part of catan.base_model;
 
+enum PieceType { Edge, Plot, Tile }
+const List<PieceType> PIECE_TYPES = PieceType.values;
 
-enum PieceType {
-  Edge, Plot, Tile,
+enum GamePieceType { City, Port, Road, Settlement, Tile }
+const List<GamePieceType> GAME_PIECE_TYPES = GamePieceType.values;
+
+abstract class Owned {
+  Player get owner;
 }
 
 abstract class Piece {
@@ -12,10 +17,32 @@ abstract class Piece {
 
   int get key => _key;
 
+  PieceType _type;
+  PieceType get type => _type;
+
   Map<PieceType, Set<int>> _neighborCache;
 
-  Piece(this._key) {
+  Piece(this._key, this._type) {
     _updateCache();
+  }
+
+  factory Piece.ofType(GamePieceType type, int key, {Player owner}) {
+    switch(type) {
+      case GamePieceType.City:
+        if (owner != null) return new City(key, owner);
+        break;
+      case GamePieceType.Road:
+        if (owner != null) return new Road(key, owner);
+        break;
+      case GamePieceType.Settlement:
+        if (owner != null) return new Settlement(key, owner);
+        break;
+      case GamePieceType.Tile:
+        return new Tile(key);
+      default:
+        print("WARNING!!! Could not construct a Piece.ofType ${type} at ${key} for ${owner}");
+        return null;
+    }
   }
 
   void _updateCache() {
@@ -28,11 +55,11 @@ abstract class Piece {
   List<int> neighbors(PieceType type) => new List<int>.from(_neighborCache[type]);
 }
 
-
+/// edge piece keys map to an edge existing between two adjacent plots
 class EdgePiece extends Piece {
   Edge get edge => Edge.fromKey(key);
 
-  EdgePiece(int key) : super(key) {
+  EdgePiece(int key) : super(key, PieceType.Edge) {
     if (!Edge.validKey(key)) {
       print("WARNING!!! ${this.runtimeType} can only exist between two adjacent Plot coordinates");
     }
@@ -66,12 +93,12 @@ class EdgePiece extends Piece {
   String toString() => "${this.runtimeType}${Edge.validKey(key) ? '' : '!!!'} ${edge}";
 }
 
-
+/// tile and plot pieces are both node pieces as their key maps to a coordinate
 class NodePiece extends Piece {
   Coordinate get coordinate => Coordinate.fromKey(key);
   CoordinateType _legalType;
 
-  NodePiece(int key, this._legalType) : super(key) {
+  NodePiece(int key, this._legalType, PieceType type) : super(key, type) {
     if (!Coordinate.validKey(key) || coordinate.type != _legalType) {
       print("WARNING!!! ${this.runtimeType} can not be placed on a ${coordinate.type}");
     }
@@ -82,7 +109,7 @@ class NodePiece extends Piece {
 
 
 class TilePiece extends NodePiece {
-  TilePiece(int key) : super(key, CoordinateType.Tile);
+  TilePiece(int key) : super(key, CoordinateType.Tile, PieceType.Tile);
 
   void _updateCache() {
     super._updateCache();
@@ -111,7 +138,7 @@ class TilePiece extends NodePiece {
 
 
 class PlotPiece extends NodePiece {
-  PlotPiece(int key) : super(key, CoordinateType.Plot);
+  PlotPiece(int key) : super(key, CoordinateType.Plot, PieceType.Plot);
 
   void _updateCache() {
     super._updateCache();
@@ -131,13 +158,4 @@ class PlotPiece extends NodePiece {
       _neighborCache[PieceType.Tile].add(nKey);
     });
   }
-}
-
-
-class Building extends PlotPiece {
-  final int production;
-
-	Building(int key, this.production) : super(key);
-
-  String toString() => "${super.toString()}:${production}";
 }

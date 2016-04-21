@@ -14,13 +14,13 @@ List<int> standardDealKeys = [
   4044, 3843, 3841, 3839, 4038, 4139, 4141, 4042, 4040
 ];
 
-List<TileType> defaultTiles = [
-  TileType.Desert,
-  TileType.Pasture, TileType.Pasture, TileType.Pasture, TileType.Pasture,
-  TileType.Field, TileType.Field, TileType.Field, TileType.Field,
-  TileType.Forest, TileType.Forest, TileType.Forest, TileType.Forest,
-  TileType.Hill, TileType.Hill, TileType.Hill,
-  TileType.Mountain, TileType.Mountain, TileType.Mountain,
+List<Terrain> defaultTiles = [
+  Terrain.Desert,
+  Terrain.Pasture, Terrain.Pasture, Terrain.Pasture, Terrain.Pasture,
+  Terrain.Field, Terrain.Field, Terrain.Field, Terrain.Field,
+  Terrain.Forest, Terrain.Forest, Terrain.Forest, Terrain.Forest,
+  Terrain.Hill, Terrain.Hill, Terrain.Hill,
+  Terrain.Mountain, Terrain.Mountain, Terrain.Mountain,
 ];
 
 List<int> defaultTokens = [
@@ -58,54 +58,54 @@ const String TileStringMountain = 'M';
 
 
 
-String stringFromTileType(TileType type) {
+String stringFromTerrain(Terrain type) {
   switch(type) {
-    case TileType.Pasture:
+    case Terrain.Pasture:
       return TileStringPasture;
-    case TileType.Field:
+    case Terrain.Field:
       return TileStringField;
-    case TileType.Forest:
+    case Terrain.Forest:
       return TileStringForest;
-    case TileType.Hill:
+    case Terrain.Hill:
       return TileStringHill;
-    case TileType.Mountain:
+    case Terrain.Mountain:
       return TileStringMountain;
     default:
       return TileStringDesert;
   }
 }
 
-String stringFromResourceType(ResourceType type) {
+String stringFromResource(Resource type) {
   switch(type) {
-    case ResourceType.Brick:
+    case Resource.Brick:
       return 'Brick';
-    case ResourceType.Lumber:
+    case Resource.Lumber:
       return 'Lumber';
-    case ResourceType.Ore:
+    case Resource.Ore:
       return 'Ore';
-    case ResourceType.Sheep:
+    case Resource.Sheep:
       return 'Sheep';
-    case ResourceType.Wheat:
+    case Resource.Wheat:
       return 'Wheat';
     default:
       return 'Unknown';
   }
 }
 
-TileType tileTypeFromString(String typeString) {
+Terrain tileTypeFromString(String typeString) {
   switch(typeString) {
     case TileStringPasture:
-      return TileType.Pasture;
+      return Terrain.Pasture;
     case TileStringField:
-      return TileType.Field;
+      return Terrain.Field;
     case TileStringForest:
-      return TileType.Forest;
+      return Terrain.Forest;
     case TileStringHill:
-      return TileType.Hill;
+      return Terrain.Hill;
     case TileStringMountain:
-      return TileType.Mountain;
+      return Terrain.Mountain;
     default:
-      return TileType.Desert;
+      return Terrain.Desert;
   }
 }
 

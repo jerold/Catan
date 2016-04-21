@@ -2,8 +2,6 @@
 
 part of catan.base_model;
 
-const int CITY_PRODUCTION = 2;
-
 class City extends Building {
-  City(int key) : super(key, CITY_PRODUCTION);
+  City(int key, Player owner) : super(key, 2, owner);
 }

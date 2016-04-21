@@ -34,7 +34,7 @@ class BoardStore extends w_flux.Store {
       ..removePlayer.listen(_handleRemovePlayer)
 
       ..setActiveTileRoll.listen(_handleSetActiveTileRoll)
-      ..setActiveTileType.listen(_handleSetActiveTileType)
+      ..setActiveTerrain.listen(_handleSetActiveTerrain)
 
       ..setActiveTileKey.listen(_handleSetActiveTileKey)
       ..setActivePlotKey.listen(_handleSetActivePlotKey)
@@ -42,7 +42,7 @@ class BoardStore extends w_flux.Store {
       ..setActivatePoint.listen(_handleSetActivatePoint)
 
       ..build.listen(_handleBuild)
-      ..unbuild.listen(_handleUnbuild)
+      ..harvest.listen(_handleHarvest)
 
       ..moveThief.listen(_handleMoveThief)
       ..roll.listen(_handleRoll)
@@ -62,7 +62,7 @@ class BoardStore extends w_flux.Store {
 
   _startNewGameFromURI(List<String> tileStrings) {
     List<int> keys = new List<int>();
-    List<TileType> types = new List<TileType>();
+    List<Terrain> types = new List<Terrain>();
     List<int> rolls = new List<int>();
     tileStrings.forEach((tileString) {
       if (tileString.length == 7) {
@@ -96,7 +96,7 @@ class BoardStore extends w_flux.Store {
   _pushBoardToURI() {
     List<String> mapParam = new List<String>();
     board.tiles.values.forEach((tile) {
-      mapParam.add('${tile.key.toString().padLeft(4, "0")}${tile.roll.toString().padLeft(2, "0")}${stringFromTileType(tile.type)}');
+      mapParam.add('${tile.key.toString().padLeft(4, "0")}${tile.roll.toString().padLeft(2, "0")}${stringFromTerrain(tile.terrain)}');
     });
     Uri current = Uri.base;
     Map<String, String> params = new Map<String, String>.from(current.queryParameters);
@@ -133,11 +133,13 @@ class BoardStore extends w_flux.Store {
   // Handle Tile Actions
 
   _handleAddTile(int key) {
-    if (board.addTile(key)) _updateBoard();
+    board.addPiece(new Tile(key));
+    _updateBoard();
   }
 
   _handleRemoveTile(int key) {
-    if (board.removeTile(key)) _updateBoard();
+    board.removePiece(board.tiles[key]);
+    _updateBoard();
   }
 
   _handleSetActiveTileRoll(int newRoll) {
@@ -145,8 +147,8 @@ class BoardStore extends w_flux.Store {
     trigger();
   }
 
-  _handleSetActiveTileType(TileType newType) {
-    activeTile.type = newType;
+  _handleSetActiveTerrain(Terrain newTerrain) {
+    activeTile.terrain = newTerrain;
     trigger();
   }
 
@@ -164,17 +166,17 @@ class BoardStore extends w_flux.Store {
     _activatePoint = newPoint;
   }
 
-  _handleBuild(PlayerPieceType pieceType) {
+  _handleBuild(GamePieceType pieceType) {
     if (activePlayer == null) return;
-    if (_board.economy.canBuild(pieceType, activePlayer)) {
-      _board.economy.doBuild(pieceType, activePlotKey, activePlayer);
+    if (_board.economy.canBuy(pieceType, activePlayer)) {
+      _board.economy.doBuy(pieceType, activePlotKey, activePlayer);
       trigger();
     } else {
       print('Player ${activePlayer.color} can not afford a ${pieceType}');
     }
   }
 
-  _handleUnbuild(_) {
+  _handleHarvest(Building building) {
 
   }
 

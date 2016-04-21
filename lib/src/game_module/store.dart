@@ -50,20 +50,12 @@ class GameStore extends w_flux.Store {
   _handleShowDimmer(DimmerType newDimmer) {
     _currentDimmer = newDimmer;
     _dimmerVisible = true;
-    // _events.setDimmerVisibility.call(true, _dispatch);
-
-    // context.callMethod(r'$', [SELECTOR_DIMMER]).callMethod(r'dimmer', ['show']);
-
     trigger();
   }
 
   _handleHideDimmer(_) {
     _currentDimmer = DimmerType.None;
     _dimmerVisible = false;
-    // _events.setDimmerVisibility(false, _dispatch);
-
-    // context.callMethod(r'$', [SELECTOR_DIMMER]).callMethod(r'dimmer', ['hide']);
-
     trigger();
   }
 

@@ -14,43 +14,35 @@ class _BuildingGroup extends w_flux.FluxComponent<GameActions, GameStore> {
 
   render() {
     List children = new List();
-    store.boardStore.board.players.forEach((player) {
-      player.settlements.forEach((sKey, settlement) {
-        Coordinate coord = Coordinate.fromKey(settlement.key);
-        Point center = scaledPoint(coord, store.boardStore.viewport);
-        children.add(react.circle({
-          'cx': center.x,
-          'cy': center.y,
-          'r': COORD_SPACING / 5,
-          'fill': player.color,
-          'stroke': 'white',
-          'strokeWidth': 2,
-          'pointerEvents': 'none',
-        }));
-      });
 
-      player.cities.forEach((cKey, city) {
-        Coordinate coord = Coordinate.fromKey(city.key);
+    store.boardStore.board.plots.forEach((pKey, plot) {
+      if (plot is Building) {
+        Building building = plot as Building;
+        Coordinate coord = Coordinate.fromKey(building.key);
         Point center = scaledPoint(coord, store.boardStore.viewport);
-        children.add(react.circle({
-          'cx': center.x,
-          'cy': center.y,
-          'r': COORD_SPACING / 3,
-          'fill': player.color,
-          'stroke': 'white',
-          'strokeWidth': 2,
-          'pointerEvents': 'none',
-        }));
-        children.add(react.circle({
-          'cx': center.x,
-          'cy': center.y,
-          'r': COORD_SPACING / 5,
-          'fill': player.color,
-          'stroke': 'white',
-          'strokeWidth': 2,
-          'pointerEvents': 'none',
-        }));
-      });
+        if (building.production > 1) {
+          children.add(react.circle({
+            'cx': center.x,
+            'cy': center.y,
+            'r': COORD_SPACING / 3,
+            'fill': building.owner.color,
+            'stroke': 'white',
+            'strokeWidth': 2,
+            'pointerEvents': 'none',
+          }));
+        }
+        if (building.production > 0) {
+          children.add(react.circle({
+            'cx': center.x,
+            'cy': center.y,
+            'r': COORD_SPACING / 5,
+            'fill': building.owner.color,
+            'stroke': 'white',
+            'strokeWidth': 2,
+            'pointerEvents': 'none',
+          }));
+        }
+      }
     });
     return react.g({}, children);
   }

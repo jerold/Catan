@@ -52,19 +52,19 @@ final num expOpacity = 0.4;
 final String waterColor = 'rgba(38, 169, 224, 0.2)';
 final String activeColor = 'rgba(0, 0, 0, .4)';
 
-String tileTypeToColor(TileType type) {
+String tileTypeToColor(Terrain type) {
   switch(type) {
-    case TileType.Desert:
+    case Terrain.Desert:
       return '#f9da6c';
-    case TileType.Pasture:
+    case Terrain.Pasture:
       return '#9ebc2e';
-    case TileType.Field:
+    case Terrain.Field:
       return '#f4a54b';
-    case TileType.Forest:
+    case Terrain.Forest:
       return '#008042';
-    case TileType.Hill:
+    case Terrain.Hill:
       return '#be6447';
-    case TileType.Mountain:
+    case Terrain.Mountain:
       return '#606060';
   }
 }

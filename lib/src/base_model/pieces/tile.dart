@@ -4,46 +4,30 @@
 part of catan.base_model;
 
 
-enum ResourceType {
-  None, Sheep, Wheat, Lumber, Brick, Ore,
-}
-List<ResourceType> get RESOURCE_TYPES => ResourceType.values;
+enum Resource { None, Sheep, Wheat, Lumber, Brick, Ore }
+List<Resource> get RESOURCES => Resource.values;
 
-enum TileType {
-  Desert, Pasture, Field, Forest, Hill, Mountain,
-}
-
-List<TileType> get TILE_TYPES => TileType.values;
-
-ResourceType yields(TileType type) {
-  switch(type) {
-    case TileType.Pasture:  return ResourceType.Sheep;
-    case TileType.Field:    return ResourceType.Wheat;
-    case TileType.Forest:   return ResourceType.Lumber;
-    case TileType.Hill:     return ResourceType.Brick;
-    case TileType.Mountain: return ResourceType.Ore;
-    default:                return ResourceType.None;
-  }
-}
+enum Terrain { Desert, Pasture, Field, Forest, Hill, Mountain }
+List<Terrain> get TERRAINS => Terrain.values;
 
 
 class Tile extends TilePiece {
-  TileType type = TileType.Desert;
+  Terrain terrain = Terrain.Desert;
   int roll = 0;
 
-  ResourceType get resource {
-    switch(type) {
-      case TileType.Pasture:  return ResourceType.Sheep;
-      case TileType.Field:    return ResourceType.Wheat;
-      case TileType.Forest:   return ResourceType.Lumber;
-      case TileType.Hill:     return ResourceType.Brick;
-      case TileType.Mountain: return ResourceType.Ore;
-      default:                return ResourceType.None;
+  Resource get resource {
+    switch(terrain) {
+      case Terrain.Pasture:  return Resource.Sheep;
+      case Terrain.Field:    return Resource.Wheat;
+      case Terrain.Forest:   return Resource.Lumber;
+      case Terrain.Hill:     return Resource.Brick;
+      case Terrain.Mountain: return Resource.Ore;
+      default:                return Resource.None;
     }
   }
 
-  Tile(int key, {TileType type, int roll}) : super(key) {
-    this.type = type ?? this.type;
+  Tile(int key, {Terrain terrain, int roll}) : super(key) {
+    this.terrain = terrain ?? this.terrain;
     this.roll = roll ?? this.roll;
   }
 }

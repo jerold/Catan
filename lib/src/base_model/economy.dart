@@ -3,25 +3,32 @@
 part of catan.base_model;
 
 
-final Map<PlayerPieceType, Map<ResourceType, int>> RATES = new Map<PlayerPieceType, Map<ResourceType, int>>()
-  ..[PlayerPieceType.Road] = {
-    ResourceType.Lumber: 1,
-    ResourceType.Brick: 1,
+int MAX_ROADS = 15;
+int MAX_SETTLEMENTS = 5;
+int MAX_CITIES = 4;
+
+final Map<GamePieceType, Map<Resource, int>> RATES = new Map<GamePieceType, Map<Resource, int>>()
+  ..[GamePieceType.Road] = {
+    Resource.Lumber: 1,
+    Resource.Brick: 1,
   }
-  ..[PlayerPieceType.Settlement] = {
-    ResourceType.Lumber: 1,
-    ResourceType.Brick: 1,
-    ResourceType.Wheat: 1,
-    ResourceType.Sheep: 1,
+  ..[GamePieceType.Settlement] = {
+    Resource.Lumber: 1,
+    Resource.Brick: 1,
+    Resource.Wheat: 1,
+    Resource.Sheep: 1,
   }
-  ..[PlayerPieceType.City] = {
-    ResourceType.Ore: 3,
-    ResourceType.Wheat: 2,
+  ..[GamePieceType.City] = {
+    Resource.Ore: 3,
+    Resource.Wheat: 2,
   };
 
 class TradePayload {
-  Map<ResourceType, int> _exchange = new Map<ResourceType, int>();
-  Map<ResourceType, int> get exchange => new Map<ResourceType, int>.from(_exchange);
+  Economy _eco;
+  Economy get eco => _eco;
+
+  Map<Resource, int> _exchange = new Map<Resource, int>();
+  Map<Resource, int> get exchange => new Map<Resource, int>.from(_exchange);
 
   Player _payee;
   Player get payee => _payee;
@@ -29,10 +36,10 @@ class TradePayload {
   Player _payer;
   Player get payer => _payer;
 
-  TradePayload({Player payee, Player payer}) : _payee = payee, _payer = payer;
+  TradePayload(this._eco, {Player payee, Player payer}) : _payee = payee, _payer = payer;
 
   /// the [trade] function takes # resources from _player and give them to _recipient.
-  trade(ResourceType resource, int count) {
+  trade(Resource resource, int count) {
     if (resource == null || count <= 0) return false;
 
     if (!_exchange.containsKey(resource)) _exchange[resource] = 0;
@@ -56,8 +63,8 @@ class TradePayload {
 }
 
 class BuildPayload extends TradePayload {
-  PlayerPieceType _piece;
-  PlayerPieceType get piece => _piece;
+  Piece _piece;
+  Piece get piece => _piece;
 
   int _key;
   int get key => _key;
@@ -65,40 +72,43 @@ class BuildPayload extends TradePayload {
   bool _built = false;
   bool get built => _built;
 
-  BuildPayload(Player player) : super(payer: player);
+  BuildPayload(Economy eco, Player player) : super(eco, payer: player);
 
-  build(PlayerPieceType piece, int key) {
+  build(GamePieceType type, int key) {
     if (_built) return false;
 
-    RATES[piece].forEach((resource, count) {
-      _piece = piece;
+    RATES[type].forEach((resource, count) {
       _key = key;
       trade(resource, count);
     });
 
-    payer.addPiece(_key, _piece);
+    Piece piece = new Piece.ofType(type, key, owner: payer);
+    _eco.board.addPiece(piece);
 
     if (_payer != null) print('Build ${_payer.color} + ${_piece} ${_key}');
   }
 
   @override
   void revoke() {
-    payer.removePiece(_key, _piece);
+    _eco.board.removePiece(_piece);
     super.revoke();
   }
 }
 
 class RollPayload {
+  Economy _eco;
+
   int roll;
 
   List<TradePayload> _harvestTrades = new List<TradePayload>();
   List<TradePayload> get harvestTrades => _harvestTrades;
 
-  RollPayload(this.roll);
+  RollPayload(this._eco, this.roll);
 
-  harvest(int count, ResourceType resource, Player player) {
-    TradePayload payload = new TradePayload(payee: player);
-    payload.trade(resource, count);
+  addHarvest(Building building, Tile tile) {
+    if (building == null || _eco.board.thiefKey == tile.key) return null;
+    TradePayload payload = new TradePayload(_eco, payee: building.owner);
+    payload.trade(tile.resource, building.production);
     _harvestTrades.add(payload);
   }
 
@@ -113,33 +123,50 @@ class Economy {
   List<BuildPayload> builds = new List<BuildPayload>();
 
   Board _board;
+  Board get board => _board;
 
   Economy(this._board);
 
-  canBuild(PlayerPieceType piece, Player player) {
+  canBuy(GamePieceType piece, Player player) {
     bool stillCan = true;
+    print("canBuy ${piece} ${player}");
     RATES[piece].forEach((resource, count) {
+      print("  ${player.resourceCount(resource)} >= ${count}");
       stillCan = stillCan && player.resourceCount(resource) >= count;
     });
     return stillCan;
   }
 
-  doBuild(PlayerPieceType piece, int key, Player player) {
-    BuildPayload payload = new BuildPayload(player)
+  doBuy(GamePieceType piece, int key, Player player) {
+    BuildPayload payload = new BuildPayload(this, player)
       ..build(piece, key);
     builds.insert(0, payload);
     _board._updateBuildingDependentCaches();
   }
 
+  doInitialHarvest(Building building) {
+    if (building == null) return null;
+    building.neighbors(PieceType.Tile).forEach((tKey) {
+      if (_board.tiles.containsKey(tKey) && _board.tiles[tKey] is Tile) {
+        Tile tile = _board.tiles[tKey] as Tile;
+        if (tile.key != _board.thiefKey) {
+          TradePayload payload = new TradePayload(this, payee: building.owner);
+          payload.trade(tile.resource, building.production);
+          doTrade(payload);
+        }
+      }
+    });
+  }
+
   doRoll(int roll) {
-    RollPayload payload = new RollPayload(roll);
+    RollPayload payload = new RollPayload(this, roll);
     _board.tiles.forEach((key, tile) {
       if (tile.roll == roll && key != _board.thiefKey) {
         tile.neighbors(PieceType.Plot).forEach((key) {
-          _board.players.forEach((player) {
-            Building piece = (player.getPiece(key) as Building);
-            if (piece != null) payload.harvest(piece.production, tile.resource, player);
-          });
+          if (_board.plots.containsKey(key) && _board.plots[key] is Building) {
+            Building building = _board.plots[key] as Building;
+            payload.addHarvest(building, tile);
+          }
         });
       }
     });
