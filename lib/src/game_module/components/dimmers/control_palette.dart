@@ -157,7 +157,10 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   _handleMouseMove(MouseEvent e) => interactionMoved(e.client);
   _handleMouseUp(MouseEvent e) => interactionEnded(e.client);
 
-  _handleTouchMove(TouchEvent e) => interactionMoved(e.touches.first.client);
+  _handleTouchMove(TouchEvent e) {
+    e.preventDefault();
+    interactionMoved(e.touches.first.client);
+  }
   _handleTouchEnd(TouchEvent e) => interactionEnded(e.touches.first.client);
   _handleTouchCancel(TouchEvent e) => interactionEnded(e.touches.first.client);
 
