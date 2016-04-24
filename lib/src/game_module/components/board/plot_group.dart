@@ -58,25 +58,15 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     return react.g({}, children);
   }
 
-  // _handleMouseDown(react.SyntheticMouseEvent e, int key) {
-  //   print('PLOT _handleMouseDown ${new Point(e.clientX, e.clientY)} ${key}');
-  //   // actions.configureControlPalette(new ControlPaletteConfig());
-  // }
-  //
-  // _handleTouchStart(react.SyntheticTouchEvent e, int key) {
-  //   print('PLOT _handleTouchStart ${e.touches} ${key}');
-  //   // actions.configureControlPalette(new ControlPaletteConfig());
-  // }
-
-
   _handleMouseDown(react.SyntheticMouseEvent e, int key) {
     Point client = new Point(e.clientX, e.clientY);
     interactionBegan(e.shiftKey, client, key);
   }
 
   _handleTouchStart(react.SyntheticTouchEvent e, int key) {
-    var firstTouch = e.touches.first;
-    Point client = new Point(firstTouch.clientX, firstTouch.clientY);
+    e.preventDefault();
+    // React dart does not fully convert the touches JsObject to a List<Touch>...
+    Point client = new Point(e.touches[0]['clientX'], e.touches[0]['clientY']);
     interactionBegan(e.shiftKey, client, key);
   }
 

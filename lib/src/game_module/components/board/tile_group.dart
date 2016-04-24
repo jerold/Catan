@@ -67,8 +67,8 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
 
   _handleTouchStart(react.SyntheticTouchEvent e) {
     e.preventDefault();
-    var firstTouch = e.touches.first;
-    Point client = new Point(firstTouch.clientX, firstTouch.clientY);
+    // React dart does not fully convert the touches JsObject to a List<Touch>...
+    Point client = new Point(e.touches[0]['clientX'], e.touches[0]['clientY']);
     interactionBegan(e.shiftKey, client);
   }
 

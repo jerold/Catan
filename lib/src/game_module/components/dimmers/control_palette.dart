@@ -155,14 +155,14 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _handleMouseMove(MouseEvent e) => interactionMoved(e.client);
-  _handleMouseUp(MouseEvent e) => interactionEnded(e.client);
+  _handleMouseUp(_) => interactionEnded();
 
   _handleTouchMove(TouchEvent e) {
     e.preventDefault();
     interactionMoved(e.touches.first.client);
   }
-  _handleTouchEnd(TouchEvent e) => interactionEnded(e.touches.first.client);
-  _handleTouchCancel(TouchEvent e) => interactionEnded(e.touches.first.client);
+  _handleTouchEnd(_) => interactionEnded();
+  _handleTouchCancel(_) => interactionEnded();
 
   // Generic Handlers
 
@@ -174,7 +174,7 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
     }
   }
 
-  interactionEnded(Point p) {
+  interactionEnded() {
     actions.hideDimmer();
     callbackSelectedOption();
   }
