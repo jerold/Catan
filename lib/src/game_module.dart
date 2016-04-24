@@ -13,9 +13,7 @@ import 'package:w_module/w_module.dart' as w_module;
 import 'base_model.dart';
 
 part 'game_module/actions.dart';
-part 'game_module/api.dart';
 part 'game_module/components.dart';
-part 'game_module/events.dart';
 part 'game_module/store.dart';
 
 part 'game_module/components/board_setup.dart';
@@ -47,8 +45,6 @@ part 'game_module/components/dimmers/trade.dart';
 part 'game_module/palette_configs/plot_config.dart';
 part 'game_module/palette_configs/tile_config.dart';
 part 'game_module/palette_configs/water_config.dart';
-
-part 'game_module/stores/board_store.dart';
 
 class GameModule extends w_module.Module {
   GameComponents _components;

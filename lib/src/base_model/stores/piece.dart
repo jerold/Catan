@@ -2,17 +2,12 @@
 
 part of catan.base_model;
 
-enum PieceType { Edge, Plot, Tile }
-const List<PieceType> PIECE_TYPES = PieceType.values;
-
-enum GamePieceType { City, Port, Road, Settlement, Tile }
-const List<GamePieceType> GAME_PIECE_TYPES = GamePieceType.values;
 
 abstract class Owned {
   Player get owner;
 }
 
-abstract class Piece {
+class Piece extends w_flux.Store {
   final int _key;
 
   int get key => _key;

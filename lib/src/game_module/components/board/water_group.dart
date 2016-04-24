@@ -8,18 +8,19 @@ const String WATER_COLOR = 'rgba(38, 169, 224, 0.2)';
 
 var WaterGroup = react.registerComponent(() => new _WaterGroup());
 class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
+  Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.boardStore];
+    if (store is GameStore) return [store.board];
     else return [];
   }
 
   render() {
     List children = new List();
-    store.boardStore.board.expansionTiles.forEach((key) {
+    board.expansionTiles.forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
-      Point center = scaledPoint(coord, store.boardStore.viewport);
+      Point center = scaledPoint(coord, board.boundingRect);
       List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
       children.add(react.polygon({
         'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
@@ -45,7 +46,7 @@ class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
 
   interactionBegan(bool shiftKey, Point client, int key) {
     if (shiftKey) {
-      actions.addTile(key);
+      board.actions.addPiece(new Tile(key));
     } else {
       actions.setActiveTileKey(key);
       actions.setActivatePoint(client);

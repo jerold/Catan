@@ -4,24 +4,25 @@ part of catan.game_module;
 
 var PlayerSetup = react.registerComponent(() => new _PlayerSetup());
 class _PlayerSetup extends w_flux.FluxComponent<GameActions, GameStore> {
+  Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.boardStore];
+    if (store is GameStore) return [store.board];
     else return [];
   }
 
   render() {
-    List<Player> players = new List<Player>.from(store.boardStore.board.players);
+    List<Player> players = new List<Player>.from(board.players);
     List<String> addableColors = new List<String>.from(PlayerColors.where((color) {
-      return !store.boardStore.board.playerInGame(color);
+      return !board.playerInGame(color);
     }));
 
     List addItems = new List.from(addableColors.map((color) {
       List<String> classes = ['tiny', color, 'ui', 'button'];
       return react.button({
         'className': classes.join(' '),
-        'onClick': (_) => actions.addPlayer(new Player(color)),
+        'onClick': (_) => board.actions.addPlayer(new Player(color)),
       }, react.i({'className': 'add user icon'}));
     }));
 
@@ -30,7 +31,7 @@ class _PlayerSetup extends w_flux.FluxComponent<GameActions, GameStore> {
       List<String> classes = ['tiny', 'ui', player.color, 'button'];
       return react.a({
         'className': classes.join(' '),
-        'onClick': (_) => actions.removePlayer(player),
+        'onClick': (_) => board.actions.removePlayer(player),
       }, [react.i({'className': 'remove user icon'}), ' P${turn++}']);
     }));
 

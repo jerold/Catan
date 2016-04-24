@@ -9,11 +9,13 @@ class TileControlPaletteConfig extends ControlPaletteConfig {
     if (store.gameState == GameState.Editing) {
       options.add(new PaletteOption('theme', () => actions.showDimmer(DimmerType.PickTileTerrain)));
       options.add(new PaletteOption('cube', () => actions.showDimmer(DimmerType.PickTileRoll)));
-      options.add(new PaletteOption('remove', () => actions.removeTile(tile.key)));
+      options.add(new PaletteOption('remove', () => store.board.actions.removePiece(tile)));
     }
 
     if (store.gameState == GameState.Playing) {
-      options.add(new PaletteOption('user', () => actions.moveThief()));
+      options.add(new PaletteOption(
+        'user',
+        () => store.board.actions.moveThief(tile.key)));
     }
 
     return new TileControlPaletteConfig._internal(options);

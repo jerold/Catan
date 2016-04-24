@@ -4,17 +4,24 @@ library catan.base_model;
 
 import 'dart:math';
 
-part 'base_model/board.dart';
-part 'base_model/constants.dart';
+import 'package:w_flux/w_flux.dart' as w_flux;
+
+part 'base_model/actions/board.dart';
+part 'base_model/actions/player.dart';
+part 'base_model/actions/tile.dart';
+
+part 'base_model/stores/board.dart';
+part 'base_model/stores/piece.dart';
+part 'base_model/stores/player.dart';
+
+part 'base_model/stores/pieces/building.dart';
+part 'base_model/stores/pieces/city.dart';
+part 'base_model/stores/pieces/road.dart';
+part 'base_model/stores/pieces/settlement.dart';
+part 'base_model/stores/pieces/tile.dart';
+
 part 'base_model/coordinate.dart';
 part 'base_model/economy.dart';
 part 'base_model/edge.dart';
-part 'base_model/piece.dart';
-part 'base_model/player.dart';
 part 'base_model/statistic.dart';
-
-part 'base_model/pieces/building.dart';
-part 'base_model/pieces/city.dart';
-part 'base_model/pieces/road.dart';
-part 'base_model/pieces/settlement.dart';
-part 'base_model/pieces/tile.dart';
+part 'base_model/utility.dart';

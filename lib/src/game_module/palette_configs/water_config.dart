@@ -7,7 +7,7 @@ class WaterControlPaletteConfig extends ControlPaletteConfig {
     List<PaletteOption> options = new List<PaletteOption>();
 
     if (store.gameState == GameState.Editing) {
-      options.add(new PaletteOption('map', () => actions.addTile(tileKey)));
+      options.add(new PaletteOption('map', () => store.board.actions.addPiece(new Tile(tileKey))));
       options.add(new PaletteOption('anchor', () => print('add port ${tileKey}')));
       options.add(new PaletteOption('repeat', () => print('rotate port ${tileKey}')));
       options.add(new PaletteOption('remove', () => print('remove port ${tileKey}')));

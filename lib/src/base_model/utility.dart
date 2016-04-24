@@ -2,6 +2,39 @@
 
 part of catan.base_model;
 
+
+enum Resource { None, Sheep, Wheat, Lumber, Brick, Ore }
+List<Resource> get RESOURCES => Resource.values;
+
+enum Terrain { Desert, Pasture, Field, Forest, Hill, Mountain }
+List<Terrain> get TERRAINS => Terrain.values;
+
+enum PieceType { Edge, Plot, Tile }
+const List<PieceType> PIECE_TYPES = PieceType.values;
+
+enum GamePieceType { City, Port, Road, Settlement, Tile }
+const List<GamePieceType> GAME_PIECE_TYPES = GamePieceType.values;
+
+int MAX_ROADS = 15;
+int MAX_SETTLEMENTS = 5;
+int MAX_CITIES = 4;
+
+final Map<GamePieceType, Map<Resource, int>> RATES = new Map<GamePieceType, Map<Resource, int>>()
+  ..[GamePieceType.Road] = {
+    Resource.Lumber: 1,
+    Resource.Brick: 1,
+  }
+  ..[GamePieceType.Settlement] = {
+    Resource.Lumber: 1,
+    Resource.Brick: 1,
+    Resource.Wheat: 1,
+    Resource.Sheep: 1,
+  }
+  ..[GamePieceType.City] = {
+    Resource.Ore: 3,
+    Resource.Wheat: 2,
+  };
+
 List<int> defaultCoordinateKeys = [
   4139, 4038, 4141, 4042, 3839,
   3841, 4338, 4137, 4340, 4040,
@@ -46,6 +79,21 @@ List<int> chanceList = [1, 2, 3, 4, 5, 6, 5, 4, 3, 2, 1];
 int chances(int roll) => roll >= 2 && roll <= 12 ? chanceList[roll - 2] : 0;
 
 num probability(int roll) => chances(roll) / 36;
+
+class ResourcePayload {
+  final int count;
+  final Resource resource;
+
+  ResourcePayload(this.count, this.resource);
+}
+
+class PurchasePayload {
+  final int key;
+  final GamePieceType piece;
+  final Player player;
+
+  PurchasePayload(this.key, this.piece, this.player);
+}
 
 String coordinateTypeString(CoordinateType type) => type == CoordinateType.Plot ? 'Plot' : 'Tile';
 

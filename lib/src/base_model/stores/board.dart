@@ -3,16 +3,23 @@
 part of catan.base_model;
 
 
-class Board {
+class Board extends w_flux.Store {
+  BoardActions _actions = new BoardActions();
+  BoardActions get actions => _actions;
+
   Map<PieceType, Map<int, Piece>> _pieces;
 
   Map<int, EdgePiece> get edges => _pieces[PieceType.Edge]; // roads
   Map<int, PlotPiece> get plots => _pieces[PieceType.Plot]; // buildings
   Map<int, TilePiece> get tiles => _pieces[PieceType.Tile]; // tiles and ports
 
+  Rectangle _boundingRect = new Rectangle(0, 0, 0, 0);
+  Rectangle get boundingRect => _boundingRect;
+
   List<Player> players;
 
-  int thiefKey;
+  int _thiefKey;
+  int get thiefKey => _thiefKey;
 
   Economy economy;
 
@@ -31,7 +38,6 @@ class Board {
   Statistic _plotUtilityStats = new Statistic(); // stats limited to open plots
 
   List<int> get expansionTiles => new List<int>.from(_cachedExpansionTiles);
-  // List<int> get plots => new List<int>.from(_cachedPlots);
 
   Board(List<int> keys, [List<Terrain> terrains, List<int> rolls]) {
     terrains = terrains ?? new List<Terrain>();
@@ -49,10 +55,6 @@ class Board {
 
     players = new List<Player>();
 
-    addPlayer(new Player(PlayerColorRed));
-    addPlayer(new Player(PlayerColorGrey));
-    addPlayer(new Player(PlayerColorBlue));
-
     int terrainIndex = 0;
     int rollIndex = 0;
     keys.forEach((key) {
@@ -62,13 +64,23 @@ class Board {
       if (terrain == Terrain.Desert) {
         if (roll == 0) rollIndex++;
         (tiles[key] as Tile).roll = 0;
-        thiefKey = key;
+        _thiefKey = key;
       } else {
         rollIndex++;
       }
       terrainIndex++;
     });
     _updateTileDependentCaches();
+
+    triggerOnAction(_actions.addPiece, _addPiece);
+    triggerOnAction(_actions.removePiece, _removePiece);
+    triggerOnAction(_actions.addPlayer, _addPlayer);
+    triggerOnAction(_actions.removePlayer, _removePlayer);
+
+    triggerOnAction(_actions.purchase, _purchase);
+    triggerOnAction(_actions.harvest, _harvest);
+    triggerOnAction(_actions.moveThief, _moveThief);
+    triggerOnAction(_actions.roll, _roll);
   }
 
   factory Board.standard() => new Board(
@@ -79,30 +91,58 @@ class Board {
 
   factory Board.empty() => new Board(standardDealKeys);
 
-  // Change Map
+  // Change Players
 
-  void changeTile(int key, {Terrain terrain, int roll}) {
-    if (terrain != null) (tiles[key] as Tile).terrain = terrain;
-    if (roll != null) (tiles[key] as Tile).roll = roll;
+  _addPlayer(Player player) => players.add(player);
+
+  _removePlayer(Player player) {
+    players.remove(player);
+    _removeAllPlayerPieces(player);
+  }
+
+  // Change Pieces
+
+  _addPiece(Piece piece) {
+    _pieces[piece.type][piece.key] = piece;
     _updateTileDependentCaches();
   }
 
-  // Change Players
-
-  bool addPlayer(Player player) {
-    if (!players.contains(player)) {
-      players.add(player);
-      return true;
-    }
-    return false;
+  _removePiece(Piece piece, [bool updateCache = true]) {
+    _pieces[piece.type].remove(piece.key);
+    if (updateCache) _updateTileDependentCaches();
   }
 
-  bool removePlayer(Player player) {
-    if (players.contains(player)) {
-      players.remove(player);
-      return true;
+  // Board Actions
+
+  _purchase(PurchasePayload payload) {
+    if (economy.canBuy(payload.piece, payload.player)) {
+      economy.doBuy(payload.piece, payload.key, payload.player);
+    } else {
+      print('WARNING!!! Player ${payload.player.color} can not afford a ${payload.piece}');
     }
-    return false;
+  }
+
+  _harvest(Building building) => economy.doInitialHarvest(building);
+
+  _moveThief(int newKey) => _thiefKey = newKey ?? _thiefKey;
+
+  _roll(int roll) => economy.doRoll(roll);
+
+  // Utility Methods
+
+  _removeAllPlayerPieces(Player player) {
+    List<Piece> toRemove = new List<Piece>();
+    PIECE_TYPES.forEach((pieceType) {
+      _pieces[pieceType].forEach((pKey, piece) {
+        if (piece is Owned && piece.owner == player) toRemove.add((piece as Piece));
+      });
+    });
+    if (toRemove.length > 0) {
+      toRemove.forEach((piece) {
+        _removePiece(piece, false);
+      });
+      _updateTileDependentCaches();
+    }
   }
 
   bool playerInGame(String playerColor) {
@@ -112,20 +152,6 @@ class Board {
     });
     return playerFound;
   }
-
-  // Change Pieces
-
-  addPiece(Piece piece) {
-    _pieces[piece.type][piece.key] = piece;
-    _updateTileDependentCaches();
-  }
-
-  removePiece(Piece piece) {
-    _pieces[piece.type].remove(piece.key);
-    _updateTileDependentCaches();
-  }
-
-  // Utility Methods
 
   Statistic plotUtilityStats() => _plotUtilityStats;
 
@@ -156,12 +182,23 @@ class Board {
       _cachedResourceChances[resource] = 0;
     });
 
-    // update _cachedTilesWithResource, _cachedExpansionTiles, and _cachedPlots
+    // update _boundingRect, _cachedTilesWithResource, _cachedExpansionTiles, and _cachedPlots
+    Point minP = Coordinate._getPoint(INITIAL_H, INITIAL_V);
+    Point maxP = Coordinate._getPoint(INITIAL_H, INITIAL_V);
     tiles.forEach((_, tile) {
+      Point tPoint = tile.coordinate.point;
+      if (tPoint.x < minP.x) minP = new Point(tPoint.x, minP.y);
+      if (tPoint.y < minP.y) minP = new Point(minP.x, tPoint.y);
+      if (tPoint.x > maxP.x) maxP = new Point(tPoint.x, maxP.y);
+      if (tPoint.y > maxP.y) maxP = new Point(maxP.x, tPoint.y);
+
       _cachedExpansionTiles.addAll(tile.neighbors(PieceType.Tile));
       _cachedPlots.addAll(tile.neighbors(PieceType.Plot));
       _cachedTilesWithResource[tile.resource].add(tile);
     });
+    minP = new Point(minP.x - (2.5 * SPACING_X), minP.y - (3 * SPACING_Y)); // account for expansion tiles
+    maxP = new Point(maxP.x + (2.5 * SPACING_X), maxP.y + (3 * SPACING_Y)); // account for expansion tiles
+    _boundingRect = new Rectangle.fromPoints(minP, maxP);
     _cachedExpansionTiles.removeAll(tiles.keys);
 
     // update _cachedResourceChances

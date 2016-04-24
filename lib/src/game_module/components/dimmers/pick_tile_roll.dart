@@ -11,7 +11,7 @@ class _PickRoll extends w_flux.FluxComponent<GameActions, GameStore> {
 
   int get selected => state['selected'];
 
-  getInitialState() => {'selected': store.boardStore.activeTile.roll};
+  getInitialState() => {'selected': store.activeTile.roll};
 
   render() {
     List rolls = new List.from(TILE_ROLLS.map((roll) {
@@ -44,7 +44,7 @@ class _PickRoll extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _select(int value) {
-    if (ROLLS.contains(value)) actions.setActiveTileRoll(value);
+    if (ROLLS.contains(value)) store.activeTile.actions.setRoll(value);
     actions.hideDimmer();
   }
 

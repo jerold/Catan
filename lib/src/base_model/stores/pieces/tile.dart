@@ -4,14 +4,10 @@
 part of catan.base_model;
 
 
-enum Resource { None, Sheep, Wheat, Lumber, Brick, Ore }
-List<Resource> get RESOURCES => Resource.values;
-
-enum Terrain { Desert, Pasture, Field, Forest, Hill, Mountain }
-List<Terrain> get TERRAINS => Terrain.values;
-
-
 class Tile extends TilePiece {
+  TileActions _actions = new TileActions();
+  TileActions get actions => _actions;
+
   Terrain terrain = Terrain.Desert;
   int roll = 0;
 
@@ -29,5 +25,12 @@ class Tile extends TilePiece {
   Tile(int key, {Terrain terrain, int roll}) : super(key) {
     this.terrain = terrain ?? this.terrain;
     this.roll = roll ?? this.roll;
+
+    triggerOnAction(_actions.setRoll, _setRoll);
+    triggerOnAction(_actions.setTerrain, _setTerrain);
   }
+
+  _setRoll(int newRoll) => this.roll = roll ?? this.roll;
+
+  _setTerrain(Terrain newTerrain) => this.terrain = newTerrain ?? this.terrain;
 }

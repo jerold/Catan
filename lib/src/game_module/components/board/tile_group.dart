@@ -6,14 +6,16 @@ var TileGroup = react.registerComponent(() => new _TileGroup());
 class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   Tile get tile => props['tile'];
 
+  Board get board => store.board;
+
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.boardStore];
+    if (store is GameStore) return [store.board];
     else return [];
   }
 
   render() {
-    Point center = scaledPoint(tile.coordinate, store.boardStore.viewport);
+    Point center = scaledPoint(tile.coordinate, board.boundingRect);
 
     List children = new List();
     List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
@@ -26,7 +28,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       'onTouchStart': _handleTouchStart,
     }));
 
-    if (store.boardStore.board.thiefKey == tile.key) {
+    if (board.thiefKey == tile.key) {
       children.add(react.circle({
         'cx': center.x,
         'cy': center.y,
@@ -74,7 +76,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
 
   interactionBegan(bool shiftKey, Point client) {
     if (shiftKey) {
-      actions.removeTile(tile.key);
+      board.actions.removePiece(tile);
     } else {
       actions.setActiveTileKey(tile.key);
       actions.setActivatePoint(client);

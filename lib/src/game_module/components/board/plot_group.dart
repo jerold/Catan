@@ -13,22 +13,23 @@ String utilityGradient(num val, num average, num max) {
 
 var PlotGroup = react.registerComponent(() => new _PlotGroup());
 class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
+  Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.boardStore];
+    if (store is GameStore) return [store.board];
     else return [];
   }
 
   render() {
-    Statistic utilityStats = store.boardStore.board.plotUtilityStats();
+    Statistic utilityStats = board.plotUtilityStats();
     num utilityRange = utilityStats.getMax() - utilityStats.getMin();
 
     List children = new List();
-    store.boardStore.board.openPlots().forEach((key) {
+    board.openPlots().forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
-      int utility = store.boardStore.board.utilityOfPlot(key);
-      Point center = scaledPoint(coord, store.boardStore.viewport);
+      int utility = board.utilityOfPlot(key);
+      Point center = scaledPoint(coord, board.boundingRect);
 
       children.add(react.circle({
         'cx': center.x,

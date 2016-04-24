@@ -8,7 +8,7 @@ class _PickTerrain extends w_flux.FluxComponent<GameActions, GameStore> {
 
   Terrain get selected => state['selected'];
 
-  getInitialState() => {'selected': store.boardStore.activeTile.terrain};
+  getInitialState() => {'selected': store.activeTile.terrain};
 
   render() {
     List terrains = new List.from(TERRAINS.map((terrain) {
@@ -41,7 +41,7 @@ class _PickTerrain extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _select(Terrain value) {
-    if (TERRAINS.contains(value)) actions.setActiveTileTerrain(value);
+    if (TERRAINS.contains(value)) store.activeTile.actions.setTerrain(value);
     actions.hideDimmer();
   }
 

@@ -56,7 +56,7 @@ class _Roll extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _handleConfirm(_) {
-    if (ROLLS.contains(selected)) actions.roll(selected);
+    if (ROLLS.contains(selected)) store.board.actions.roll(selected);
     actions.hideDimmer();
   }
 }

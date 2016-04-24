@@ -3,26 +3,6 @@
 part of catan.base_model;
 
 
-int MAX_ROADS = 15;
-int MAX_SETTLEMENTS = 5;
-int MAX_CITIES = 4;
-
-final Map<GamePieceType, Map<Resource, int>> RATES = new Map<GamePieceType, Map<Resource, int>>()
-  ..[GamePieceType.Road] = {
-    Resource.Lumber: 1,
-    Resource.Brick: 1,
-  }
-  ..[GamePieceType.Settlement] = {
-    Resource.Lumber: 1,
-    Resource.Brick: 1,
-    Resource.Wheat: 1,
-    Resource.Sheep: 1,
-  }
-  ..[GamePieceType.City] = {
-    Resource.Ore: 3,
-    Resource.Wheat: 2,
-  };
-
 class TradePayload {
   Economy _eco;
   Economy get eco => _eco;
@@ -45,8 +25,9 @@ class TradePayload {
     if (!_exchange.containsKey(resource)) _exchange[resource] = 0;
     _exchange[resource] = _exchange[resource] + count;
 
-    if (_payer != null) _payer.removeResource(count, resource);
-    if (_payee != null) _payee.addResource(count, resource);
+    ResourcePayload payload = new ResourcePayload(count, resource);
+    if (_payer != null) _payer.actions.removeResources(payload);
+    if (_payee != null) _payee.actions.addResources(payload);
 
     if (_payer != null) print('Payer ${_payer.color} - ${count} ${resource}');
     if (_payee != null) print('Payee ${_payee.color} + ${count} ${resource}');
@@ -55,8 +36,9 @@ class TradePayload {
   /// the [revoke] function returns any traded resources to the payer.
   void revoke() {
     _exchange.forEach((resource, count) {
-      _payer.addResource(count, resource);
-      if (_payee != null) _payee.removeResource(count, resource);
+      ResourcePayload payload = new ResourcePayload(count, resource);
+      _payer.actions.addResources(payload);
+      if (_payee != null) _payee.actions.removeResources(payload);
       _exchange[resource] = 0;
     });
   }
@@ -83,14 +65,14 @@ class BuildPayload extends TradePayload {
     });
 
     Piece piece = new Piece.ofType(type, key, owner: payer);
-    _eco.board.addPiece(piece);
+    _eco.board.actions.addPiece(piece);
 
     if (_payer != null) print('Build ${_payer.color} + ${_piece} ${_key}');
   }
 
   @override
   void revoke() {
-    _eco.board.removePiece(_piece);
+    _eco.board.actions.removePiece(_piece);
     super.revoke();
   }
 }

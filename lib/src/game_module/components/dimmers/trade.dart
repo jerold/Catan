@@ -11,7 +11,7 @@ class _Trade extends w_flux.FluxComponent<GameActions, GameStore> {
   getInitialState() => {'selected': 0};
 
   render() {
-    Player activePlayer = store.boardStore.activePlayer;
+    Player activePlayer = store.activePlayer;
 
     return react.div({'className':'content'}, [
       react.div({'className':'center'}, [

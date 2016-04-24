@@ -11,7 +11,7 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
   getInitialState() => stateFromStore();
 
   stateFromStore() => {
-    'activePlayer': store.boardStore.activePlayer,
+    'activePlayer': store.activePlayer,
     'editState': store.editState,
   };
 
@@ -19,7 +19,7 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
 
   Map<w_flux.Store, Function> getStoreHandlers() => {
     store: (_) => setStateFromStore(),
-    store.boardStore: (_) => setStateFromStore()
+    // store.board: (_) => setStateFromStore()
   };
 
   bool shouldComponentUpdate(_, nextState) {

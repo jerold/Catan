@@ -5,10 +5,11 @@ part of catan.game_module;
 
 var BoardSvg = react.registerComponent(() => new _BoardSvg());
 class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
+  Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.boardStore];
+    if (store is GameStore) return [store.board];
     else return [];
   }
 
@@ -19,7 +20,7 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
     children.add(WaterGroup({'actions': actions, 'store': store}));
 
     // Tiles
-    store.boardStore.board.tiles.values.forEach((tile) {
+    board.tiles.values.forEach((tile) {
       children.add(TileGroup({
         'actions': actions,
         'store': store,
@@ -35,10 +36,10 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
     children.add(BuildingGroup({'actions': actions, 'store': store}));
 
     Rectangle viewBox = new Rectangle(
-      store.boardStore.viewport.left * COORD_SPACING,
-      store.boardStore.viewport.top * COORD_SPACING,
-      store.boardStore.viewport.width * COORD_SPACING,
-      store.boardStore.viewport.height * COORD_SPACING
+      board.boundingRect.left * COORD_SPACING,
+      board.boundingRect.top * COORD_SPACING,
+      board.boundingRect.width * COORD_SPACING,
+      board.boundingRect.height * COORD_SPACING
     );
 
     return react.svg({

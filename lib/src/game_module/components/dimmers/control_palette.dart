@@ -46,14 +46,14 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   stateFromStore() {
     Map<String, dynamic> storeState = new Map<String, dynamic>();
     if (store.currentDimmer == DimmerType.TileOptions) {
-      storeState['config'] = new TileControlPaletteConfig(store.boardStore.activeTile, actions, store);
+      storeState['config'] = new TileControlPaletteConfig(store.activeTile, actions, store);
     } else if (store.currentDimmer == DimmerType.PlotOptions) {
-      storeState['config'] = new PlotControlPaletteConfig(store.boardStore.activePlotKey, actions, store);
+      storeState['config'] = new PlotControlPaletteConfig(store.activePlotKey, actions, store);
     } else if (store.currentDimmer == DimmerType.WaterOptions) {
-      storeState['config'] = new WaterControlPaletteConfig(store.boardStore.activeTileKey, actions, store);
+      storeState['config'] = new WaterControlPaletteConfig(store.activeTileKey, actions, store);
     }
-    storeState['startPoint'] = store.boardStore.activatePoint;
-    storeState['currentPoint'] = store.boardStore.activatePoint;
+    storeState['startPoint'] = store.activatePoint;
+    storeState['currentPoint'] = store.activatePoint;
     return storeState;
   }
 
@@ -145,24 +145,25 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   // TEMP keyboard event handling until better tile config UX is in
   _handleKeyDown(KeyboardEvent e) {
-    if (e.keyCode == KeyCode.ONE) actions.setActiveTileTerrain(TERRAINS[1]);
-    if (e.keyCode == KeyCode.TWO) actions.setActiveTileTerrain(TERRAINS[2]);
-    if (e.keyCode == KeyCode.THREE) actions.setActiveTileTerrain(TERRAINS[3]);
-    if (e.keyCode == KeyCode.FOUR) actions.setActiveTileTerrain(TERRAINS[4]);
-    if (e.keyCode == KeyCode.FIVE) actions.setActiveTileTerrain(TERRAINS[5]);
-    if (e.keyCode == KeyCode.SIX) actions.setActiveTileTerrain(TERRAINS[0]);
+    Tile activeTile = store.activeTile;
+    if (e.keyCode == KeyCode.ONE) activeTile.actions.setTerrain(TERRAINS[1]);
+    if (e.keyCode == KeyCode.TWO) activeTile.actions.setTerrain(TERRAINS[2]);
+    if (e.keyCode == KeyCode.THREE) activeTile.actions.setTerrain(TERRAINS[3]);
+    if (e.keyCode == KeyCode.FOUR) activeTile.actions.setTerrain(TERRAINS[4]);
+    if (e.keyCode == KeyCode.FIVE) activeTile.actions.setTerrain(TERRAINS[5]);
+    if (e.keyCode == KeyCode.SIX) activeTile.actions.setTerrain(TERRAINS[0]);
 
-    if (e.keyCode == KeyCode.TAB) actions.setActiveTileRoll(0);
-    if (e.keyCode == KeyCode.Q) actions.setActiveTileRoll(2);
-    if (e.keyCode == KeyCode.W) actions.setActiveTileRoll(3);
-    if (e.keyCode == KeyCode.E) actions.setActiveTileRoll(4);
-    if (e.keyCode == KeyCode.R) actions.setActiveTileRoll(5);
-    if (e.keyCode == KeyCode.T) actions.setActiveTileRoll(6);
-    if (e.keyCode == KeyCode.Y) actions.setActiveTileRoll(8);
-    if (e.keyCode == KeyCode.U) actions.setActiveTileRoll(9);
-    if (e.keyCode == KeyCode.I) actions.setActiveTileRoll(10);
-    if (e.keyCode == KeyCode.O) actions.setActiveTileRoll(11);
-    if (e.keyCode == KeyCode.P) actions.setActiveTileRoll(12);
+    if (e.keyCode == KeyCode.TAB) activeTile.actions.setRoll(0);
+    if (e.keyCode == KeyCode.Q) activeTile.actions.setRoll(2);
+    if (e.keyCode == KeyCode.W) activeTile.actions.setRoll(3);
+    if (e.keyCode == KeyCode.E) activeTile.actions.setRoll(4);
+    if (e.keyCode == KeyCode.R) activeTile.actions.setRoll(5);
+    if (e.keyCode == KeyCode.T) activeTile.actions.setRoll(6);
+    if (e.keyCode == KeyCode.Y) activeTile.actions.setRoll(8);
+    if (e.keyCode == KeyCode.U) activeTile.actions.setRoll(9);
+    if (e.keyCode == KeyCode.I) activeTile.actions.setRoll(10);
+    if (e.keyCode == KeyCode.O) activeTile.actions.setRoll(11);
+    if (e.keyCode == KeyCode.P) activeTile.actions.setRoll(12);
   }
 
   _handleMouseMove(MouseEvent e) => interactionMoved(e.client);
