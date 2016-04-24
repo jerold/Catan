@@ -46,11 +46,11 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   stateFromStore() {
     Map<String, dynamic> storeState = new Map<String, dynamic>();
     if (store.currentDimmer == DimmerType.TileOptions) {
-      storeState['config'] = new TileControlPaletteConfig(store.boardStore.activeTile, actions);
+      storeState['config'] = new TileControlPaletteConfig(store.boardStore.activeTile, actions, store);
     } else if (store.currentDimmer == DimmerType.PlotOptions) {
-      storeState['config'] = new PlotControlPaletteConfig(store.boardStore.activePlotKey, actions);
+      storeState['config'] = new PlotControlPaletteConfig(store.boardStore.activePlotKey, actions, store);
     } else if (store.currentDimmer == DimmerType.WaterOptions) {
-      storeState['config'] = new WaterControlPaletteConfig(store.boardStore.activeTileKey, actions);
+      storeState['config'] = new WaterControlPaletteConfig(store.boardStore.activeTileKey, actions, store);
     }
     storeState['startPoint'] = store.boardStore.activatePoint;
     storeState['currentPoint'] = store.boardStore.activatePoint;
@@ -145,12 +145,12 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   // TEMP keyboard event handling until better tile config UX is in
   _handleKeyDown(KeyboardEvent e) {
-    if (e.keyCode == KeyCode.ONE) actions.setActiveTerrain(TERRAINS[1]);
-    if (e.keyCode == KeyCode.TWO) actions.setActiveTerrain(TERRAINS[2]);
-    if (e.keyCode == KeyCode.THREE) actions.setActiveTerrain(TERRAINS[3]);
-    if (e.keyCode == KeyCode.FOUR) actions.setActiveTerrain(TERRAINS[4]);
-    if (e.keyCode == KeyCode.FIVE) actions.setActiveTerrain(TERRAINS[5]);
-    if (e.keyCode == KeyCode.SIX) actions.setActiveTerrain(TERRAINS[0]);
+    if (e.keyCode == KeyCode.ONE) actions.setActiveTileTerrain(TERRAINS[1]);
+    if (e.keyCode == KeyCode.TWO) actions.setActiveTileTerrain(TERRAINS[2]);
+    if (e.keyCode == KeyCode.THREE) actions.setActiveTileTerrain(TERRAINS[3]);
+    if (e.keyCode == KeyCode.FOUR) actions.setActiveTileTerrain(TERRAINS[4]);
+    if (e.keyCode == KeyCode.FIVE) actions.setActiveTileTerrain(TERRAINS[5]);
+    if (e.keyCode == KeyCode.SIX) actions.setActiveTileTerrain(TERRAINS[0]);
 
     if (e.keyCode == KeyCode.TAB) actions.setActiveTileRoll(0);
     if (e.keyCode == KeyCode.Q) actions.setActiveTileRoll(2);

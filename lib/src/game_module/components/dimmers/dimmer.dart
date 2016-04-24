@@ -29,10 +29,16 @@ class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
         || currentDimmer == DimmerType.PlotOptions
         || currentDimmer == DimmerType.WaterOptions) {
       dimmerChild = ControlPalette({'actions': actions, 'store': store});
+    } else if (currentDimmer == DimmerType.PickTileRoll) {
+      dimmerChild = PickRoll({'actions': actions, 'store': store});
+    } else if (currentDimmer == DimmerType.PickTileTerrain) {
+      dimmerChild = PickTerrain({'actions': actions, 'store': store});
     } else if (currentDimmer == DimmerType.ConfirmNewGame) {
       dimmerChild = ConfirmNewGame({'actions': actions, 'store': store});
     } else if (currentDimmer == DimmerType.Roll) {
       dimmerChild = Roll({'actions': actions, 'store': store});
+    } else if (currentDimmer == DimmerType.Trade) {
+      dimmerChild = Trade({'actions': actions, 'store': store});
     }
     return react.div({
       'className': 'ui page dimmer',

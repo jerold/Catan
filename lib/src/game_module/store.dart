@@ -14,7 +14,17 @@ const String PieceSetupState = 'Piece Setup';
 const String SELECTOR_CONTENT = '#helper-content';
 const String SELECTOR_DIMMER = '#helper-dimmer';
 
-enum DimmerType { ConfirmNewGame, TileOptions, PlotOptions, WaterOptions, Roll, Trade, None }
+enum DimmerType {
+  ConfirmNewGame,
+  TileOptions,
+  PickTileRoll,
+  PickTileTerrain,
+  PlotOptions,
+  WaterOptions,
+  Roll,
+  Trade,
+  None,
+}
 enum GameState { Editing, Playing }
 enum EditState { BoardSetup, PlayerSetup, PieceSetup }
 enum PlayState { Roll, Trade, Build }
@@ -36,6 +46,7 @@ class GameStore extends w_flux.Store {
 
   GameStore(this._actions) {
     _actions
+      ..startNewGame.listen(_handleStartNewGame)
       ..setEditState.listen(_handleSetEditState)
       ..setGameState.listen(_handleSetGameState)
 
@@ -43,6 +54,23 @@ class GameStore extends w_flux.Store {
       ..hideDimmer.listen(_handleHideDimmer);
 
     _boardStore = new BoardStore(_actions);
+  }
+
+  _handleStartNewGame([_]) {
+    gameState = GameState.Editing;
+    editState = EditState.BoardSetup;
+  }
+
+  // Handle State Actions
+
+  _handleSetEditState(EditState newState) {
+    editState = newState;
+    trigger();
+  }
+
+  _handleSetGameState(GameState newState) {
+    gameState = newState;
+    trigger();
   }
 
   // Handle Dimmer Actions
@@ -56,18 +84,6 @@ class GameStore extends w_flux.Store {
   _handleHideDimmer(_) {
     _currentDimmer = DimmerType.None;
     _dimmerVisible = false;
-    trigger();
-  }
-
-  // Handle State Actions
-
-  _handleSetEditState(EditState newState) {
-    editState = newState;
-    trigger();
-  }
-
-  _handleSetGameState(GameState newState) {
-    gameState = newState;
     trigger();
   }
 }

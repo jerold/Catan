@@ -18,7 +18,11 @@ class _CurrentTurnOptions extends w_flux.FluxComponent<GameActions, GameStore> {
           react.i({'className': 'inverted chevron right icon'}),
         ]),
         react.div({'className': 'column'}, [
-          react.h4({'className': 'header'}, 'Trade'),
+          react.h4({
+            'className': 'header',
+            'onClick': (_) => actions.showDimmer(DimmerType.Trade),
+            'style': {'cursor': 'pointer'},
+          }, 'Trade'),
         ]),
         react.div({'className': 'ui vertical divider'}, [
           react.i({'className': 'inverted chevron right icon'}),

@@ -36,7 +36,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       }));
     } else {
       List<Point> points = pipPoints(center: center, radius: COORD_SPACING * 0.5, count: chances(tile.roll));
-      points.forEach((point) {
+      if (tile.terrain != Terrain.Desert) points.forEach((point) {
         children.add(react.circle({
           'cx': point.x,
           'cy': point.y,

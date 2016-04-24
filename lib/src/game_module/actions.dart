@@ -11,7 +11,7 @@ class GameActions {
   w_flux.Action<Player> removePlayer = new w_flux.Action<Player>();
 
   w_flux.Action<int> setActiveTileRoll = new w_flux.Action<int>();
-  w_flux.Action<Terrain> setActiveTerrain = new w_flux.Action<Terrain>();
+  w_flux.Action<Terrain> setActiveTileTerrain = new w_flux.Action<Terrain>();
 
   w_flux.Action<int> setActiveTileKey = new w_flux.Action<int>();
   w_flux.Action<int> setActivePlotKey = new w_flux.Action<int>();
@@ -19,7 +19,7 @@ class GameActions {
   w_flux.Action<Point> setActivatePoint = new w_flux.Action<Point>();
 
   w_flux.Action<GamePieceType> build = new w_flux.Action<GamePieceType>();
-  w_flux.Action<Building> harvest = new w_flux.Action<Building>();
+  w_flux.Action harvest = new w_flux.Action();
 
   w_flux.Action moveThief = new w_flux.Action();
   w_flux.Action<int> roll = new w_flux.Action<int>();

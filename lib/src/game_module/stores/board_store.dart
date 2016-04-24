@@ -34,7 +34,7 @@ class BoardStore extends w_flux.Store {
       ..removePlayer.listen(_handleRemovePlayer)
 
       ..setActiveTileRoll.listen(_handleSetActiveTileRoll)
-      ..setActiveTerrain.listen(_handleSetActiveTerrain)
+      ..setActiveTileTerrain.listen(_handleSetActiveTerrain)
 
       ..setActiveTileKey.listen(_handleSetActiveTileKey)
       ..setActivePlotKey.listen(_handleSetActivePlotKey)
@@ -57,7 +57,7 @@ class BoardStore extends w_flux.Store {
 
   _startNewGame([_]) {
     _board = new Board.standard();
-    _updateBoard();
+    _updateDisplay();
   }
 
   _startNewGameFromURI(List<String> tileStrings) {
@@ -72,10 +72,10 @@ class BoardStore extends w_flux.Store {
       }
     });
     _board = new Board(keys, types, rolls);
-    _updateBoard();
+    _updateDisplay();
   }
 
-  _updateBoard() {
+  _updateDisplay() {
     double maxManDist = 0.0;
     board.tiles.forEach((_, tile) {
       double posX = tile.coordinate.point.x.toDouble().abs();
@@ -134,21 +134,23 @@ class BoardStore extends w_flux.Store {
 
   _handleAddTile(int key) {
     board.addPiece(new Tile(key));
-    _updateBoard();
+    _updateDisplay();
   }
 
   _handleRemoveTile(int key) {
     board.removePiece(board.tiles[key]);
-    _updateBoard();
+    _updateDisplay();
   }
 
   _handleSetActiveTileRoll(int newRoll) {
-    activeTile.roll = newRoll;
+    board.changeTile(activeTile.key, roll: newRoll);
+    _updateDisplay();
     trigger();
   }
 
   _handleSetActiveTerrain(Terrain newTerrain) {
-    activeTile.terrain = newTerrain;
+    board.changeTile(activeTileKey, terrain: newTerrain);
+    _updateDisplay();
     trigger();
   }
 
@@ -172,12 +174,19 @@ class BoardStore extends w_flux.Store {
       _board.economy.doBuy(pieceType, activePlotKey, activePlayer);
       trigger();
     } else {
-      print('Player ${activePlayer.color} can not afford a ${pieceType}');
+      print('WARNING!!! Player ${activePlayer.color} can not afford a ${pieceType}');
     }
   }
 
-  _handleHarvest(Building building) {
-
+  _handleHarvest(_) {
+    if (activePlotKey == null) return;
+    if (_board.plots.containsKey(activePlotKey) && _board.plots[activePlotKey] is Building) {
+      Building building = _board.plots[activePlotKey] as Building;
+      _board.economy.doInitialHarvest(building);
+    } else {
+      print('WARNING!!! No building at ${activePlotKey} from which to harvest');
+    }
+    trigger();
   }
 
   _handleMoveThief(_) {
