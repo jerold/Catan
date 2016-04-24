@@ -37,8 +37,9 @@ class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _handleTouchStart(react.SyntheticTouchEvent e, int key) {
-    var firstTouch = e.touches.first;
-    Point client = new Point(firstTouch.clientX, firstTouch.clientY);
+    e.preventDefault();
+    // React dart does not fully convert the touches JsObject to a List<Touch>...
+    Point client = new Point(e.touches[0]['clientX'], e.touches[0]['clientY']);
     interactionBegan(e.shiftKey, client, key);
   }
 
