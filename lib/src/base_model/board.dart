@@ -81,28 +81,10 @@ class Board {
 
   // Change Map
 
-  bool addTile(int key) {
-    if (!tiles.containsKey(key)) {
-      tiles[key] = new Tile(key);
-      _updateTileDependentCaches();
-      return true;
-    }
-    return false;
-  }
-
   void changeTile(int key, {Terrain terrain, int roll}) {
     if (terrain != null) (tiles[key] as Tile).terrain = terrain;
     if (roll != null) (tiles[key] as Tile).roll = roll;
     _updateTileDependentCaches();
-  }
-
-  bool removeTile(int key) {
-    if (tiles.containsKey(key)) {
-      tiles.remove(key);
-      _updateTileDependentCaches();
-      return true;
-    }
-    return false;
   }
 
   // Change Players
@@ -133,9 +115,15 @@ class Board {
 
   // Change Pieces
 
-  addPiece(Piece piece) => _pieces[piece.type][piece.key] = piece;
+  addPiece(Piece piece) {
+    _pieces[piece.type][piece.key] = piece;
+    _updateTileDependentCaches();
+  }
 
-  removePiece(Piece piece) => _pieces[piece.type].remove(piece.key);
+  removePiece(Piece piece) {
+    _pieces[piece.type].remove(piece.key);
+    _updateTileDependentCaches();
+  }
 
   // Utility Methods
 

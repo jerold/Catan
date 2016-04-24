@@ -3,7 +3,7 @@
 part of catan.game_module;
 
 
-const int ROUND_BUTTON_RADIUS = 18;
+const int ROUND_BUTTON_RADIUS = 32;
 const int OPTION_RADIUS = 70;
 const num EXTRA_RADIUS_LIMIT = 50;
 const num MAX_EXTRA_RADIUS = 15;
@@ -15,7 +15,7 @@ class PaletteOption {
   PaletteOption(this.icon, this.callback);
 
   component(Point p, String c) => react.button({
-    'className': 'circular ui ${c} icon button',
+    'className': 'ui ${c} big icon circular button',
     'style': {
       'position': 'absolute',
       'top': p.y - ROUND_BUTTON_RADIUS,
@@ -36,6 +36,7 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   Map<String, Function> _handlers = new Map<String, Function>();
 
+  int get windowWidth => state['windowWidth'] ?? 1;
   Point get startPoint => state['startPoint'];
   Point get currentPoint => state['currentPoint'];
   ControlPaletteConfig get config => state['config'];
@@ -61,7 +62,8 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   Map<w_flux.Store, Function> getStoreHandlers() => { store: (_) => setStateFromStore() };
 
   bool shouldComponentUpdate(_, nextState) {
-    return state['startPoint'] != startPoint
+    return state['windowWidth'] != windowWidth
+        || state['startPoint'] != startPoint
         || nextState['currentPoint'] != currentPoint
         || nextState['config'] != config;
   }
@@ -82,6 +84,10 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
     _subs.add(document.onTouchMove.listen(_handlers['_handleTouchMove']));
     _subs.add(document.onTouchEnd.listen(_handlers['_handleTouchEnd']));
     _subs.add(document.onTouchCancel.listen(_handlers['_handleTouchCancel']));
+  }
+
+  void componentDidMount(DivElement rootNode) {
+    setState({'windowWidth': rootNode.getBoundingClientRect().width});
   }
 
   componentWillUnmount() {
@@ -113,20 +119,25 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   List<Point> _getOptionPoints(List<PaletteOption> options) {
     int optIndex = 0;
     List<Point> points = new List<Point>();
-    if (options != null) options.forEach((opt) {
-      num angle = PI / 5 * optIndex - PI / 2;
-      Point basePoint = new Point(
-        cos(angle) * OPTION_RADIUS + startPoint.x,
-        sin(angle) * OPTION_RADIUS + startPoint.y
-      );
-      num dist = basePoint.distanceTo(currentPoint);
-      num extraRadius = (EXTRA_RADIUS_LIMIT - (dist.clamp(0, EXTRA_RADIUS_LIMIT))) / EXTRA_RADIUS_LIMIT * MAX_EXTRA_RADIUS;
-      points.add(new Point(
-        cos(angle) * (OPTION_RADIUS + extraRadius) + startPoint.x,
-        sin(angle) * (OPTION_RADIUS + extraRadius) + startPoint.y
-      ));
-      optIndex++;
-    });
+    if (options != null) {
+      num arc = PI / 4;
+      num totalArc = PI / 5 * (options.length - 1);
+      num initialAngle = PI / 2 + totalArc * (startPoint.x / windowWidth);
+      options.forEach((opt) {
+        num angle = arc * optIndex - initialAngle;
+        Point basePoint = new Point(
+          cos(angle) * OPTION_RADIUS + startPoint.x,
+          sin(angle) * OPTION_RADIUS + startPoint.y
+        );
+        num dist = basePoint.distanceTo(currentPoint);
+        num extraRadius = (EXTRA_RADIUS_LIMIT - (dist.clamp(0, EXTRA_RADIUS_LIMIT))) / EXTRA_RADIUS_LIMIT * MAX_EXTRA_RADIUS;
+        points.add(new Point(
+          cos(angle) * (OPTION_RADIUS + extraRadius) + startPoint.x,
+          sin(angle) * (OPTION_RADIUS + extraRadius) + startPoint.y
+        ));
+        optIndex++;
+      });
+    }
     return points;
   }
 

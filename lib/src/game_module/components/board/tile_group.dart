@@ -55,7 +55,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
           'fontSize': 20,
           'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
         }
-      }, '${tile.type != Terrain.Desert ? tile.roll.toString() : ""}'));
+      }, '${tile.terrain != Terrain.Desert ? tile.roll.toString() : ""}'));
     }
     return react.g({}, children);
   }
