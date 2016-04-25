@@ -42,10 +42,12 @@ class Player extends w_flux.Store {
 
   void _addResource(ResourcePayload payload) {
     _resources[payload.resource] = _resources[payload.resource] + payload.count;
+    print('Payer ${color} + ${payload.count} ${payload.resource} (${_resources[payload.resource]})');
   }
 
   void _removeResource(ResourcePayload payload) {
     _resources[payload.resource] = _resources[payload.resource] - payload.count;
+    print('Payer ${color} - ${payload.count} ${payload.resource} (${_resources[payload.resource]})');
   }
 
   bool hasResource(int count, Resource resource) => _resources[resource] >= count;

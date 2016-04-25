@@ -7,6 +7,9 @@ class TradePayload {
   Economy _eco;
   Economy get eco => _eco;
 
+  bool _completed = false;
+  bool get completed => _completed;
+
   Map<Resource, int> _exchange = new Map<Resource, int>();
   Map<Resource, int> get exchange => new Map<Resource, int>.from(_exchange);
 
@@ -18,27 +21,44 @@ class TradePayload {
 
   TradePayload(this._eco, {Player payee, Player payer}) : _payee = payee, _payer = payer;
 
-  /// the [trade] function takes # resources from _player and give them to _recipient.
-  trade(Resource resource, int count) {
-    if (resource == null || count <= 0) return false;
+  /// the [deposit] function takes # resources from _player and give them to _recipient.
+  deposit(Resource resource, int count) {
+    if (resource == null || count <= 0) return;
 
     if (!_exchange.containsKey(resource)) _exchange[resource] = 0;
     _exchange[resource] = _exchange[resource] + count;
 
     ResourcePayload payload = new ResourcePayload(count, resource);
     if (_payer != null) _payer.actions.removeResources(payload);
-    if (_payee != null) _payee.actions.addResources(payload);
-
-    if (_payer != null) print('Payer ${_payer.color} - ${count} ${resource}');
-    if (_payee != null) print('Payee ${_payee.color} + ${count} ${resource}');
   }
 
-  /// the [revoke] function returns any traded resources to the payer.
-  void revoke() {
+  /// the [withdraw] function returns previously deposited resources to the _player
+  withdraw(Resource resource, int count) {
+    if (resource == null || count <= 0) return;
+
+    if (!_exchange.containsKey(resource) || _exchange[resource] < count) return;
+    _exchange[resource] = _exchange[resource] - count;
+
+    ResourcePayload payload = new ResourcePayload(count, resource);
+    if (_payer != null) _payer.actions.addResources(payload);
+  }
+
+  /// the [complete] function sends any exchanged resources to the payee.
+  complete() {
+    if (_completed) return;
+    _completed = true;
+
+    _exchange.forEach((resource, count) {
+      ResourcePayload payload = new ResourcePayload(count, resource);
+      if (_payee != null) _payee.actions.addResources(payload);
+    });
+  }
+
+  /// the [revoke] function returns any exchanged resources to the payer.
+  revoke() {
     _exchange.forEach((resource, count) {
       ResourcePayload payload = new ResourcePayload(count, resource);
       _payer.actions.addResources(payload);
-      if (_payee != null) _payee.actions.removeResources(payload);
       _exchange[resource] = 0;
     });
   }
@@ -61,8 +81,9 @@ class BuildPayload extends TradePayload {
 
     RATES[type].forEach((resource, count) {
       _key = key;
-      trade(resource, count);
+      deposit(resource, count);
     });
+    complete();
 
     Piece piece = new Piece.ofType(type, key, owner: payer);
     _eco.board.actions.addPiece(piece);
@@ -90,7 +111,9 @@ class RollPayload {
   addHarvest(Building building, Tile tile) {
     if (building == null || _eco.board.thiefKey == tile.key) return null;
     TradePayload payload = new TradePayload(_eco, payee: building.owner);
-    payload.trade(tile.resource, building.production);
+    payload
+      ..deposit(tile.resource, building.production)
+      ..complete();
     _harvestTrades.add(payload);
   }
 
@@ -133,7 +156,7 @@ class Economy {
         Tile tile = _board.tiles[tKey] as Tile;
         if (tile.key != _board.thiefKey) {
           TradePayload payload = new TradePayload(this, payee: building.owner);
-          payload.trade(tile.resource, building.production);
+          payload.deposit(tile.resource, building.production);
           doTrade(payload);
         }
       }
@@ -156,6 +179,7 @@ class Economy {
   }
 
   doTrade(TradePayload payload) {
+    payload.complete();
     trades.insert(0, payload);
   }
 }

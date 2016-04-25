@@ -6,104 +6,52 @@ part of catan.game_module;
 var Trade = react.registerComponent(() => new _Trade());
 class _Trade extends w_flux.FluxComponent<GameActions, GameStore> {
 
-  int get selected => state['selected'];
+  TradePayload get tradeTo => state['tradeTo'];
+  TradePayload get tradeFrom => state['tradeFrom'];
 
-  getInitialState() => {'selected': 0};
+  getInitialState() => {
+    'tradeTo': new TradePayload(store.board.economy, payer: store.activePlayer, payee: store.board.players[0]),
+    'tradeFrom': new TradePayload(store.board.economy, payer: store.board.players[0], payee: store.activePlayer),
+  };
 
   render() {
     Player activePlayer = store.activePlayer;
+
+    List tradeSegments = new List();
+
+    if (tradeTo != null) tradeSegments.add(PayerSegment({'actions': actions, 'store': tradeTo.payer, 'trade': tradeTo}));
+    if (tradeFrom != null) tradeSegments.add(PayerSegment({'actions': actions, 'store': tradeFrom.payer, 'trade': tradeFrom}));
 
     return react.div({'className':'content'}, [
       react.div({'className':'center'}, [
         react.h2({'className':'ui inverted icon header'}, [
           react.div({'className': 'segment'}, 'Trade'),
-          react.div({'className':'sub header'}, [
-            react.div({'className': 'ui basic left aligned clearing segment'}, [
-
-              react.h3({'style': {
-                'color': activePlayer.color,
-              }}, '${activePlayer != null ? activePlayer.color : ""} '),
-
-              react.div({'className': 'ui divider'}),
-              react.div({'className': 'ui six column grid'}, [
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui button'}, '1'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui button'}, '2'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui button'}, '3'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui disabled button'}, '0'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui button'}, '1'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui disabled button'}, '0'),
-                ]),
-              ]),
-
-              react.div({'className': 'ui six column grid'}, [
-                react.div({'className': 'center aligned column'}, 'W'),
-                react.div({'className': 'center aligned column'}, 'S'),
-                react.div({'className': 'center aligned column'}, 'L'),
-                react.div({'className': 'center aligned column'}, 'B'),
-                react.div({'className': 'center aligned column'}, 'O'),
-                react.div({'className': 'center aligned column'}, '?'),
-              ]),
-
-              react.div({'className': 'ui six column grid'}, [
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui inverted disabled button'}, '0'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui inverted button'}, '1'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui inverted disabled button'}, '0'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui inverted disabled button'}, '0'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui inverted button'}, '1'),
-                ]),
-                react.div({'className': 'column'}, [
-                  react.button({'className': 'ui inverted button'}, '1'),
-                ]),
-              ]),
-
-            ]),
-            react.div({'className': 'ui hidden divider'}),
-            react.div({'className': 'ui basic segment'}, [
-              react.button({
-                  'className': 'ui red basic cancel inverted button',
-                  'onClick': _handleCancel,
-              }, react.i({'className': 'remove icon'})),
-              react.button({
-                  'className': 'ui green ok inverted button',
-                  'onClick': _handleConfirm,
-              }, react.i({'className': 'checkmark icon'}))
-            ])
+          react.div({'className':'sub header'}, tradeSegments),
+          react.div({'className': 'ui hidden divider'}),
+          react.div({'className': 'ui basic segment'}, [
+            react.button({
+                'className': 'ui red basic cancel inverted button',
+                'onClick': _handleCancel,
+            }, react.i({'className': 'remove icon'})),
+            react.button({
+                'className': 'ui green ok inverted button',
+                'onClick': _handleConfirm,
+            }, react.i({'className': 'checkmark icon'}))
           ])
         ])
       ])
     ]);
   }
 
-  _select(int value) {
-    setState({'selected': value});
-  }
-
   _handleCancel(_) {
+    tradeTo?.revoke();
+    tradeFrom?.revoke();
     actions.hideDimmer();
   }
 
   _handleConfirm(_) {
-    // if (ROLLS.contains(selected)) actions.roll(selected);
+    if (tradeTo != null) store.board.economy.doTrade(tradeTo);
+    if (tradeFrom != null) store.board.economy.doTrade(tradeFrom);
     actions.hideDimmer();
   }
 }

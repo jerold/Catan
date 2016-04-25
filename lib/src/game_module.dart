@@ -23,6 +23,7 @@ part 'game_module/components/editing.dart';
 part 'game_module/components/helper.dart';
 part 'game_module/components/history_list.dart';
 part 'game_module/components/main_menu.dart';
+part 'game_module/components/payer_segment.dart';
 part 'game_module/components/pie_chart.dart';
 part 'game_module/components/player_setup.dart';
 part 'game_module/components/playing.dart';
