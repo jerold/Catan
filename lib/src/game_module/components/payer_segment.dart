@@ -38,9 +38,7 @@ class _PayerSegment extends w_flux.FluxComponent<GameActions, Player> {
     });
 
     return react.div({'className': 'ui basic left aligned segment'}, [
-      react.h3({'style': {
-        'color': player.color,
-      }}, '${player.color}'),
+      react.h3({'className': 'ui ${player.color} inverted header'}, '${player.name}'),
       react.div({'className': 'ui divider'}),
       react.div({'className': 'ui six column grid'}, labels),
       react.div({'className': 'ui six column grid'}, onHand),

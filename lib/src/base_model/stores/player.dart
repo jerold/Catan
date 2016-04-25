@@ -18,6 +18,7 @@ class Player extends w_flux.Store {
 
   Player(String color) {
     _changeColor(color);
+    _changeName(color);
 
     // start with no resources
     RESOURCES.forEach((resource) => _resources[resource] = 0);

@@ -12,17 +12,71 @@ class _Players extends w_flux.FluxComponent<GameActions, GameStore> {
     else return [];
   }
 
+  Player get activePlayer => state['activePlayer'];
+  String get name => state['name'];
+  bool get renaming => state['renaming'];
+
+  getInitialState() => stateFromStore()..['renaming'] = false;
+
+  stateFromStore() => {
+    'activePlayer': store.activePlayer,
+    'name': store.activePlayer?.name ?? '',
+  };
+
+  setStateFromStore() => setState(stateFromStore());
+
+  Map<w_flux.Store, Function> getStoreHandlers() => {
+    store: (_) => setStateFromStore(),
+  };
+
   render() {
-    List playerItems = new List();
+    List players = new List();
     board.players.forEach((player) {
-      playerItems.add(react.div({
-        'className': 'ui tiny ${player.color} icon button',
+      List playerItems = new List();
+      playerItems.add(react.i({'className': 'user icon'}));
+      if (player == activePlayer) playerItems.add(react.span({'className': 'text'}, ' ${player.name}'));
+      players.add(react.div({
+        'className': 'ui ${player.color} icon button',
         'onClick': (_) => actions.setActivePlayer(player),
-      }, [
-        react.i({'className': 'user icon'}),
-        player == store.activePlayer ? react.span({'className': 'text'}, '${player.color}') : null,
-      ]));
+        'onDoubleClick': _onDoubleClick,
+      }, playerItems));
     });
-    return react.div({}, playerItems);
+
+    if (renaming) {
+      players.add(react.div({'className': 'ui left icon action input'}, [
+        react.i({'className': '${activePlayer.color} user icon'}),
+        react.input({
+          'type': 'text',
+          'value': name,
+          'onChange': _onChange,
+          'onKeyDown': _onKeyDown,
+        }),
+        react.div({
+          'className': 'ui submit button',
+          'onClick': _changeName,
+        }, 'Change Name'),
+      ]));
+    }
+
+    return react.div({'className': ''}, [
+      react.div({'className': 'ui small input'}, players),
+    ]);
+  }
+
+  _onDoubleClick(_) {
+    setState({'renaming': !renaming});
+  }
+
+  _onKeyDown(react.SyntheticKeyboardEvent event) {
+    if (event.keyCode == KeyCode.ENTER) _changeName();
+  }
+
+  _onChange(react.SyntheticFormEvent event) {
+    setState({'name': event.target.value});
+  }
+
+  _changeName([_]) async {
+    await activePlayer.actions.changeName(name);
+    setState({'renaming': false});
   }
 }
