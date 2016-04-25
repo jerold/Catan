@@ -69,6 +69,7 @@ class _Players extends w_flux.FluxComponent<GameActions, GameStore> {
 
   _onKeyDown(react.SyntheticKeyboardEvent event) {
     if (event.keyCode == KeyCode.ENTER) _changeName();
+    if (event.keyCode == KeyCode.ESC) setState({'renaming': false});
   }
 
   _onChange(react.SyntheticFormEvent event) {

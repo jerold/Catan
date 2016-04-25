@@ -35,10 +35,7 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
     if (editState == EditState.PieceSetup) {
       editItems.add(Players({'actions': actions, 'store': store}));
       editItems.add(react.div({'className': 'ui horizontal divider'}, [
-        react.span({'style': {
-          'color': activePlayer?.color,
-        }}, '${activePlayer != null ? activePlayer.color : ""} '),
-        'Player active'
+        react.h3({'className': 'ui ${store.activePlayer?.color} header'}, '${store.activePlayer?.name ?? "Player"} is Active'),
       ]));
     }
 

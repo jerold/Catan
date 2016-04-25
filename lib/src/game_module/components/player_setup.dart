@@ -37,7 +37,9 @@ class _PlayerSetup extends w_flux.FluxComponent<GameActions, GameStore> {
 
     return react.div({'className': 'ui center aligned basic segment'}, [
       react.div({'className': 'ui icon buttons'}, addItems),
-      react.div({'className': 'ui horizontal divider'}, 'Add Players'),
+      react.div({'className': 'ui horizontal divider'}, [
+        react.h3({'className': 'ui header'}, 'Add Players'),
+      ]),
       react.div({'className': ''}, removeItems),
     ]);
   }

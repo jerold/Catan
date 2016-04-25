@@ -29,9 +29,7 @@ class _Playing extends w_flux.FluxComponent<GameActions, GameStore> {
       Players({'actions': actions, 'store': store}),
 
       react.div({'className': 'ui horizontal divider'}, [
-        react.span({'style': {
-          'color': store.activePlayer?.color,
-        }}, '${store.activePlayer?.name ?? "Player"}\'s turn'),
+        react.h3({'className': 'ui ${store.activePlayer?.color} header'}, 'Its ${store.activePlayer?.name ?? "Player"}\'s Turn'),
       ]),
 
       // react.div({'className': 'ui horizontal divider'}, '${store.activePlayer?.name ?? "Player"}\'s turn'),

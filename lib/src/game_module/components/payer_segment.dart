@@ -14,7 +14,7 @@ class _PayerSegment extends w_flux.FluxComponent<GameActions, Player> {
     player.resources.forEach((resource, count) {
       onHand.add(react.div({'className': 'column'},
         react.button({
-          'className': 'ui inverted ${count <= 0 ? "disabled" : ""} button',
+          'className': 'ui ${count <= 0 ? "secondary inverted disabled" : "grey"} button',
           'onClick': (_) => trade.deposit(resource, 1),
         }, '${count}')
       ));
@@ -31,7 +31,7 @@ class _PayerSegment extends w_flux.FluxComponent<GameActions, Player> {
       int count = trade.exchange[resource] ?? 0;
       deposits.add(react.div({'className': 'column'},
         react.button({
-          'className': 'ui ${disabled ? "inverted disabled" : ""} button',
+          'className': 'ui ${disabled ? "secondary inverted disabled" : "white"} button',
           'onClick': (_) => trade.withdraw(resource, 1),
         }, '${count}')
       ));
