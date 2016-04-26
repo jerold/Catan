@@ -13,21 +13,21 @@ class Player extends w_flux.Store {
   String _name = '';
   String get name => _name;
 
-  Map<Resource, int> _resources = new Map<Resource, int>();
-  Map<Resource, int> get resources => new Map<Resource, int>.from(_resources);
+  Map<Commodity, int> _commodities = new Map<Commodity, int>();
+  Map<Commodity, int> get commodities => new Map<Commodity, int>.from(_commodities);
 
   Player(String color) {
     _changeColor(color);
     _changeName(color);
 
-    // start with no resources
-    RESOURCES.forEach((resource) => _resources[resource] = 0);
+    // start with no commodities
+    RESOURCES.forEach((commodity) => _commodities[commodity] = 0);
 
     // Add initial funds required to buy two settlements
-    RATES[GamePieceType.Settlement].forEach((resource, count) => _resources[resource] = count * 2);
+    RATES[GamePieceType.Settlement].forEach((commodity, count) => _commodities[commodity] = count * 2);
 
-    triggerOnAction(_actions.addResources, _addResource);
-    triggerOnAction(_actions.removeResources, _removeResource);
+    triggerOnAction(_actions.addCommodities, _addCommodity);
+    triggerOnAction(_actions.removeCommodities, _removeCommodity);
     triggerOnAction(_actions.changeColor, _changeColor);
     triggerOnAction(_actions.changeName, _changeName);
   }
@@ -39,21 +39,19 @@ class Player extends w_flux.Store {
 
   _changeName(String newName) => this._name = newName ?? this._name;
 
-  // Resource Helpers
+  // Commodity Helpers
 
-  void _addResource(ResourcePayload payload) {
-    _resources[payload.resource] = _resources[payload.resource] + payload.count;
-    print('Payer ${color} + ${payload.count} ${payload.resource} (${_resources[payload.resource]})');
+  void _addCommodity(CommodityPayload payload) {
+    _commodities[payload.commodity] = _commodities[payload.commodity] + payload.count;
+    print('Payer ${color} + ${payload.count} ${payload.commodity} (${_commodities[payload.commodity]})');
   }
 
-  void _removeResource(ResourcePayload payload) {
-    _resources[payload.resource] = _resources[payload.resource] - payload.count;
-    print('Payer ${color} - ${payload.count} ${payload.resource} (${_resources[payload.resource]})');
+  void _removeCommodity(CommodityPayload payload) {
+    _commodities[payload.commodity] = _commodities[payload.commodity] - payload.count;
+    print('Payer ${color} - ${payload.count} ${payload.commodity} (${_commodities[payload.commodity]})');
   }
 
-  bool hasResource(int count, Resource resource) => _resources[resource] >= count;
+  int commodityCount(Commodity commodity) => _commodities[commodity];
 
-  int resourceCount(Resource resource) => _resources[resource];
-
-  int get handCount => resources.values.reduce((int prev, int next) => prev + next);
+  int get handCount => commodities.values.reduce((int prev, int next) => prev + next);
 }

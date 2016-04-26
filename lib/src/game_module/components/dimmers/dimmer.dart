@@ -47,6 +47,7 @@ class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
         'opacity': store.dimmerVisible ? 1.0 : 0.0,
         'transition': 'opacity .25s ease-in-out',
         'pointerEvents': store.dimmerVisible ? 'auto' : 'none',
+        'overflow': 'auto',
       },
     }, dimmerChild);
   }

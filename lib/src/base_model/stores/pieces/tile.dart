@@ -11,14 +11,14 @@ class Tile extends TilePiece {
   Terrain terrain = Terrain.Desert;
   int roll = 0;
 
-  Resource get resource {
+  Commodity get commodity {
     switch(terrain) {
-      case Terrain.Pasture:  return Resource.Sheep;
-      case Terrain.Field:    return Resource.Wheat;
-      case Terrain.Forest:   return Resource.Lumber;
-      case Terrain.Hill:     return Resource.Brick;
-      case Terrain.Mountain: return Resource.Ore;
-      default:                return Resource.None;
+      case Terrain.Pasture:  return Commodity.Sheep;
+      case Terrain.Field:    return Commodity.Wheat;
+      case Terrain.Forest:   return Commodity.Lumber;
+      case Terrain.Hill:     return Commodity.Brick;
+      case Terrain.Mountain: return Commodity.Ore;
+      default:                return Commodity.None;
     }
   }
 

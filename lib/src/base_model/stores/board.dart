@@ -26,8 +26,8 @@ class Board extends w_flux.Store {
   // Tile Dependent Caches
   Set<int> _cachedExpansionTiles = new Set<int>();
   Set<int> _cachedPlots = new Set<int>();
-  Map<Resource, List<Tile>> _cachedTilesWithResource = new Map<Resource, List<Tile>>();
-  Map<Resource, int> _cachedResourceChances = new Map<Resource, int>();
+  Map<Commodity, List<Tile>> _cachedTilesWithCommodity = new Map<Commodity, List<Tile>>();
+  Map<Commodity, int> _cachedCommodityChances = new Map<Commodity, int>();
   Map<int, int> _cachedPlotUtilities = new Map<int, int>();
 
   // Tile AND Building Dependent Caches
@@ -153,13 +153,15 @@ class Board extends w_flux.Store {
     return playerFound;
   }
 
+  bool thiefCalls() => players.any((player) => player.handCount > EXCEED_TO_ACTIVATE_THE_THIEF);
+
   Statistic plotUtilityStats() => _plotUtilityStats;
 
   int utilityOfPlot(int key) => _cachedPlotUtilities[key];
 
-  List<Tile> tilesWithResource(Resource type) => new List<Tile>.from(_cachedTilesWithResource[type]);
+  List<Tile> tilesWithCommodity(Commodity type) => new List<Tile>.from(_cachedTilesWithCommodity[type]);
 
-  int resourceChances(Resource type) => _cachedResourceChances[type];
+  int commodityChances(Commodity type) => _cachedCommodityChances[type];
 
   List<int> handyPlots(Player player) => new List<int>.from(_cachedHandyPlots[player]);
 
@@ -173,16 +175,16 @@ class Board extends w_flux.Store {
     _cachedExpansionTiles.clear();
     _cachedPlots.clear();
     _cachedPlotUtilities.clear();
-    _cachedTilesWithResource.clear();
-    _cachedResourceChances.clear();
+    _cachedTilesWithCommodity.clear();
+    _cachedCommodityChances.clear();
 
-    // init empty tiles-with-resources maps
-    RESOURCES.forEach((resource) {
-      _cachedTilesWithResource[resource] = new List<Tile>();
-      _cachedResourceChances[resource] = 0;
+    // init empty tiles-with-commodities maps
+    RESOURCES.forEach((commodity) {
+      _cachedTilesWithCommodity[commodity] = new List<Tile>();
+      _cachedCommodityChances[commodity] = 0;
     });
 
-    // update _boundingRect, _cachedTilesWithResource, _cachedExpansionTiles, and _cachedPlots
+    // update _boundingRect, _cachedTilesWithCommodity, _cachedExpansionTiles, and _cachedPlots
     Point minP = Coordinate._getPoint(INITIAL_H, INITIAL_V);
     Point maxP = Coordinate._getPoint(INITIAL_H, INITIAL_V);
     tiles.forEach((_, tile) {
@@ -194,16 +196,16 @@ class Board extends w_flux.Store {
 
       _cachedExpansionTiles.addAll(tile.neighbors(PieceType.Tile));
       _cachedPlots.addAll(tile.neighbors(PieceType.Plot));
-      _cachedTilesWithResource[tile.resource].add(tile);
+      _cachedTilesWithCommodity[tile.commodity].add(tile);
     });
     minP = new Point(minP.x - (2.5 * SPACING_X), minP.y - (3 * SPACING_Y)); // account for expansion tiles
     maxP = new Point(maxP.x + (2.5 * SPACING_X), maxP.y + (3 * SPACING_Y)); // account for expansion tiles
     _boundingRect = new Rectangle.fromPoints(minP, maxP);
     _cachedExpansionTiles.removeAll(tiles.keys);
 
-    // update _cachedResourceChances
-    RESOURCES.forEach((resource) {
-      _cachedResourceChances[resource] = _cachedTilesWithResource[resource].fold(0, (sum, next) => sum + chances(next.roll));
+    // update _cachedCommodityChances
+    RESOURCES.forEach((commodity) {
+      _cachedCommodityChances[commodity] = _cachedTilesWithCommodity[commodity].fold(0, (sum, next) => sum + chances(next.roll));
     });
 
     // update _cachedPlotUtilities

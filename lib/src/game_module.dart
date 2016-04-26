@@ -38,6 +38,7 @@ part 'game_module/components/board/water_group.dart';
 part 'game_module/components/dimmers/confirm_new_game.dart';
 part 'game_module/components/dimmers/control_palette.dart';
 part 'game_module/components/dimmers/dimmer.dart';
+part 'game_module/components/dimmers/exchange.dart';
 part 'game_module/components/dimmers/pick_tile_roll.dart';
 part 'game_module/components/dimmers/pick_tile_terrain.dart';
 part 'game_module/components/dimmers/roll.dart';

@@ -3,8 +3,8 @@
 part of catan.base_model;
 
 
-enum Resource { None, Sheep, Wheat, Lumber, Brick, Ore }
-List<Resource> get RESOURCES => Resource.values;
+enum Commodity { None, Sheep, Wheat, Lumber, Brick, Ore }
+List<Commodity> get RESOURCES => Commodity.values;
 
 enum Terrain { Desert, Pasture, Field, Forest, Hill, Mountain }
 List<Terrain> get TERRAINS => Terrain.values;
@@ -19,20 +19,22 @@ int MAX_ROADS = 15;
 int MAX_SETTLEMENTS = 5;
 int MAX_CITIES = 4;
 
-final Map<GamePieceType, Map<Resource, int>> RATES = new Map<GamePieceType, Map<Resource, int>>()
+int EXCEED_TO_ACTIVATE_THE_THIEF = 7;
+
+final Map<GamePieceType, Map<Commodity, int>> RATES = new Map<GamePieceType, Map<Commodity, int>>()
   ..[GamePieceType.Road] = {
-    Resource.Lumber: 1,
-    Resource.Brick: 1,
+    Commodity.Lumber: 1,
+    Commodity.Brick: 1,
   }
   ..[GamePieceType.Settlement] = {
-    Resource.Lumber: 1,
-    Resource.Brick: 1,
-    Resource.Wheat: 1,
-    Resource.Sheep: 1,
+    Commodity.Lumber: 1,
+    Commodity.Brick: 1,
+    Commodity.Wheat: 1,
+    Commodity.Sheep: 1,
   }
   ..[GamePieceType.City] = {
-    Resource.Ore: 3,
-    Resource.Wheat: 2,
+    Commodity.Ore: 3,
+    Commodity.Wheat: 2,
   };
 
 List<int> defaultCoordinateKeys = [
@@ -80,11 +82,11 @@ int chances(int roll) => roll >= 2 && roll <= 12 ? chanceList[roll - 2] : 0;
 
 num probability(int roll) => chances(roll) / 36;
 
-class ResourcePayload {
+class CommodityPayload {
   final int count;
-  final Resource resource;
+  final Commodity commodity;
 
-  ResourcePayload(this.count, this.resource);
+  CommodityPayload(this.count, this.commodity);
 }
 
 class PurchasePayload {
@@ -123,17 +125,17 @@ String stringFromTerrain(Terrain type) {
   }
 }
 
-String stringFromResource(Resource type) {
+String stringFromCommodity(Commodity type) {
   switch(type) {
-    case Resource.Brick:
+    case Commodity.Brick:
       return 'Brick';
-    case Resource.Lumber:
+    case Commodity.Lumber:
       return 'Lumber';
-    case Resource.Ore:
+    case Commodity.Ore:
       return 'Ore';
-    case Resource.Sheep:
+    case Commodity.Sheep:
       return 'Sheep';
-    case Resource.Wheat:
+    case Commodity.Wheat:
       return 'Wheat';
     default:
       return 'Unknown';

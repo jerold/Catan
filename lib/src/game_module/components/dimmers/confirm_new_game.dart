@@ -16,25 +16,24 @@ class _ConfirmNewGame extends w_flux.FluxComponent<GameActions, GameStore> {
             react.div({'className': 'ui basic segment'}, [
               'Starting a new game will cause the current game details to be lost. Which could suck... or not. I don\'t know you. You could be into that sort of thing.',
             ]),
-            react.div({'className': 'ui hidden divider'}),
-            react.div({'className': 'ui basic segment'}, [
-              react.button({
-                  'className': 'ui red basic cancel inverted button',
-                  'onClick': _handleCancel,
-              }, [
-                react.i({'className': 'remove icon'}),
-                'Nope, that sounds bad.'
-              ]),
-              react.button({
-                  'className': 'ui green ok inverted button',
-                  'onClick': _handleConfirm,
-              }, [
-                react.i({'className': 'checkmark icon'}),
-                'Please, I know the guac is extra.'
-              ])
-            ])
+          ]),
+        ]),
+        react.div({'className': 'ui basic segment'}, [
+          react.button({
+              'className': 'ui big red basic cancel inverted button',
+              'onClick': _handleCancel,
+          }, [
+            react.i({'className': 'remove icon'}),
+            'Nope, that sounds bad.'
+          ]),
+          react.button({
+              'className': 'ui big green ok inverted button',
+              'onClick': _handleConfirm,
+          }, [
+            react.i({'className': 'checkmark icon'}),
+            'Please, I know the guac is extra.'
           ])
-        ])
+        ]),
       ])
     ]);
   }
