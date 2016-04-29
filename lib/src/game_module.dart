@@ -16,6 +16,7 @@ part 'game_module/actions.dart';
 part 'game_module/components.dart';
 part 'game_module/store.dart';
 
+part 'game_module/components/bar_chart.dart';
 part 'game_module/components/board_setup.dart';
 part 'game_module/components/current_turn_options.dart';
 part 'game_module/components/editing_state_selector.dart';

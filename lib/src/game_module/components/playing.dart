@@ -16,20 +16,21 @@ class _Playing extends w_flux.FluxComponent<GameActions, GameStore> {
 
   getInitialState() => stateFromStore()..['renaming'] = false;
 
-  stateFromStore() => {'activePlayer': store.activePlayer};
+  stateFromStore() => {'activePlayer': board.activePlayer};
 
   setStateFromStore() => setState(stateFromStore());
 
   Map<w_flux.Store, Function> getStoreHandlers() => {
     store: (_) => setStateFromStore(),
+    store.board: (_) => setStateFromStore(),
   };
 
   render() {
     return react.div({'className': 'ui basic vertical center aligned segment'}, [
-      Players({'actions': actions, 'store': store}),
+      Players({'actions': actions, 'store': board}),
 
       react.div({'className': 'ui horizontal divider'}, [
-        react.h3({'className': 'ui ${store.activePlayer?.color} header'}, 'Its ${store.activePlayer?.name ?? "Player"}\'s Turn'),
+        react.h3({'className': 'ui ${activePlayer?.color} header'}, 'Its ${activePlayer?.name ?? "Player"}\'s Turn'),
       ]),
 
       // react.div({'className': 'ui horizontal divider'}, '${store.activePlayer?.name ?? "Player"}\'s turn'),

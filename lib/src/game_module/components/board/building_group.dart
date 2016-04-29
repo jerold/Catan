@@ -20,7 +20,7 @@ class _BuildingGroup extends w_flux.FluxComponent<GameActions, GameStore> {
       if (plot is Building) {
         Building building = plot as Building;
         Coordinate coord = Coordinate.fromKey(building.key);
-        Point center = scaledPoint(coord, board.boundingRect);
+        Point center = scaledPoint(coord);
         if (building.production > 1) {
           children.add(react.circle({
             'cx': center.x,

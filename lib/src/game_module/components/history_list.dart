@@ -5,6 +5,15 @@ part of catan.game_module;
 var HistoryList = react.registerComponent(() => new _HistoryList());
 class _HistoryList extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
+    List<int> data = [1, 2, 3, 0, 1];
+    List<String> fills = new List<String>.from([
+      Terrain.Field,
+      Terrain.Pasture,
+      Terrain.Forest,
+      Terrain.Hill,
+      Terrain.Mountain
+    ].map((terrain) => tileTypeToColor(terrain)));
+
     List historyItems = new List();
     [PlayerColorRed, PlayerColorBlue, PlayerColorGrey].forEach((color) {
       historyItems.add(react.div({'className': 'ui grid'}, [
@@ -25,6 +34,10 @@ class _HistoryList extends w_flux.FluxComponent<GameActions, GameStore> {
               react.div({'className': 'extra'}, [
                 react.div({'className': 'ui label'}, 'delete turn from history'),
               ]),
+              BarChart({
+                'data' : data,
+                'fills' : fills,
+              }),
             ]),
           ]),
         ]),

@@ -5,6 +5,9 @@ part of catan.game_module;
 
 var Trade = react.registerComponent(() => new _Trade());
 class _Trade extends _Exchange {
+  Player get activePlayer => store.board.activePlayer;
+
+  Economy get economy => store.board.economy;
 
   Map getInitialState() => {'title': 'Nothing funny, just a trade partner...'};
 
@@ -14,7 +17,7 @@ class _Trade extends _Exchange {
 
     List items = new List();
     store.board.players.forEach((player) {
-      if (player != store.activePlayer) {
+      if (player != store.board.activePlayer) {
         List playerItems = new List();
         playerItems.add(react.i({'className': 'user icon'}));
         playerItems.add(react.span({'className': 'text'}, ' ${player.name}'));
@@ -46,8 +49,8 @@ class _Trade extends _Exchange {
   }
 
   _configureTrade(Player player) {
-    TradePayload a = new TradePayload(store.board.economy, payer: store.activePlayer, payee: player);
-    TradePayload b = new TradePayload(store.board.economy, payee: store.activePlayer, payer: player);
+    TradePayload a = new TradePayload(economy, payer: activePlayer, payee: player);
+    TradePayload b = new TradePayload(economy, payee: activePlayer, payer: player);
     setState({
       'title': 'In for a penny, in for a pound...',
       'trades': [a, b]

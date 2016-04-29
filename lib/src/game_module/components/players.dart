@@ -3,31 +3,23 @@
 part of catan.game_module;
 
 var Players = react.registerComponent(() => new _Players());
-class _Players extends w_flux.FluxComponent<GameActions, GameStore> {
-  Board get board => store.board;
-
-  @override
-  List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.board];
-    else return [];
-  }
+class _Players extends w_flux.FluxComponent<GameActions, Board> {
+  Board get board => store;
 
   Player get activePlayer => state['activePlayer'];
   String get name => state['name'];
   bool get renaming => state['renaming'];
 
-  getInitialState() => stateFromStore()..['renaming'] = false;
+  getInitialState() => stateFromBoard()..['renaming'] = false;
 
-  stateFromStore() => {
-    'activePlayer': store.activePlayer,
-    'name': store.activePlayer?.name ?? '',
+  stateFromBoard() => {
+    'activePlayer': board.activePlayer,
+    'name': board.activePlayer?.name ?? '',
   };
 
-  setStateFromStore() => setState(stateFromStore());
+  setStateFromBoard() => setState(stateFromBoard());
 
-  Map<w_flux.Store, Function> getStoreHandlers() => {
-    store: (_) => setStateFromStore(),
-  };
+  Map<w_flux.Store, Function> getStoreHandlers() => {store: (_) => setStateFromBoard()};
 
   render() {
     List players = new List();
@@ -37,7 +29,7 @@ class _Players extends w_flux.FluxComponent<GameActions, GameStore> {
       if (player == activePlayer) playerItems.add(react.span({'className': 'text'}, ' ${player.name}'));
       players.add(react.div({
         'className': 'ui ${player.color} icon button',
-        'onClick': (_) => actions.setActivePlayer(player),
+        'onClick': (_) => board.actions.setActivePlayer(player),
         'onDoubleClick': _onDoubleClick,
       }, playerItems));
     });

@@ -5,10 +5,11 @@ part of catan.game_module;
 
 var PickTerrain = react.registerComponent(() => new _PickTerrain());
 class _PickTerrain extends w_flux.FluxComponent<GameActions, GameStore> {
+  Tile get tile => (store.board.activePiece as Tile);
 
   Terrain get selected => state['selected'];
 
-  getInitialState() => {'selected': store.activeTile.terrain};
+  getInitialState() => {'selected': tile.terrain};
 
   render() {
     List terrains = new List.from(TERRAINS.map((terrain) {
@@ -41,7 +42,7 @@ class _PickTerrain extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _select(Terrain value) {
-    if (TERRAINS.contains(value)) store.activeTile.actions.setTerrain(value);
+    if (TERRAINS.contains(value)) store.board.actions.setActiveTileTerrain(value);
     actions.hideDimmer();
   }
 

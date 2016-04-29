@@ -35,21 +35,10 @@ class GameStore extends w_flux.Store {
   Board _board;
   Board get board => _board;
 
-  // Active Pieces & Player
+  // Interaction Point
 
-  int _activePlayerIndex = 0;
-  int get activePlayerIndex => _activePlayerIndex;
-  Player get activePlayer => _activePlayerIndex < _board.players.length ? _board.players[_activePlayerIndex] : null;
-
-  int _activeTileKey;
-  int get activeTileKey => _activeTileKey;
-  Tile get activeTile => _board.tiles[_activeTileKey];
-
-  int _activePlotKey;
-  int get activePlotKey => _activePlotKey;
-
-  Point _activatePoint = new Point(0,0);
-  Point get activatePoint => _activatePoint;
+  Point _interactionPoint = new Point(0,0);
+  Point get interactionPoint => _interactionPoint;
 
   // UI Properties
 
@@ -68,10 +57,7 @@ class GameStore extends w_flux.Store {
     if (tileStrings.length > 0) _startNewGameFromURI(tileStrings);
     else _startNewGame();
 
-    triggerOnAction(_actions.setActivatePoint, _setActivatePoint);
-    triggerOnAction(_actions.setActivePlayer, _setActivePlayer);
-    triggerOnAction(_actions.setActivePlotKey, _setActivePlotKey);
-    triggerOnAction(_actions.setActiveTileKey, _setActiveTileKey);
+    triggerOnAction(_actions.setInteractionPoint, _setInteractionPoint);
 
     triggerOnAction(_actions.startNewGame, _startNewGame);
 
@@ -127,15 +113,9 @@ class GameStore extends w_flux.Store {
     return tileStrings;
   }
 
-  // Handle Set Active Actions
+  // Handle Set Interaction Point
 
-  _setActivePlayer(Player player) => _activePlayerIndex = _board.players.indexOf(player);
-
-  _setActiveTileKey(int tileKey) => _activeTileKey = tileKey;
-
-  _setActivePlotKey(int plotKey) => _activePlotKey = plotKey;
-
-  _setActivatePoint(Point newPoint) => _activatePoint = newPoint;
+  _setInteractionPoint(Point newPoint) => _interactionPoint = newPoint;
 
   // Handle UI State Actions
 

@@ -3,19 +3,13 @@
 part of catan.game_module;
 
 var TileGroup = react.registerComponent(() => new _TileGroup());
-class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
+class _TileGroup extends w_flux.FluxComponent<GameActions, Board> {
+  Board get board => store;
+
   Tile get tile => props['tile'];
 
-  Board get board => store.board;
-
-  @override
-  List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.board];
-    else return [];
-  }
-
   render() {
-    Point center = scaledPoint(tile.coordinate, board.boundingRect);
+    Point center = scaledPoint(tile.coordinate);
 
     List children = new List();
     List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
@@ -78,8 +72,8 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     if (shiftKey) {
       board.actions.removePiece(tile);
     } else {
-      actions.setActiveTileKey(tile.key);
-      actions.setActivatePoint(client);
+      board.actions.setActiveKey(tile.key);
+      actions.setInteractionPoint(client);
       actions.showDimmer(DimmerType.TileOptions);
     }
   }

@@ -52,7 +52,7 @@ class Coordinate {
     return neighborMap;
   }
 
-  static Point getPoint(int key) => _getPoint(_coordHKey(key), _coordVKey(key));
+  static Point getPoint(int key) => validKey(key) ? _getPoint(_coordHKey(key), _coordVKey(key)) : null;
   static Point _getPoint(int h, int v) => new Point(
     (h * SPACING_X) + (SPACING_X / 2 * (v % 2)) - (INITIAL_H * SPACING_X),
     (v * SPACING_Y) - (INITIAL_V * SPACING_Y)

@@ -11,7 +11,7 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
   getInitialState() => stateFromStore();
 
   stateFromStore() => {
-    'activePlayer': store.activePlayer,
+    'activePlayer': store.board.activePlayer,
     'editState': store.editState,
   };
 
@@ -19,7 +19,7 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
 
   Map<w_flux.Store, Function> getStoreHandlers() => {
     store: (_) => setStateFromStore(),
-    // store.board: (_) => setStateFromStore()
+    store.board: (_) => setStateFromStore(),
   };
 
   bool shouldComponentUpdate(_, nextState) {
@@ -33,9 +33,9 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
     editItems.add(react.div({'className': 'ui hidden divider'}));
 
     if (editState == EditState.PieceSetup) {
-      editItems.add(Players({'actions': actions, 'store': store}));
+      editItems.add(Players({'actions': actions, 'store': store.board}));
       editItems.add(react.div({'className': 'ui horizontal divider'}, [
-        react.h3({'className': 'ui ${store.activePlayer?.color} header'}, '${store.activePlayer?.name ?? "Player"} is Active'),
+        react.h3({'className': 'ui ${activePlayer?.color} header'}, '${activePlayer?.name ?? "Player"} is Active'),
       ]));
     }
 

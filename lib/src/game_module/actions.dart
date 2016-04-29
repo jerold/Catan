@@ -4,10 +4,7 @@ part of catan.game_module;
 
 
 class GameActions {
-  w_flux.Action<Point> setActivatePoint = new w_flux.Action<Point>();
-  w_flux.Action<Player> setActivePlayer = new w_flux.Action<Player>();
-  w_flux.Action<int> setActivePlotKey = new w_flux.Action<int>();
-  w_flux.Action<int> setActiveTileKey = new w_flux.Action<int>();
+  w_flux.Action<Point> setInteractionPoint = new w_flux.Action<Point>();
 
   w_flux.Action startNewGame = new w_flux.Action();
 

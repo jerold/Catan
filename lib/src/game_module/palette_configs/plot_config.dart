@@ -7,13 +7,13 @@ class PlotControlPaletteConfig extends ControlPaletteConfig {
     List<PaletteOption> options = [
       new PaletteOption(
         'road',
-        () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.Road, store.activePlayer))),
+        () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.Road, store.board.activePlayer))),
       new PaletteOption(
         'home',
-        () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.Settlement, store.activePlayer))),
+        () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.Settlement, store.board.activePlayer))),
       new PaletteOption(
         'university',
-        () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.City, store.activePlayer))),
+        () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.City, store.board.activePlayer))),
     ];
     return new PlotControlPaletteConfig._internal(options);
   }

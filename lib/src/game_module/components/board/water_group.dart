@@ -20,7 +20,7 @@ class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     List children = new List();
     board.expansionTiles.forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
-      Point center = scaledPoint(coord, board.boundingRect);
+      Point center = scaledPoint(coord);
       List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
       children.add(react.polygon({
         'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
@@ -48,8 +48,8 @@ class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     if (shiftKey) {
       board.actions.addPiece(new Tile(key));
     } else {
-      actions.setActiveTileKey(key);
-      actions.setActivatePoint(client);
+      board.actions.setActiveKey(key);
+      actions.setInteractionPoint(client);
       actions.showDimmer(DimmerType.WaterOptions);
     }
   }

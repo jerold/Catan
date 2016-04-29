@@ -23,8 +23,9 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
     board.tiles.values.forEach((tile) {
       children.add(TileGroup({
         'actions': actions,
-        'store': store,
-        'tile': tile}));
+        'store': board,
+        'tile': tile
+      }));
     });
 
     // Plots

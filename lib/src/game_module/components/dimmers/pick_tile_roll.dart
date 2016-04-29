@@ -8,10 +8,11 @@ final List<int> TILE_ROLLS = [2, 3, 4, 5, 6, 8, 9, 10, 11, 12];
 
 var PickRoll = react.registerComponent(() => new _PickRoll());
 class _PickRoll extends w_flux.FluxComponent<GameActions, GameStore> {
+  Tile get tile => (store.board.activePiece as Tile);
 
   int get selected => state['selected'];
 
-  getInitialState() => {'selected': store.activeTile.roll};
+  getInitialState() => {'selected': tile.roll};
 
   render() {
     List rolls = new List.from(TILE_ROLLS.map((roll) {
@@ -44,7 +45,8 @@ class _PickRoll extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _select(int value) {
-    if (ROLLS.contains(value)) store.activeTile.actions.setRoll(value);
+    print(tile);
+    if (ROLLS.contains(value)) store.board.actions.setActiveTileRoll(value);
     actions.hideDimmer();
   }
 

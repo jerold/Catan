@@ -46,14 +46,14 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   stateFromStore() {
     Map<String, dynamic> storeState = new Map<String, dynamic>();
     if (store.currentDimmer == DimmerType.TileOptions) {
-      storeState['config'] = new TileControlPaletteConfig(store.activeTile, actions, store);
+      storeState['config'] = new TileControlPaletteConfig(store.board.activePiece, actions, store);
     } else if (store.currentDimmer == DimmerType.PlotOptions) {
-      storeState['config'] = new PlotControlPaletteConfig(store.activePlotKey, actions, store);
+      storeState['config'] = new PlotControlPaletteConfig(store.board.activeKey, actions, store);
     } else if (store.currentDimmer == DimmerType.WaterOptions) {
-      storeState['config'] = new WaterControlPaletteConfig(store.activeTileKey, actions, store);
+      storeState['config'] = new WaterControlPaletteConfig(store.board.activeKey, actions, store);
     }
-    storeState['startPoint'] = store.activatePoint;
-    storeState['currentPoint'] = store.activatePoint;
+    storeState['startPoint'] = store.interactionPoint;
+    storeState['currentPoint'] = store.interactionPoint;
     return storeState;
   }
 
@@ -71,14 +71,12 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   componentWillMount() {
     super.componentWillMount();
 
-    _handlers['_handleKeyDown'] = _handleKeyDown;
     _handlers['_handleMouseMove'] = _handleMouseMove;
     _handlers['_handleMouseUp'] = _handleMouseUp;
     _handlers['_handleTouchMove'] = _handleTouchMove;
     _handlers['_handleTouchEnd'] = _handleTouchEnd;
     _handlers['_handleTouchCancel'] = _handleTouchCancel;
 
-    _subs.add(document.onKeyDown.listen(_handlers['_handleKeyDown']));
     _subs.add(document.onMouseMove.listen(_handlers['_handleMouseMove']));
     _subs.add(document.onMouseUp.listen(_handlers['_handleMouseUp']));
     _subs.add(document.onTouchMove.listen(_handlers['_handleTouchMove']));
@@ -142,29 +140,6 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   // Specific Handlers
-
-  // TEMP keyboard event handling until better tile config UX is in
-  _handleKeyDown(KeyboardEvent e) {
-    Tile activeTile = store.activeTile;
-    if (e.keyCode == KeyCode.ONE) activeTile.actions.setTerrain(TERRAINS[1]);
-    if (e.keyCode == KeyCode.TWO) activeTile.actions.setTerrain(TERRAINS[2]);
-    if (e.keyCode == KeyCode.THREE) activeTile.actions.setTerrain(TERRAINS[3]);
-    if (e.keyCode == KeyCode.FOUR) activeTile.actions.setTerrain(TERRAINS[4]);
-    if (e.keyCode == KeyCode.FIVE) activeTile.actions.setTerrain(TERRAINS[5]);
-    if (e.keyCode == KeyCode.SIX) activeTile.actions.setTerrain(TERRAINS[0]);
-
-    if (e.keyCode == KeyCode.TAB) activeTile.actions.setRoll(0);
-    if (e.keyCode == KeyCode.Q) activeTile.actions.setRoll(2);
-    if (e.keyCode == KeyCode.W) activeTile.actions.setRoll(3);
-    if (e.keyCode == KeyCode.E) activeTile.actions.setRoll(4);
-    if (e.keyCode == KeyCode.R) activeTile.actions.setRoll(5);
-    if (e.keyCode == KeyCode.T) activeTile.actions.setRoll(6);
-    if (e.keyCode == KeyCode.Y) activeTile.actions.setRoll(8);
-    if (e.keyCode == KeyCode.U) activeTile.actions.setRoll(9);
-    if (e.keyCode == KeyCode.I) activeTile.actions.setRoll(10);
-    if (e.keyCode == KeyCode.O) activeTile.actions.setRoll(11);
-    if (e.keyCode == KeyCode.P) activeTile.actions.setRoll(12);
-  }
 
   _handleMouseMove(MouseEvent e) => interactionMoved(e.client);
   _handleMouseUp(_) => interactionEnded();

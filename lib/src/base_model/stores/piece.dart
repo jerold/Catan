@@ -7,7 +7,7 @@ abstract class Owned {
   Player get owner;
 }
 
-class Piece extends w_flux.Store {
+class Piece {
   final int _key;
 
   int get key => _key;

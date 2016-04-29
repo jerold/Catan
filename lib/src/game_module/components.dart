@@ -17,7 +17,7 @@ class GameComponents extends w_module.ModuleComponents {
   dimmer() => Dimmer({'actions': _actions, 'store': _store});
 }
 
-Point scaledPoint(Coordinate coord, Rectangle view) => new Point(
+Point scaledPoint(Coordinate coord) => new Point(
   (coord.point.x) * COORD_SPACING,
   (coord.point.y) * COORD_SPACING);
 

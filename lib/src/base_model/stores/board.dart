@@ -9,19 +9,35 @@ class Board extends w_flux.Store {
 
   Map<PieceType, Map<int, Piece>> _pieces;
 
-  Map<int, EdgePiece> get edges => _pieces[PieceType.Edge]; // roads
+  Map<int, EdgePiece> get edges => _pieces[PieceType.Edge]; // roads, boats
   Map<int, PlotPiece> get plots => _pieces[PieceType.Plot]; // buildings
-  Map<int, TilePiece> get tiles => _pieces[PieceType.Tile]; // tiles and ports
+  Map<int, TilePiece> get tiles => _pieces[PieceType.Tile]; // tiles, thief, and ports
 
-  Rectangle _boundingRect = new Rectangle(0, 0, 0, 0);
-  Rectangle get boundingRect => _boundingRect;
+  int _activeKey;
+  int get activeKey => _activeKey;
+
+  Piece get activePiece {
+    if (edges.containsKey(_activeKey)) return edges[_activeKey];
+    if (plots.containsKey(_activeKey)) return plots[_activeKey];
+    if (tiles.containsKey(_activeKey)) return tiles[_activeKey];
+    return null;
+  }
 
   List<Player> players;
+
+  Player _activePlayer;
+  Player get activePlayer => _activePlayer;
+
+  Point _interactionPoint;
+  Point get interactionPoint => _interactionPoint;
 
   int _thiefKey;
   int get thiefKey => _thiefKey;
 
   Economy economy;
+
+  Rectangle _boundingRect = new Rectangle(0, 0, 0, 0);
+  Rectangle get boundingRect => _boundingRect;
 
   // Tile Dependent Caches
   Set<int> _cachedExpansionTiles = new Set<int>();
@@ -77,6 +93,12 @@ class Board extends w_flux.Store {
     triggerOnAction(_actions.addPlayer, _addPlayer);
     triggerOnAction(_actions.removePlayer, _removePlayer);
 
+    triggerOnAction(_actions.setActiveKey, _setActiveKey);
+    triggerOnAction(_actions.setActivePlayer, _setActivePlayer);
+
+    triggerOnAction(_actions.setActiveTileRoll, _setActiveTileRoll);
+    triggerOnAction(_actions.setActiveTileTerrain, _setActiveTileTerrain);
+
     triggerOnAction(_actions.purchase, _purchase);
     triggerOnAction(_actions.harvest, _harvest);
     triggerOnAction(_actions.moveThief, _moveThief);
@@ -110,6 +132,22 @@ class Board extends w_flux.Store {
   _removePiece(Piece piece, [bool updateCache = true]) {
     _pieces[piece.type].remove(piece.key);
     if (updateCache) _updateTileDependentCaches();
+  }
+
+  // Active Key
+
+  _setActiveKey(int key) => _activeKey = key;
+
+  _setActivePlayer(Player player) => _activePlayer = player;
+
+  _setActiveTileRoll(int roll) {
+    if (activePiece is Tile) (activePiece as Tile)._setRoll(roll);
+    _updateTileDependentCaches();
+  }
+
+  _setActiveTileTerrain(Terrain terrain) {
+    if (activePiece is Tile) (activePiece as Tile)._setTerrain(terrain);
+    _updateTileDependentCaches();
   }
 
   // Board Actions

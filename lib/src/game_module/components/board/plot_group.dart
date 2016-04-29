@@ -29,7 +29,7 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     board.openPlots().forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
       int utility = board.utilityOfPlot(key);
-      Point center = scaledPoint(coord, board.boundingRect);
+      Point center = scaledPoint(coord);
 
       children.add(react.circle({
         'cx': center.x,
@@ -72,8 +72,8 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   interactionBegan(bool shiftKey, Point client, int key) {
-    actions.setActivePlotKey(key);
-    actions.setActivatePoint(client);
+    board.actions.setActiveKey(key);
+    actions.setInteractionPoint(client);
     actions.showDimmer(DimmerType.PlotOptions);
   }
 }

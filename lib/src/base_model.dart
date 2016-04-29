@@ -8,7 +8,6 @@ import 'package:w_flux/w_flux.dart' as w_flux;
 
 part 'base_model/actions/board.dart';
 part 'base_model/actions/player.dart';
-part 'base_model/actions/tile.dart';
 
 part 'base_model/stores/board.dart';
 part 'base_model/stores/piece.dart';
