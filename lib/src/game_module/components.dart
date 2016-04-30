@@ -52,6 +52,23 @@ final num expOpacity = 0.4;
 final String waterColor = 'rgba(38, 169, 224, 0.2)';
 final String activeColor = 'rgba(0, 0, 0, .4)';
 
+String commodityToColor(Commodity commodity) {
+  switch(commodity) {
+    case Commodity.None:
+      return '#f9da6c';
+    case Commodity.Sheep:
+      return '#9ebc2e';
+    case Commodity.Wheat:
+      return '#f4a54b';
+    case Commodity.Lumber:
+      return '#008042';
+    case Commodity.Brick:
+      return '#be6447';
+    case Commodity.Ore:
+      return '#606060';
+  }
+}
+
 String tileTypeToColor(Terrain type) {
   switch(type) {
     case Terrain.Desert:

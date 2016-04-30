@@ -25,7 +25,7 @@ class _BarChart extends react.Component {
         if (i > maxI) maxI = i;
         bars.add(react.rect({
           'x': (BAR_WIDTH + BAR_SPACING) * dataIndex,
-          'y': height - ((BAR_HEIGHT + BAR_SPACING) * i + BAR_HEIGHT),
+          'y': (BAR_HEIGHT + BAR_SPACING) * i,
           'height': BAR_HEIGHT,
           'width': BAR_WIDTH,
           'style': {'fill': fills[dataIndex]}

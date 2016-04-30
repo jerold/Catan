@@ -45,7 +45,6 @@ class _PickRoll extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _select(int value) {
-    print(tile);
     if (ROLLS.contains(value)) store.board.actions.setActiveTileRoll(value);
     actions.hideDimmer();
   }

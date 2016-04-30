@@ -21,7 +21,7 @@ class Player extends w_flux.Store {
     _changeName(color);
 
     // start with no commodities
-    RESOURCES.forEach((commodity) => _commodities[commodity] = 0);
+    COMMODITIES.forEach((commodity) => _commodities[commodity] = 0);
 
     // Add initial funds required to buy two settlements
     RATES[GamePieceType.Settlement].forEach((commodity, count) => _commodities[commodity] = count * 2);

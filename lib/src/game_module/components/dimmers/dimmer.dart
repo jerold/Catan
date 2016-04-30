@@ -17,7 +17,7 @@ class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
 
   setStateFromStore() => setState(stateFromStore());
 
-  Map<w_flux.Store, Function> getStoreHandlers() => { store: (_) => setStateFromStore() };
+  Map<w_flux.Store, Function> getStoreHandlers() => {store: (_) => setStateFromStore()};
 
   bool shouldComponentUpdate(_, nextState) {
     return nextState['currentDimmer'] != currentDimmer || nextState['visible'] != visible;

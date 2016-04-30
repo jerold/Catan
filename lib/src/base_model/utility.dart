@@ -4,7 +4,14 @@ part of catan.base_model;
 
 
 enum Commodity { None, Sheep, Wheat, Lumber, Brick, Ore }
-List<Commodity> get RESOURCES => Commodity.values;
+List<Commodity> get COMMODITIES => Commodity.values;
+List<Commodity> get KNOWN_COMMODITIES => [
+  Commodity.Sheep,
+  Commodity.Wheat,
+  Commodity.Lumber,
+  Commodity.Brick,
+  Commodity.Ore
+];
 
 enum Terrain { Desert, Pasture, Field, Forest, Hill, Mountain }
 List<Terrain> get TERRAINS => Terrain.values;
