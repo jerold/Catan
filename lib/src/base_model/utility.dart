@@ -56,6 +56,20 @@ List<int> standardDealKeys = [
   4044, 3843, 3841, 3839, 4038, 4139, 4141, 4042, 4040
 ];
 
+List<int> standardPortKeys = [
+  4034, 4336, 4439, 4443, 4145,
+  3845, 3543, 3539, 3736,
+];
+
+List<int> standardPortFacings = [
+  -3, -4, -4, -5, -6, -6, -1, -2, -2,
+];
+
+List<Terrain> standardPortTerrains = [
+  Terrain.Desert, Terrain.Pasture, Terrain.Desert, Terrain.Desert, Terrain.Hill,
+  Terrain.Forest, Terrain.Desert, Terrain.Field, Terrain.Mountain,
+];
+
 List<Terrain> defaultTiles = [
   Terrain.Desert,
   Terrain.Pasture, Terrain.Pasture, Terrain.Pasture, Terrain.Pasture,

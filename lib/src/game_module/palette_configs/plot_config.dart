@@ -5,9 +5,9 @@ part of catan.game_module;
 class PlotControlPaletteConfig extends ControlPaletteConfig {
   factory PlotControlPaletteConfig(int plot, GameActions actions, GameStore store) {
     List<PaletteOption> options = [
-      new PaletteOption(
-        'road',
-        () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.Road, store.board.activePlayer))),
+      // new PaletteOption(
+      //   'road',
+      //   () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.Road, store.board.activePlayer))),
       new PaletteOption(
         'home',
         () => store.board.actions.purchase(new PurchasePayload(plot, GamePieceType.Settlement, store.board.activePlayer))),

@@ -47,10 +47,14 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
     Map<String, dynamic> storeState = new Map<String, dynamic>();
     if (store.currentDimmer == DimmerType.TileOptions) {
       storeState['config'] = new TileControlPaletteConfig(store.board.activePiece, actions, store);
+    } else if (store.currentDimmer == DimmerType.EdgeOptions) {
+      storeState['config'] = new EdgeControlPaletteConfig(store.board.activeKey, actions, store);
     } else if (store.currentDimmer == DimmerType.PlotOptions) {
       storeState['config'] = new PlotControlPaletteConfig(store.board.activeKey, actions, store);
     } else if (store.currentDimmer == DimmerType.WaterOptions) {
       storeState['config'] = new WaterControlPaletteConfig(store.board.activeKey, actions, store);
+    } else if (store.currentDimmer == DimmerType.PortOptions) {
+      storeState['config'] = new PortControlPaletteConfig(store.board.activePiece, actions, store);
     }
     storeState['startPoint'] = store.interactionPoint;
     storeState['currentPoint'] = store.interactionPoint;
@@ -155,8 +159,10 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   interactionMoved(Point p) {
     if (store.currentDimmer == DimmerType.TileOptions
+        || store.currentDimmer == DimmerType.EdgeOptions
         || store.currentDimmer == DimmerType.PlotOptions
-        || store.currentDimmer == DimmerType.WaterOptions) {
+        || store.currentDimmer == DimmerType.WaterOptions
+        || store.currentDimmer == DimmerType.PortOptions) {
       setState({'currentPoint': p});
     }
   }

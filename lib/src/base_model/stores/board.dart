@@ -76,16 +76,23 @@ class Board extends w_flux.Store {
     int rollIndex = 0;
     keys.forEach((key) {
       Terrain terrain = terrainIndex < terrains.length ? terrains[terrainIndex] : null;
-      int roll = rollIndex < rolls.length ? rolls[rollIndex] : null;;
-      tiles[key] = new Tile(key, terrain: terrain, roll: roll);
-      if (terrain == Terrain.Desert) {
-        if (roll == 0) rollIndex++;
-        (tiles[key] as Tile).roll = 0;
-        _thiefKey = key;
+      int roll = rollIndex < rolls.length ? rolls[rollIndex] : 0;
+
+      if (roll >= 0) {
+        tiles[key] = new Tile(key, terrain: terrain, roll: roll);
+        if (terrain == Terrain.Desert) {
+          if (roll == 0) rollIndex++;
+          (tiles[key] as Tile).roll = 0;
+          _thiefKey = key;
+        } else {
+          rollIndex++;
+        }
+        terrainIndex++;
       } else {
+        tiles[key] = new Port(key, terrain: terrain, facingIndex: (-1 * roll) - 1);
         rollIndex++;
+        terrainIndex++;
       }
-      terrainIndex++;
     });
 
     triggerOnAction(_actions.addPiece, _addPiece);
@@ -98,6 +105,7 @@ class Board extends w_flux.Store {
 
     triggerOnAction(_actions.setActiveTileRoll, _setActiveTileRoll);
     triggerOnAction(_actions.setActiveTileTerrain, _setActiveTileTerrain);
+    triggerOnAction(_actions.rotateActivePort, _rotateActivePort);
 
     triggerOnAction(_actions.purchase, _purchase);
     triggerOnAction(_actions.harvest, _harvest);
@@ -107,11 +115,18 @@ class Board extends w_flux.Store {
     _updateTileDependentCaches();
   }
 
-  factory Board.standard() => new Board(
-    standardDealKeys,
-    new List<Terrain>.from(defaultTiles)..shuffle(),
-    standardOrderTokens
-  );
+  factory Board.standard() {
+    List<int> keys = new List<int>()
+      ..addAll(standardDealKeys)
+      ..addAll(standardPortKeys);
+    List<Terrain> terrains = new List<Terrain>()
+      ..addAll(new List<Terrain>.from(defaultTiles)..shuffle())
+      ..addAll(standardPortTerrains);
+    List<int> rolls = new List<int>()
+      ..addAll(standardOrderTokens)
+      ..addAll(standardPortFacings);
+    return new Board(keys, terrains, rolls);
+  }
 
   factory Board.empty() => new Board(standardDealKeys);
 
@@ -149,7 +164,12 @@ class Board extends w_flux.Store {
 
   _setActiveTileTerrain(Terrain terrain) {
     if (activePiece is Tile) (activePiece as Tile)._setTerrain(terrain);
+    if (activePiece is Port) (activePiece as Port)._setTerrain(terrain);
     _updateTileDependentCaches();
+  }
+
+  _rotateActivePort(_) {
+    if (activePiece is Port) (activePiece as Port)._rotate();
   }
 
   // Board Actions
@@ -256,20 +276,22 @@ class Board extends w_flux.Store {
     Point minP = Coordinate._getPoint(INITIAL_H, INITIAL_V);
     Point maxP = Coordinate._getPoint(INITIAL_H, INITIAL_V);
     tiles.forEach((_, tile) {
-      Point tPoint = tile.coordinate.point;
-      if (tPoint.x < minP.x) minP = new Point(tPoint.x, minP.y);
-      if (tPoint.y < minP.y) minP = new Point(minP.x, tPoint.y);
-      if (tPoint.x > maxP.x) maxP = new Point(tPoint.x, maxP.y);
-      if (tPoint.y > maxP.y) maxP = new Point(maxP.x, tPoint.y);
+      if (tile is Tile) {
+        Point tPoint = tile.coordinate.point;
+        if (tPoint.x < minP.x) minP = new Point(tPoint.x, minP.y);
+        if (tPoint.y < minP.y) minP = new Point(minP.x, tPoint.y);
+        if (tPoint.x > maxP.x) maxP = new Point(tPoint.x, maxP.y);
+        if (tPoint.y > maxP.y) maxP = new Point(maxP.x, tPoint.y);
 
-      _cachedExpansionTiles.addAll(tile.neighbors(PieceType.Tile));
-      _cachedPlots.addAll(tile.neighbors(PieceType.Plot));
-      _cachedTilesWithCommodity[tile.commodity].add(tile);
+        _cachedExpansionTiles.addAll(tile.neighbors(PieceType.Tile));
+        _cachedPlots.addAll(tile.neighbors(PieceType.Plot));
+        _cachedTilesWithCommodity[tile.commodity].add(tile);
+      }
     });
     minP = new Point(minP.x - (2.5 * SPACING_X), minP.y - (3 * SPACING_Y)); // account for expansion tiles
     maxP = new Point(maxP.x + (2.5 * SPACING_X), maxP.y + (3 * SPACING_Y)); // account for expansion tiles
     _boundingRect = new Rectangle.fromPoints(minP, maxP);
-    _cachedExpansionTiles.removeAll(tiles.keys);
+    _cachedExpansionTiles.removeAll(tiles.values.where((tile) => tile is Tile).map((tile) => tile.key));
 
     // update _cachedCommodityChances
     COMMODITIES.forEach((commodity) {
@@ -281,7 +303,7 @@ class Board extends w_flux.Store {
       Coordinate coord = Coordinate.fromKey(key);
       List<Tile> nTiles = new List<Tile>.from(coord.neighbors(ofType: CoordinateType.Tile)
         .values.where((tKey) {
-          return tiles.containsKey(tKey);
+          return tiles.containsKey(tKey) && tiles[tKey] is Tile;
         }).map((key) => tiles[key])
       );
       _cachedPlotUtilities[key] = nTiles.fold(0, (sum, tile) => sum + chances(tile.roll));
@@ -319,6 +341,13 @@ class Board extends w_flux.Store {
       _cachedHandyPlots[player] = new Set<int>();
       _cachedHandyEdges[player] = new Set<int>();
     });
+    plots.forEach((pKey, plot) {
+      if (plot is Building) {
+        plot.coordinate.neighbors(ofType: CoordinateType.Plot).forEach((_, key) {
+          _cachedHandyEdges[plot.owner].add(Edge.getKey(pKey, key));
+        });
+      }
+    });
     edges.forEach((eKey, edge) {
       if (edge is Road) {
         Road road = edge;
@@ -332,6 +361,11 @@ class Board extends w_flux.Store {
         });
         _cachedHandyPlots[road.owner].addAll(road.edge.ends().map((end) => end.key));
       }
+    });
+    edges.forEach((eKey, edge) {
+      players.forEach((player) {
+        _cachedHandyEdges[player].remove(eKey);
+      });
     });
     players.forEach((player) {
       blockedPlots().forEach((key) => _cachedHandyPlots[player].remove(key));

@@ -17,10 +17,12 @@ const String SELECTOR_DIMMER = '#helper-dimmer';
 enum DimmerType {
   ConfirmNewGame,
   TileOptions,
+  EdgeOptions,
   PickTileRoll,
   PickTileTerrain,
   PlotOptions,
   WaterOptions,
+  PortOptions,
   Roll,
   Trade,
   None,
@@ -74,6 +76,7 @@ class GameStore extends w_flux.Store {
     editState = EditState.BoardSetup;
 
     _board = new Board.standard();
+    _pushBoardToURI();
   }
 
   _startNewGameFromURI(List<String> tileStrings) {
@@ -94,7 +97,12 @@ class GameStore extends w_flux.Store {
   _pushBoardToURI([_]) {
     List<String> mapParam = new List<String>();
     board.tiles.values.forEach((tile) {
-      mapParam.add('${tile.key.toString().padLeft(4, "0")}${tile.roll.toString().padLeft(2, "0")}${stringFromTerrain(tile.terrain)}');
+      if (tile is Tile) {
+        mapParam.add('${tile.key.toString().padLeft(4, "0")}${tile.roll.toString().padLeft(2, "0")}${stringFromTerrain(tile.terrain)}');
+      }
+      if (tile is Port) {
+        mapParam.add('${tile.key.toString().padLeft(4, "0")}-${tile.facingIndex + 1}${stringFromTerrain(tile.terrain)}');
+      }
     });
     Uri current = Uri.base;
     Map<String, String> params = new Map<String, String>.from(current.queryParameters);

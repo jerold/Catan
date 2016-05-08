@@ -15,6 +15,7 @@ part 'base_model/stores/player.dart';
 
 part 'base_model/stores/pieces/building.dart';
 part 'base_model/stores/pieces/city.dart';
+part 'base_model/stores/pieces/port.dart';
 part 'base_model/stores/pieces/road.dart';
 part 'base_model/stores/pieces/settlement.dart';
 part 'base_model/stores/pieces/tile.dart';

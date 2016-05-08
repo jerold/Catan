@@ -21,17 +21,28 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
 
     // Tiles
     board.tiles.values.forEach((tile) {
-      children.add(TileGroup({
-        'actions': actions,
-        'store': board,
-        'tile': tile
-      }));
+      if (tile is Tile) {
+        children.add(TileGroup({
+          'actions': actions,
+          'store': board,
+          'tile': tile
+        }));
+      } else if (tile is Port) {
+        children.add(PortGroup({
+          'actions': actions,
+          'store': board,
+          'port': tile
+        }));
+      }
     });
 
     // Plots
     if (store.gameState == GameState.Editing && store.editState == EditState.PieceSetup) {
       children.add(PlotGroup({'actions': actions, 'store': store}));
     }
+
+    // Handly
+    children.add(HandyGroup({'actions': actions, 'store': store}));
 
     // Buildings
     children.add(BuildingGroup({'actions': actions, 'store': store}));

@@ -32,7 +32,9 @@ part 'game_module/components/players.dart';
 
 part 'game_module/components/board/board_svg.dart';
 part 'game_module/components/board/building_group.dart';
+part 'game_module/components/board/handy_group.dart';
 part 'game_module/components/board/plot_group.dart';
+part 'game_module/components/board/port_group.dart';
 part 'game_module/components/board/tile_group.dart';
 part 'game_module/components/board/water_group.dart';
 
@@ -45,7 +47,9 @@ part 'game_module/components/dimmers/pick_tile_terrain.dart';
 part 'game_module/components/dimmers/roll.dart';
 part 'game_module/components/dimmers/trade.dart';
 
+part 'game_module/palette_configs/edge_config.dart';
 part 'game_module/palette_configs/plot_config.dart';
+part 'game_module/palette_configs/port_config.dart';
 part 'game_module/palette_configs/tile_config.dart';
 part 'game_module/palette_configs/water_config.dart';
 

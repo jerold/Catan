@@ -5,11 +5,17 @@ part of catan.game_module;
 
 var PickTerrain = react.registerComponent(() => new _PickTerrain());
 class _PickTerrain extends w_flux.FluxComponent<GameActions, GameStore> {
-  Tile get tile => (store.board.activePiece as Tile);
+  TilePiece get piece => (store.board.activePiece as TilePiece);
+
+  Terrain get initial {
+    if (piece is Tile) return (piece as Tile).terrain;
+    if (piece is Port) return (piece as Port).terrain;
+    return Terrain.Desert;
+  }
 
   Terrain get selected => state['selected'];
 
-  getInitialState() => {'selected': tile.terrain};
+  getInitialState() => {'selected': initial};
 
   render() {
     List terrains = new List.from(TERRAINS.map((terrain) {

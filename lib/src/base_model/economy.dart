@@ -178,13 +178,15 @@ class Economy {
   doRoll(int roll) {
     RollPayload payload = new RollPayload(this, roll);
     _board.tiles.forEach((key, tile) {
-      if (tile.roll == roll && key != _board.thiefKey) {
-        tile.neighbors(PieceType.Plot).forEach((key) {
-          if (_board.plots.containsKey(key) && _board.plots[key] is Building) {
-            Building building = _board.plots[key] as Building;
-            payload.addHarvest(building, tile);
-          }
-        });
+      if (tile is Tile) {
+        if (tile.roll == roll && key != _board.thiefKey) {
+          tile.neighbors(PieceType.Plot).forEach((key) {
+            if (_board.plots.containsKey(key) && _board.plots[key] is Building) {
+              Building building = _board.plots[key] as Building;
+              payload.addHarvest(building, tile);
+            }
+          });
+        }
       }
     });
     rolls.insert(0, payload);

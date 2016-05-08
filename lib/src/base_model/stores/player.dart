@@ -23,8 +23,13 @@ class Player extends w_flux.Store {
     // start with no commodities
     COMMODITIES.forEach((commodity) => _commodities[commodity] = 0);
 
-    // Add initial funds required to buy two settlements
-    RATES[GamePieceType.Settlement].forEach((commodity, count) => _commodities[commodity] = count * 2);
+    // Add initial funds required to buy two settlements and two roads
+    RATES[GamePieceType.Settlement].forEach((commodity, count) {
+      _commodities[commodity] = _commodities[commodity] + (count * 12);
+    });
+    RATES[GamePieceType.Road].forEach((commodity, count) {
+      _commodities[commodity] = _commodities[commodity] + (count * 12);
+    });
 
     triggerOnAction(_actions.addCommodities, _addCommodity);
     triggerOnAction(_actions.removeCommodities, _removeCommodity);

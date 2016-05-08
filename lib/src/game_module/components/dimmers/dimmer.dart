@@ -26,8 +26,10 @@ class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
   render() {
     var dimmerChild;
     if (currentDimmer == DimmerType.TileOptions
+        || currentDimmer == DimmerType.EdgeOptions
         || currentDimmer == DimmerType.PlotOptions
-        || currentDimmer == DimmerType.WaterOptions) {
+        || currentDimmer == DimmerType.WaterOptions
+        || currentDimmer == DimmerType.PortOptions) {
       dimmerChild = ControlPalette({'actions': actions, 'store': store});
     } else if (currentDimmer == DimmerType.PickTileRoll) {
       dimmerChild = PickRoll({'actions': actions, 'store': store});

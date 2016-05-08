@@ -50,9 +50,7 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         'opacity': opacity,
         'stroke': activeColor,
         'strokeWidth': utility == utilityStats.getMax() ? '3' : '0',
-        'style': {
-          'pointerEvents': 'none',
-        }
+        'style': {'pointerEvents': 'none'},
       }));
     });
 
