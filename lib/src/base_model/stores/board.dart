@@ -348,13 +348,14 @@ class Board extends w_flux.Store {
         });
       }
     });
+    // add handy plots and roads off road ends
     edges.forEach((eKey, edge) {
       if (edge is Road) {
         Road road = edge;
         road.edge.ends().forEach((end) {
           _cachedHandyPlots[road.owner].add(end.key);
           end.neighbors(ofType: CoordinateType.Plot).forEach((_, key) {
-            if (_cachedOpenPlots.contains(key)) {
+            if (_cachedPlots.contains(key)) {
               _cachedHandyEdges[road.owner].add(Edge.getKey(end.key, key));
             }
           });
@@ -362,6 +363,7 @@ class Board extends w_flux.Store {
         _cachedHandyPlots[road.owner].addAll(road.edge.ends().map((end) => end.key));
       }
     });
+    // remove handy edges for edges occupied by roads
     edges.forEach((eKey, edge) {
       players.forEach((player) {
         _cachedHandyEdges[player].remove(eKey);

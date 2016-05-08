@@ -25,10 +25,10 @@ class Player extends w_flux.Store {
 
     // Add initial funds required to buy two settlements and two roads
     RATES[GamePieceType.Settlement].forEach((commodity, count) {
-      _commodities[commodity] = _commodities[commodity] + (count * 12);
+      _commodities[commodity] = _commodities[commodity] + (count * 2);
     });
     RATES[GamePieceType.Road].forEach((commodity, count) {
-      _commodities[commodity] = _commodities[commodity] + (count * 12);
+      _commodities[commodity] = _commodities[commodity] + (count * 2);
     });
 
     triggerOnAction(_actions.addCommodities, _addCommodity);
