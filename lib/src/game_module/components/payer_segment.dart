@@ -4,29 +4,42 @@ part of catan.game_module;
 
 
 var PayerSegment = react.registerComponent(() => new _PayerSegment());
-class _PayerSegment extends w_flux.FluxComponent<GameActions, Player> {
-  Player get player => store;
+class _PayerSegment extends w_flux.FluxComponent<GameActions, TradePayload> {
+  Player get payer => trade.payer;
 
-  TradePayload get trade => props['trade'];
+  TradePayload get trade => store;
 
   render() {
     List onHand = new List();
-    player.commodities.forEach((commodity, count) {
+    COMMODITIES.forEach((commodity) {
+      String label = '+';
+      String classes = 'ui button';
+      if (payer != null) {
+        if (commodity == Commodity.Unknown) {
+          classes = '${classes} grey';
+        } else {
+          label = '${payer.commodities[commodity]}';
+          if (payer.commodities[commodity] <= 0) classes = '${classes} secondary inverted disabled';
+          else classes = '${classes} grey';
+        }
+      } else {
+        classes = '${classes} grey';
+      }
       onHand.add(react.div({'className': 'column'},
         react.button({
-          'className': 'ui ${count <= 0 ? "secondary inverted disabled" : "grey"} button',
+          'className': classes,
           'onClick': (_) => trade.deposit(commodity, 1),
-        }, '${count}')
+        }, label)
       ));
     });
 
     List labels = new List();
-    player.commodities.forEach((commodity, count) {
+    COMMODITIES.forEach((commodity) {
       labels.add(react.div({'className': 'center aligned column'}, '${stringFromCommodity(commodity)}'));
     });
 
     List deposits = new List();
-    player.commodities.forEach((commodity, _) {
+    COMMODITIES.forEach((commodity) {
       bool disabled = !trade.exchange.containsKey(commodity) || trade.exchange[commodity] <= 0;
       int count = trade.exchange[commodity] ?? 0;
       deposits.add(react.div({'className': 'column'},
@@ -37,8 +50,24 @@ class _PayerSegment extends w_flux.FluxComponent<GameActions, Player> {
       ));
     });
 
+    String title = 'Banker';
+    String color = 'black';
+    if (payer != null) {
+      title = payer.name;
+      color = payer.color;
+    }
+
+    List headerItems = new List();
+    headerItems.add(title);
+    if (trade.requiresSatisfaction()) {
+      headerItems.add(react.div(
+        {'className': 'ui ${trade.canComplete() ? "green" : "red"} top right attached label'},
+        '${trade.total} / ${trade.quota}')
+      );
+    }
+
     return react.div({'className': 'ui basic left aligned segment'}, [
-      react.h3({'className': 'ui ${player.color} inverted header'}, '${player.name}'),
+      react.h3({'className': 'ui ${color} inverted header'}, headerItems),
       react.div({'className': 'ui divider'}),
       react.div({'className': 'ui six column grid'}, labels),
       react.div({'className': 'ui six column grid'}, onHand),

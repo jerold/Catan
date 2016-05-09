@@ -3,7 +3,7 @@
 part of catan.base_model;
 
 
-enum Commodity { None, Sheep, Wheat, Lumber, Brick, Ore }
+enum Commodity { Unknown, Sheep, Wheat, Lumber, Brick, Ore }
 List<Commodity> get COMMODITIES => Commodity.values;
 List<Commodity> get KNOWN_COMMODITIES => [
   Commodity.Sheep,

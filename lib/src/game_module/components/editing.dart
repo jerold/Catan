@@ -22,11 +22,6 @@ class _Editing extends w_flux.FluxComponent<GameActions, GameStore> {
     store.board: (_) => setStateFromStore(),
   };
 
-  bool shouldComponentUpdate(_, nextState) {
-    return nextState['activePlayer'] != activePlayer
-      || nextState['editState'] != editState;
-  }
-
   render() {
     List editItems = new List();
     editItems.add(EditingStateSelector({'actions': actions, 'store': store}));

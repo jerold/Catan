@@ -3,7 +3,7 @@
 part of catan.base_model;
 
 
-class TradePayload {
+class TradePayload extends w_flux.Store {
   Economy _eco;
   Economy get eco => _eco;
 
@@ -35,6 +35,7 @@ class TradePayload {
 
     CommodityPayload payload = new CommodityPayload(count, commodity);
     if (_payer != null) _payer.actions.removeCommodities(payload);
+    trigger();
   }
 
   /// the [withdraw] function returns previously deposited commodities to the _player
@@ -46,6 +47,7 @@ class TradePayload {
 
     CommodityPayload payload = new CommodityPayload(count, commodity);
     if (_payer != null) _payer.actions.addCommodities(payload);
+    trigger();
   }
 
   /// the [requiresSatisfaction] function is true if quota is greater than 0.
@@ -53,7 +55,7 @@ class TradePayload {
 
   /// the [canComplete] function is typically true, unless the trade has a deposit
   /// quota, and that quota isn't met.
-  bool canComplete() => _quota == 0 || _quota == total;
+  bool canComplete() => _quota == 0 || total == _quota;
 
   /// the [complete] function sends any exchanged commodities to the payee.
   complete() {
@@ -64,15 +66,17 @@ class TradePayload {
       CommodityPayload payload = new CommodityPayload(count, commodity);
       if (_payee != null) _payee.actions.addCommodities(payload);
     });
+    trigger();
   }
 
   /// the [revoke] function returns any exchanged commodities to the payer.
   revoke() {
     _exchange.forEach((commodity, count) {
       CommodityPayload payload = new CommodityPayload(count, commodity);
-      _payer.actions.addCommodities(payload);
+      if (_payer != null) _payer.actions.addCommodities(payload);
       _exchange[commodity] = 0;
     });
+    trigger();
   }
 }
 

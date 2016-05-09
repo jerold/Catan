@@ -32,18 +32,6 @@ class _HandyGroup extends w_flux.FluxComponent<GameActions, GameStore> {
           'onMouseDown': (react.SyntheticMouseEvent e) => _handleMouseDown(e, eKey),
           'onTouchStart': (react.SyntheticTouchEvent e) => _handleTouchStart(e, eKey),
         }));
-
-        // children.add(react.line({
-        //   'x1': c0.x,
-        //   'y1': c0.y,
-        //   'x2': c1.x,
-        //   'y2': c1.y,
-        //   'fill': 'white',
-        //   'stroke': 'white',
-        //   'strokeLinecap': 'round',
-        //   'strokeWidth': COORD_SPACING / 5 * 2,
-        //   'pointerEvents': 'none',
-        // }));
       });
 
       board.handyPlots(board.activePlayer).forEach((pKey) {

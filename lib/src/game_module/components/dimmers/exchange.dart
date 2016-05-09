@@ -5,36 +5,53 @@ part of catan.game_module;
 
 var Exchange = react.registerComponent(() => new _Exchange());
 class _Exchange extends w_flux.FluxComponent<GameActions, GameStore> {
-  List<StreamSubscription> _playerSubs = new List<StreamSubscription>();
-
   List<TradePayload> get trades => state['trades'] ?? [];
   String get title => state['title'] ?? 'Trade';
 
   Map defaultState() => {'title': 'Trade', 'trades': []};
 
-  void componentDidUpdate(prevProps, prevState, /*DOMElement */ rootNode) {
-    _playerSubs.forEach((sub) => sub.cancel());
-    _playerSubs.clear();
-    trades.forEach((trade) => _playerSubs.add(trade.payer.listen(_handlePlayerChanges)));
-  }
-
   _handlePlayerChanges(_) => redraw();
+
+  // TODO: If the payer is the bank, no player exists, so this element will not
+  // reDraw as often as one would expect (add commodity from banker, notice confirm
+  // button is still disabled). Find a better way of setting up handlers here.
+  Map<w_flux.Store, Function> getStoreHandlers() {
+    Map<w_flux.Store, Function> handlers = new Map<w_flux.Store, Function>();
+    store.board.players.forEach((player) {
+      handlers[player] = _handlePlayerChanges;
+    });
+    return handlers;
+  }
 
   render() {
     List tradeSegments = new List.from(trades.map((trade) {
-      return PayerSegment({'actions': actions, 'store': trade.payer, 'trade': trade});
+      return PayerSegment({'actions': actions, 'store': trade});
     }));
 
-    String cancelClasses = 'ui big red basic cancel inverted button';
-    if (_requiresSatisfaction()) cancelClasses = '${cancelClasses} disabled';
+    List footerOptions = new List();
+    if (!_requiresSatisfaction()) {
+      footerOptions.add(react.button({
+        'className': 'ui big red basic cancel inverted button',
+        'onClick': _handleCancel,
+      }, [
+        react.i({'className': 'checkmark icon'}),
+        'On second thought, yeah no.'
+      ]));
+    }
+
+    print("CAN:${_canComplete()} TOT:${_total()}");
 
     String confirmClasses = 'ui big green ok inverted button';
-    if (!_canComplete() || _total() == 0) confirmClasses = '${cancelClasses} disabled';
-
+    if (!_canComplete() || _total() == 0) confirmClasses = '${confirmClasses} disabled';
     String confirmTitle = 'Jeez, really?';
     if (trades.length == 2 && _woodForSheep(trades[0], trades[1])) confirmTitle = 'Heh, you have wood for sheep.';
-
-    print('Render total ${_total()}');
+    footerOptions.add(react.button({
+      'className': confirmClasses,
+      'onClick': _handleConfirm,
+    }, [
+      react.i({'className': 'remove icon'}),
+      confirmTitle
+    ]));
 
     return react.div({'className':'content'}, [
       react.div({'className':'center'}, [
@@ -44,22 +61,7 @@ class _Exchange extends w_flux.FluxComponent<GameActions, GameStore> {
             react.div({'className': 'ui basic compact segment'}, tradeSegments),
           ]),
         ]),
-        react.div({'className': 'ui basic segment'}, [
-          react.button({
-            'className': cancelClasses,
-            'onClick': _handleCancel,
-          }, [
-            react.i({'className': 'checkmark icon'}),
-            'On second thought, yeah no.'
-          ]),
-          react.button({
-            'className': confirmClasses,
-            'onClick': _handleConfirm,
-          }, [
-            react.i({'className': 'remove icon'}),
-            confirmTitle
-          ]),
-        ]),
+        react.div({'className': 'ui basic segment'}, footerOptions),
       ])
     ]);
   }

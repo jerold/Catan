@@ -4,7 +4,7 @@ part of catan.game_module;
 
 
 final List<int> ROLLS = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
-
+final int ROBBED_ROLL = 7;
 
 var Roll = react.registerComponent(() => new _Roll());
 class _Roll extends w_flux.FluxComponent<GameActions, GameStore> {
@@ -56,7 +56,13 @@ class _Roll extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   _handleConfirm(_) {
-    if (ROLLS.contains(selected)) store.board.actions.roll(selected);
-    actions.hideDimmer();
+    if (selected == ROBBED_ROLL) {
+      bool getRobbed = store.board.players.any((player) => player.handCount > 7);
+      if (getRobbed) actions.showDimmer(DimmerType.GetRobbed);
+      else actions.hideDimmer();
+    } else if (ROLLS.contains(selected)) {
+      store.board.actions.roll(selected);
+      actions.hideDimmer();
+    }
   }
 }

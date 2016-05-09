@@ -28,7 +28,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, Board> {
         'cy': center.y,
         'r': COORD_SPACING / 5,
         'fill': activeColor,
-        'pointerEvents': 'none',
+        'style': {'pointerEvents': 'none'},
       }));
     } else {
       List<Point> points = pipPoints(center: center, radius: COORD_SPACING * 0.5, count: chances(tile.roll));
@@ -38,6 +38,7 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, Board> {
           'cy': point.y,
           'r': 2,
           'fill': activeColor,
+          'style': {'pointerEvents': 'none'},
         }));
       });
       children.add(react.text({

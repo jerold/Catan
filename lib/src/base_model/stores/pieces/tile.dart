@@ -15,7 +15,7 @@ class Tile extends TilePiece {
       case Terrain.Forest:   return Commodity.Lumber;
       case Terrain.Hill:     return Commodity.Brick;
       case Terrain.Mountain: return Commodity.Ore;
-      default:                return Commodity.None;
+      default:               return Commodity.Unknown;
     }
   }
 

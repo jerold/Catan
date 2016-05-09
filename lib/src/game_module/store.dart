@@ -18,6 +18,7 @@ enum DimmerType {
   ConfirmNewGame,
   TileOptions,
   EdgeOptions,
+  GetRobbed,
   PickTileRoll,
   PickTileTerrain,
   PlotOptions,

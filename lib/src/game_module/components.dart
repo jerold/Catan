@@ -54,7 +54,7 @@ final String activeColor = 'rgba(0, 0, 0, .4)';
 
 String commodityToColor(Commodity commodity) {
   switch(commodity) {
-    case Commodity.None:
+    case Commodity.Unknown:
       return '#f9da6c';
     case Commodity.Sheep:
       return '#9ebc2e';

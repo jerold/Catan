@@ -11,22 +11,34 @@ class _Trade extends _Exchange {
 
   Map getInitialState() => {'title': 'Nothing funny, just a trade partner...'};
 
+  dynamic partnerComponent([Player player]) {
+    String color = 'black';
+    String title = '';
+    String icon = 'spy';
+    if (player != null) {
+      color = player.color;
+      title = player.name;
+      icon = 'user';
+    }
+    List partnerItems = new List();
+    partnerItems.add(react.i({'className': '${icon} icon'}));
+    partnerItems.add(react.span({'className': 'text'}, ' ${title}'));
+    return react.button({
+      'className': 'ui big ${color} icon inverted button',
+      'onClick': (_) => _configureTrade(player),
+    }, partnerItems);
+  }
+
   render() {
-    print('Trades ${trades.length}');
     if (trades.length > 0) return super.render();
 
     List items = new List();
     store.board.players.forEach((player) {
       if (player != store.board.activePlayer) {
-        List playerItems = new List();
-        playerItems.add(react.i({'className': 'user icon'}));
-        playerItems.add(react.span({'className': 'text'}, ' ${player.name}'));
-        items.add(react.button({
-          'className': 'ui big ${player.color} icon inverted button',
-          'onClick': (_) => _configureTrade(player),
-        }, playerItems));
+        items.add(partnerComponent(player));
       }
     });
+    items.add(partnerComponent());
 
     return react.div({'className':'content'}, [
       react.div({'className':'center'}, [
@@ -49,11 +61,12 @@ class _Trade extends _Exchange {
   }
 
   _configureTrade(Player player) {
-    TradePayload a = new TradePayload(economy, payer: activePlayer, payee: player);
-    TradePayload b = new TradePayload(economy, payee: activePlayer, payer: player);
+    List<TradePayload> trades = new List<TradePayload>();
+    trades.add(new TradePayload(economy, payer: activePlayer, payee: player));
+    trades.add(new TradePayload(economy, payee: activePlayer, payer: player));
     setState({
       'title': 'In for a penny, in for a pound...',
-      'trades': [a, b]
+      'trades': trades
     });
   }
 }

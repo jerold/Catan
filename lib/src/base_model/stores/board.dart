@@ -132,7 +132,10 @@ class Board extends w_flux.Store {
 
   // Change Players
 
-  _addPlayer(Player player) => players.add(player);
+  _addPlayer(Player player) {
+    players.add(player);
+    if (_activePlayer == null) _activePlayer = player;
+  }
 
   _removePlayer(Player player) {
     players.remove(player);
@@ -226,9 +229,9 @@ class Board extends w_flux.Store {
 
   int commodityChances(Commodity type) => _cachedCommodityChances[type];
 
-  List<int> handyPlots(Player player) => new List<int>.from(_cachedHandyPlots[player]);
+  List<int> handyPlots(Player player) => _cachedHandyPlots.containsKey(player) ? new List<int>.from(_cachedHandyPlots[player]) : [];
 
-  List<int> handyEdges(Player player) => new List<int>.from(_cachedHandyEdges[player]);
+  List<int> handyEdges(Player player) => _cachedHandyEdges.containsKey(player) ? new List<int>.from(_cachedHandyEdges[player]) : [];
 
   List<int> openPlots() => new List<int>.from(_cachedOpenPlots);
 
