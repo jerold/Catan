@@ -62,8 +62,8 @@ class _Playing extends w_flux.FluxComponent<GameActions, GameStore> {
       ]),
 
       CurrentTurnOptions({'actions': actions, 'store': store}),
-      react.div({'className': 'ui horizontal divider'}, 'History'),
-      HistoryList({'actions': actions, 'store': store}),
+      // react.div({'className': 'ui horizontal divider'}, 'History'),
+      // HistoryList({'actions': actions, 'store': store}),
     ]);
   }
 }
