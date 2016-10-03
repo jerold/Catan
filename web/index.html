@@ -19,7 +19,7 @@
     <script async src="packages/react/react_with_react_dom_prod.js"></script>
     <script type="text/javascript" src="https://www.google.com/jsapi"></script>
 </head>
-<body>
+<body oncontextmenu="return false">
     <div id="helper-dimmer"></div>
     <div id="helper-content"></div>
 
@@ -34,5 +34,14 @@
       })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
       ga('create', 'UA-77073051-1', 'auto');
       ga('send', 'pageview');
+    </script>
+    <script language="javascript">
+        document.onmousedown=disableclick;
+        function disableclick(event)
+        {
+            if(event.button==2) {
+                return false;    
+            }
+        }
     </script>
 </body>
