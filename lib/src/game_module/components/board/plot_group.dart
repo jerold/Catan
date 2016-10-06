@@ -1,7 +1,4 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
-
 
 const num PLOT_RADIUS = COORD_SPACING * 1 / 3;
 
@@ -10,15 +7,17 @@ String utilityGradient(num val, num average, num max) {
   return 'rgb(100, ${(255 * delta).toInt()}, ${(255 - (255 * delta)).toInt()})';
 }
 
-
 var PlotGroup = react.registerComponent(() => new _PlotGroup());
+
 class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.board];
-    else return [];
+    if (store is GameStore)
+      return [store.board];
+    else
+      return [];
   }
 
   render() {
@@ -38,15 +37,23 @@ class _PlotGroup extends w_flux.FluxComponent<GameActions, GameStore> {
         'fill': 'white',
         'stroke': 'rgba(0, 0, 0, 0.1)',
         'strokeWidth': '1',
-        'onMouseDown': (react.SyntheticMouseEvent e) => _handleMouseDown(e, key),
-        'onTouchStart': (react.SyntheticTouchEvent e) => _handleTouchStart(e, key),
+        'onMouseDown': (react.SyntheticMouseEvent e) =>
+            _handleMouseDown(e, key),
+        'onTouchStart': (react.SyntheticTouchEvent e) =>
+            _handleTouchStart(e, key),
       }));
 
-      num opacity = utilityRange > 0 ? (utility - utilityStats.getMin()) / utilityRange : 0.0;
-      List<Point> hexPoints = ringOfPoints(center: center, radius: (PLOT_RADIUS * 2 / 3) * opacity, count: 6);
+      num opacity = utilityRange > 0
+          ? (utility - utilityStats.getMin()) / utilityRange
+          : 0.0;
+      List<Point> hexPoints = ringOfPoints(
+          center: center, radius: (PLOT_RADIUS * 2 / 3) * opacity, count: 6);
       children.add(react.polygon({
-        'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
-        'fill': utilityGradient(utility, utilityStats.getAvg(), utilityStats.getMax()),
+        'points':
+            new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}'))
+                .join(' '),
+        'fill': utilityGradient(
+            utility, utilityStats.getAvg(), utilityStats.getMax()),
         'opacity': opacity,
         'stroke': activeColor,
         'strokeWidth': utility == utilityStats.getMax() ? '3' : '0',

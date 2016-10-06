@@ -1,9 +1,7 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
-
 var Exchange = react.registerComponent(() => new _Exchange());
+
 class _Exchange extends w_flux.FluxComponent<GameActions, GameStore> {
   List<TradePayload> get trades => state['trades'] ?? [];
   String get title => state['title'] ?? 'Trade';
@@ -42,9 +40,11 @@ class _Exchange extends w_flux.FluxComponent<GameActions, GameStore> {
     print("CAN:${_canComplete()} TOT:${_total()}");
 
     String confirmClasses = 'ui big green ok inverted button';
-    if (!_canComplete() || _total() == 0) confirmClasses = '${confirmClasses} disabled';
+    if (!_canComplete() || _total() == 0)
+      confirmClasses = '${confirmClasses} disabled';
     String confirmTitle = 'Jeez, really?';
-    if (trades.length == 2 && _woodForSheep(trades[0], trades[1])) confirmTitle = 'Heh, you have wood for sheep.';
+    if (trades.length == 2 && _woodForSheep(trades[0], trades[1]))
+      confirmTitle = 'Heh, you have wood for sheep.';
     footerOptions.add(react.button({
       'className': confirmClasses,
       'onClick': _handleConfirm,
@@ -53,11 +53,19 @@ class _Exchange extends w_flux.FluxComponent<GameActions, GameStore> {
       confirmTitle
     ]));
 
-    return react.div({'className':'content'}, [
-      react.div({'className':'center'}, [
-        react.h2({'className':'ui inverted icon header'}, [
+    return react.div({
+      'className': 'content'
+    }, [
+      react.div({
+        'className': 'center'
+      }, [
+        react.h2({
+          'className': 'ui inverted icon header'
+        }, [
           react.div({'className': 'segment'}, title),
-          react.div({'className':'sub header'}, [
+          react.div({
+            'className': 'sub header'
+          }, [
             react.div({'className': 'ui basic compact segment'}, tradeSegments),
           ]),
         ]),
@@ -72,7 +80,8 @@ class _Exchange extends w_flux.FluxComponent<GameActions, GameStore> {
     return a.exchange[Commodity.Lumber] > 0 && b.exchange[Commodity.Sheep] > 0;
   }
 
-  bool _requiresSatisfaction() => trades.any((trade) => trade.requiresSatisfaction());
+  bool _requiresSatisfaction() =>
+      trades.any((trade) => trade.requiresSatisfaction());
 
   bool _canComplete() => trades.every((trade) => trade.canComplete());
 

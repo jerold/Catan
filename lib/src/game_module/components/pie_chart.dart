@@ -1,10 +1,9 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
 typedef void PieChartArcClickCallback(int index);
 
 var PieChart = react.registerComponent(() => new _PieChart());
+
 class _PieChart extends react.Component {
   PieChartArcClickCallback get callback => props['callback'];
   List<num> get data => props['data'];
@@ -35,6 +34,7 @@ class _PieChart extends react.Component {
 }
 
 var PieChartArc = react.registerComponent(() => new _PieChartArc());
+
 class _PieChartArc extends react.Component {
   PieChartArcClickCallback get callback => props['callback'];
   num get percentage => props['percentage'];

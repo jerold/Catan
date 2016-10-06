@@ -1,8 +1,7 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
 var Players = react.registerComponent(() => new _Players());
+
 class _Players extends w_flux.FluxComponent<GameActions, Board> {
   Board get board => store;
 
@@ -13,20 +12,22 @@ class _Players extends w_flux.FluxComponent<GameActions, Board> {
   getInitialState() => stateFromBoard()..['renaming'] = false;
 
   stateFromBoard() => {
-    'activePlayer': board.activePlayer,
-    'name': board.activePlayer?.name ?? '',
-  };
+        'activePlayer': board.activePlayer,
+        'name': board.activePlayer?.name ?? '',
+      };
 
   setStateFromBoard() => setState(stateFromBoard());
 
-  Map<w_flux.Store, Function> getStoreHandlers() => {store: (_) => setStateFromBoard()};
+  Map<w_flux.Store, Function> getStoreHandlers() =>
+      {store: (_) => setStateFromBoard()};
 
   render() {
     List players = new List();
     board.players.forEach((player) {
       List playerItems = new List();
       playerItems.add(react.i({'className': 'user icon'}));
-      if (player == activePlayer) playerItems.add(react.span({'className': 'text'}, ' ${player.name}'));
+      if (player == activePlayer)
+        playerItems.add(react.span({'className': 'text'}, ' ${player.name}'));
       players.add(react.div({
         'className': 'ui ${player.color} icon button',
         'onClick': (_) => board.actions.setActivePlayer(player),
@@ -35,7 +36,9 @@ class _Players extends w_flux.FluxComponent<GameActions, Board> {
     });
 
     if (renaming) {
-      players.add(react.div({'className': 'ui left icon action input'}, [
+      players.add(react.div({
+        'className': 'ui left icon action input'
+      }, [
         react.i({'className': '${activePlayer.color} user icon'}),
         react.input({
           'type': 'text',
@@ -50,7 +53,9 @@ class _Players extends w_flux.FluxComponent<GameActions, Board> {
       ]));
     }
 
-    return react.div({'className': ''}, [
+    return react.div({
+      'className': ''
+    }, [
       react.div({'className': 'ui small input'}, players),
     ]);
   }

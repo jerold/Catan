@@ -1,5 +1,3 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.base_model;
 
 class City extends Building {

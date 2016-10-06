@@ -1,13 +1,11 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
 final int BAR_HEIGHT = 8;
 final int BAR_WIDTH = 24;
 final int BAR_SPACING = 3;
 
-
 var BarChart = react.registerComponent(() => new _BarChart());
+
 class _BarChart extends react.Component {
   List<num> get data => props['data'];
   List<String> get fills => props['fills'];

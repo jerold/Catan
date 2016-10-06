@@ -1,5 +1,3 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
 // Primary Helper States
@@ -40,7 +38,7 @@ class GameStore extends w_flux.Store {
 
   // Interaction Point
 
-  Point _interactionPoint = new Point(0,0);
+  Point _interactionPoint = new Point(0, 0);
   Point get interactionPoint => _interactionPoint;
 
   // UI Properties
@@ -57,8 +55,10 @@ class GameStore extends w_flux.Store {
   GameStore(this._actions) {
     String mapParam = Uri.base.queryParameters['map'];
     List<String> tileStrings = _splitMapParam(mapParam);
-    if (tileStrings.length > 0) _startNewGameFromURI(tileStrings);
-    else _startNewGame();
+    if (tileStrings.length > 0)
+      _startNewGameFromURI(tileStrings);
+    else
+      _startNewGame();
 
     triggerOnAction(_actions.setInteractionPoint, _setInteractionPoint);
 
@@ -99,14 +99,17 @@ class GameStore extends w_flux.Store {
     List<String> mapParam = new List<String>();
     board.tiles.values.forEach((tile) {
       if (tile is Tile) {
-        mapParam.add('${tile.key.toString().padLeft(4, "0")}${tile.roll.toString().padLeft(2, "0")}${stringFromTerrain(tile.terrain)}');
+        mapParam.add(
+            '${tile.key.toString().padLeft(4, "0")}${tile.roll.toString().padLeft(2, "0")}${stringFromTerrain(tile.terrain)}');
       }
       if (tile is Port) {
-        mapParam.add('${tile.key.toString().padLeft(4, "0")}-${tile.facingIndex + 1}${stringFromTerrain(tile.terrain)}');
+        mapParam.add(
+            '${tile.key.toString().padLeft(4, "0")}-${tile.facingIndex + 1}${stringFromTerrain(tile.terrain)}');
       }
     });
     Uri current = Uri.base;
-    Map<String, String> params = new Map<String, String>.from(current.queryParameters);
+    Map<String, String> params =
+        new Map<String, String>.from(current.queryParameters);
     params['map'] = mapParam.join('');
     current = current.replace(queryParameters: params);
     window.history.pushState('', '', current.toString());

@@ -1,23 +1,23 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
 var Helper = react.registerComponent(() => new _Helper());
-class _Helper extends w_flux.FluxComponent<GameActions, GameStore> {
 
+class _Helper extends w_flux.FluxComponent<GameActions, GameStore> {
   GameState get gameState => state['gameState'];
 
   getInitialState() => stateFromStore();
 
   stateFromStore() => {
-    'gameState': store.gameState,
-  };
+        'gameState': store.gameState,
+      };
 
   setStateFromStore() => setState(stateFromStore());
 
-  Map<w_flux.Store, Function> getStoreHandlers() => { store: (_) => setStateFromStore() };
+  Map<w_flux.Store, Function> getStoreHandlers() =>
+      {store: (_) => setStateFromStore()};
 
-  bool shouldComponentUpdate(_, nextState) => nextState['gameState'] != gameState;
+  bool shouldComponentUpdate(_, nextState) =>
+      nextState['gameState'] != gameState;
 
   render() {
     List items = new List();

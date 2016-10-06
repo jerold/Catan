@@ -1,27 +1,44 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
 var PortGroup = react.registerComponent(() => new _PortGroup());
+
 class _PortGroup extends w_flux.FluxComponent<GameActions, Board> {
   Board get board => store;
 
   Port get port => props['port'];
 
   List<Point> _portPoints(Point center, List<Point> hexPoints) {
-    switch(port.facing) {
+    switch (port.facing) {
       case Direction.East:
-        return new List<Point>()..add(center)..add(hexPoints[0])..add(hexPoints[1]);
+        return new List<Point>()
+          ..add(center)
+          ..add(hexPoints[0])
+          ..add(hexPoints[1]);
       case Direction.SouthEast:
-        return new List<Point>()..add(center)..add(hexPoints[1])..add(hexPoints[2]);
+        return new List<Point>()
+          ..add(center)
+          ..add(hexPoints[1])
+          ..add(hexPoints[2]);
       case Direction.SouthWest:
-        return new List<Point>()..add(center)..add(hexPoints[2])..add(hexPoints[3]);
+        return new List<Point>()
+          ..add(center)
+          ..add(hexPoints[2])
+          ..add(hexPoints[3]);
       case Direction.West:
-        return new List<Point>()..add(center)..add(hexPoints[3])..add(hexPoints[4]);
+        return new List<Point>()
+          ..add(center)
+          ..add(hexPoints[3])
+          ..add(hexPoints[4]);
       case Direction.NorthWest:
-        return new List<Point>()..add(center)..add(hexPoints[4])..add(hexPoints[5]);
+        return new List<Point>()
+          ..add(center)
+          ..add(hexPoints[4])
+          ..add(hexPoints[5]);
       case Direction.NorthEast:
-        return new List<Point>()..add(center)..add(hexPoints[5])..add(hexPoints[0]);
+        return new List<Point>()
+          ..add(center)
+          ..add(hexPoints[5])
+          ..add(hexPoints[0]);
     }
   }
 
@@ -29,17 +46,23 @@ class _PortGroup extends w_flux.FluxComponent<GameActions, Board> {
     Point center = scaledPoint(port.coordinate);
 
     List children = new List();
-    List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING * 5 / 6, count: 6);
-    List<Point> portPoints = _portPoints(center, ringOfPoints(center: center, radius: COORD_SPACING * 5 / 6, count: 6));
+    List<Point> hexPoints =
+        ringOfPoints(center: center, radius: COORD_SPACING * 5 / 6, count: 6);
+    List<Point> portPoints = _portPoints(center,
+        ringOfPoints(center: center, radius: COORD_SPACING * 5 / 6, count: 6));
     children.add(react.polygon({
-      'points': new List<String>.from(hexPoints.map((p) => '${p.x},${p.y}')).join(' '),
+      'points': new List<String>.from(hexPoints.map((p) => '${p.x},${p.y}'))
+          .join(' '),
       'onMouseDown': _handleMouseDown,
       'onTouchStart': _handleTouchStart,
       'opacity': '0',
     }));
     children.add(react.polygon({
-      'points': new List<String>.from(portPoints.map((p) => '${p.x},${p.y}')).join(' '),
-      'fill': port.terrain == Terrain.Desert ? 'white' : tileTypeToColor(port.terrain),
+      'points': new List<String>.from(portPoints.map((p) => '${p.x},${p.y}'))
+          .join(' '),
+      'fill': port.terrain == Terrain.Desert
+          ? 'white'
+          : tileTypeToColor(port.terrain),
       'stroke': 'white',
       'strokeWidth': '2',
       'style': {'pointerEvents': 'none'},

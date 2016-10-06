@@ -1,7 +1,4 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.base_model;
-
 
 class TradePayload extends w_flux.Store {
   Economy _eco;
@@ -24,7 +21,10 @@ class TradePayload extends w_flux.Store {
   int _quota;
   int get quota => _quota;
 
-  TradePayload(this._eco, {Player payee, Player payer, int quota}) : _payee = payee, _payer = payer, _quota = quota ?? 0;
+  TradePayload(this._eco, {Player payee, Player payer, int quota})
+      : _payee = payee,
+        _payer = payer,
+        _quota = quota ?? 0;
 
   /// the [deposit] function takes # commodities from _player and give them to _recipient.
   deposit(Commodity commodity, int count) {
@@ -42,7 +42,8 @@ class TradePayload extends w_flux.Store {
   withdraw(Commodity commodity, int count) {
     if (commodity == null || count <= 0) return;
 
-    if (!_exchange.containsKey(commodity) || _exchange[commodity] < count) return;
+    if (!_exchange.containsKey(commodity) || _exchange[commodity] < count)
+      return;
     _exchange[commodity] = _exchange[commodity] - count;
 
     CommodityPayload payload = new CommodityPayload(count, commodity);
@@ -159,8 +160,7 @@ class Economy {
   }
 
   doBuy(GamePieceType piece, int key, Player player) {
-    BuildPayload payload = new BuildPayload(this, player)
-      ..build(piece, key);
+    BuildPayload payload = new BuildPayload(this, player)..build(piece, key);
     builds.insert(0, payload);
     _board._updateBuildingDependentCaches();
   }
@@ -185,7 +185,8 @@ class Economy {
       if (tile is Tile) {
         if (tile.roll == roll && key != _board.thiefKey) {
           tile.neighbors(PieceType.Plot).forEach((key) {
-            if (_board.plots.containsKey(key) && _board.plots[key] is Building) {
+            if (_board.plots.containsKey(key) &&
+                _board.plots[key] is Building) {
               Building building = _board.plots[key] as Building;
               payload.addHarvest(building, tile);
             }

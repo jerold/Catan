@@ -1,16 +1,16 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
-
 var BoardSvg = react.registerComponent(() => new _BoardSvg());
+
 class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
   Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.board];
-    else return [];
+    if (store is GameStore)
+      return [store.board];
+    else
+      return [];
   }
 
   render() {
@@ -22,22 +22,17 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
     // Tiles
     board.tiles.values.forEach((tile) {
       if (tile is Tile) {
-        children.add(TileGroup({
-          'actions': actions,
-          'store': board,
-          'tile': tile
-        }));
+        children
+            .add(TileGroup({'actions': actions, 'store': board, 'tile': tile}));
       } else if (tile is Port) {
-        children.add(PortGroup({
-          'actions': actions,
-          'store': board,
-          'port': tile
-        }));
+        children
+            .add(PortGroup({'actions': actions, 'store': board, 'port': tile}));
       }
     });
 
     // Plots
-    if (store.gameState == GameState.Editing && store.editState == EditState.PieceSetup) {
+    if (store.gameState == GameState.Editing &&
+        store.editState == EditState.PieceSetup) {
       children.add(PlotGroup({'actions': actions, 'store': store}));
     }
 
@@ -48,18 +43,18 @@ class _BoardSvg extends w_flux.FluxComponent<GameActions, GameStore> {
     children.add(BuildingGroup({'actions': actions, 'store': store}));
 
     Rectangle viewBox = new Rectangle(
-      board.boundingRect.left * COORD_SPACING,
-      board.boundingRect.top * COORD_SPACING,
-      board.boundingRect.width * COORD_SPACING,
-      board.boundingRect.height * COORD_SPACING
-    );
+        board.boundingRect.left * COORD_SPACING,
+        board.boundingRect.top * COORD_SPACING,
+        board.boundingRect.width * COORD_SPACING,
+        board.boundingRect.height * COORD_SPACING);
 
     return react.svg({
       'version': '1.1',
       'xmlns': 'http://www.w3.org/2000/svg',
       'width': viewBox.width,
       'height': viewBox.height,
-      'viewBox': '${viewBox.left} ${viewBox.top} ${viewBox.width} ${viewBox.height}',
+      'viewBox':
+          '${viewBox.left} ${viewBox.top} ${viewBox.width} ${viewBox.height}',
     }, children);
   }
 }

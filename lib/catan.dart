@@ -1,5 +1,3 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 /// Catan Helper Library
 library catan;
 

@@ -1,7 +1,4 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.base_model;
-
 
 abstract class Owned {
   Player get owner;
@@ -22,7 +19,7 @@ class Piece {
   }
 
   factory Piece.ofType(GamePieceType type, int key, {Player owner}) {
-    switch(type) {
+    switch (type) {
       case GamePieceType.City:
         if (owner != null) return new City(key, owner);
         break;
@@ -35,7 +32,8 @@ class Piece {
       case GamePieceType.Tile:
         return new Tile(key);
       default:
-        print("WARNING!!! Could not construct a Piece.ofType ${type} at ${key} for ${owner}");
+        print(
+            "WARNING!!! Could not construct a Piece.ofType ${type} at ${key} for ${owner}");
         return null;
     }
   }
@@ -47,7 +45,8 @@ class Piece {
     _neighborCache[PieceType.Tile] = new Set<int>();
   }
 
-  List<int> neighbors(PieceType type) => new List<int>.from(_neighborCache[type]);
+  List<int> neighbors(PieceType type) =>
+      new List<int>.from(_neighborCache[type]);
 }
 
 /// edge piece keys map to an edge existing between two adjacent plots
@@ -56,7 +55,8 @@ class EdgePiece extends Piece {
 
   EdgePiece(int key) : super(key, PieceType.Edge) {
     if (!Edge.validKey(key)) {
-      print("WARNING!!! ${this.runtimeType} can only exist between two adjacent Plot coordinates");
+      print(
+          "WARNING!!! ${this.runtimeType} can only exist between two adjacent Plot coordinates");
     }
   }
 
@@ -85,7 +85,8 @@ class EdgePiece extends Piece {
     });
   }
 
-  String toString() => "${this.runtimeType}${Edge.validKey(key) ? '' : '!!!'} ${edge}";
+  String toString() =>
+      "${this.runtimeType}${Edge.validKey(key) ? '' : '!!!'} ${edge}";
 }
 
 /// tile and plot pieces are both node pieces as their key maps to a coordinate
@@ -95,13 +96,14 @@ class NodePiece extends Piece {
 
   NodePiece(int key, this._legalType, PieceType type) : super(key, type) {
     if (!Coordinate.validKey(key) || coordinate.type != _legalType) {
-      print("WARNING!!! ${this.runtimeType} can not be placed on a ${coordinate.type}");
+      print(
+          "WARNING!!! ${this.runtimeType} can not be placed on a ${coordinate.type}");
     }
   }
 
-  String toString() => "${this.runtimeType}${Coordinate.validKey(key) ? '' : '!!!'} ${coordinate}";
+  String toString() =>
+      "${this.runtimeType}${Coordinate.validKey(key) ? '' : '!!!'} ${coordinate}";
 }
-
 
 class TilePiece extends NodePiece {
   TilePiece(int key) : super(key, CoordinateType.Tile, PieceType.Tile);
@@ -111,7 +113,10 @@ class TilePiece extends NodePiece {
     // List of Edge keys from set of edges between coordinate and coordinate's
     // neighboring plots.
     coordinate.neighbors(ofType: CoordinateType.Plot).forEach((_, nKey) {
-      Coordinate.fromKey(nKey).neighbors(ofType: CoordinateType.Plot).forEach((_, nnKey) {
+      Coordinate
+          .fromKey(nKey)
+          .neighbors(ofType: CoordinateType.Plot)
+          .forEach((_, nnKey) {
         _neighborCache[PieceType.Edge].add(Edge.getKey(nKey, nnKey));
       });
     });
@@ -123,14 +128,16 @@ class TilePiece extends NodePiece {
 
     // List of Tile coordinate keys from coordinate's neighboring tiles.
     coordinate.neighbors(ofType: CoordinateType.Plot).forEach((_, nKey) {
-      Coordinate.fromKey(nKey).neighbors(ofType: CoordinateType.Tile).forEach((_, nnKey) {
+      Coordinate
+          .fromKey(nKey)
+          .neighbors(ofType: CoordinateType.Tile)
+          .forEach((_, nnKey) {
         _neighborCache[PieceType.Tile].add(nnKey);
       });
     });
     _neighborCache[PieceType.Tile].remove(key);
   }
 }
-
 
 class PlotPiece extends NodePiece {
   PlotPiece(int key) : super(key, CoordinateType.Plot, PieceType.Plot);

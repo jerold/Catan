@@ -1,8 +1,7 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
 var TileGroup = react.registerComponent(() => new _TileGroup());
+
 class _TileGroup extends w_flux.FluxComponent<GameActions, Board> {
   Board get board => store;
 
@@ -12,9 +11,12 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, Board> {
     Point center = scaledPoint(tile.coordinate);
 
     List children = new List();
-    List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
+    List<Point> hexPoints =
+        ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
     children.add(react.polygon({
-      'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
+      'points':
+          new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}'))
+              .join(' '),
       'fill': tileTypeToColor(tile.terrain),
       'stroke': 'white',
       'strokeWidth': '2',
@@ -31,16 +33,20 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, Board> {
         'style': {'pointerEvents': 'none'},
       }));
     } else {
-      List<Point> points = pipPoints(center: center, radius: COORD_SPACING * 0.5, count: chances(tile.roll));
-      if (tile.terrain != Terrain.Desert) points.forEach((point) {
-        children.add(react.circle({
-          'cx': point.x,
-          'cy': point.y,
-          'r': 2,
-          'fill': activeColor,
-          'style': {'pointerEvents': 'none'},
-        }));
-      });
+      List<Point> points = pipPoints(
+          center: center,
+          radius: COORD_SPACING * 0.5,
+          count: chances(tile.roll));
+      if (tile.terrain != Terrain.Desert)
+        points.forEach((point) {
+          children.add(react.circle({
+            'cx': point.x,
+            'cy': point.y,
+            'r': 2,
+            'fill': activeColor,
+            'style': {'pointerEvents': 'none'},
+          }));
+        });
       children.add(react.text({
         'textAnchor': 'middle',
         'x': center.x,
@@ -50,7 +56,8 @@ class _TileGroup extends w_flux.FluxComponent<GameActions, Board> {
         'style': {
           'pointerEvents': 'none',
           'fontSize': 20,
-          'fontFamily': '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
+          'fontFamily':
+              '"Century Gothic", CenturyGothic, AppleGothic, sans-serif',
         }
       }, '${tile.terrain != Terrain.Desert ? tile.roll.toString() : ""}'));
     }
