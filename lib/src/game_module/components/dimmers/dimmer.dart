@@ -3,33 +3,35 @@
 part of catan.game_module;
 
 var Dimmer = react.registerComponent(() => new _Dimmer());
-class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
 
+class _Dimmer extends w_flux.FluxComponent<GameActions, GameStore> {
   DimmerType get currentDimmer => state['currentDimmer'];
   bool get visible => state['visible'];
 
   getInitialState() => stateFromStore();
 
   stateFromStore() => {
-    'currentDimmer': store.currentDimmer,
-    'visible': store.dimmerVisible,
-  };
+        'currentDimmer': store.currentDimmer,
+        'visible': store.dimmerVisible,
+      };
 
   setStateFromStore() => setState(stateFromStore());
 
-  Map<w_flux.Store, Function> getStoreHandlers() => {store: (_) => setStateFromStore()};
+  Map<w_flux.Store, Function> getStoreHandlers() =>
+      {store: (_) => setStateFromStore()};
 
   bool shouldComponentUpdate(_, nextState) {
-    return nextState['currentDimmer'] != currentDimmer || nextState['visible'] != visible;
+    return nextState['currentDimmer'] != currentDimmer ||
+        nextState['visible'] != visible;
   }
 
   render() {
     var dimmerChild;
-    if (currentDimmer == DimmerType.TileOptions
-        || currentDimmer == DimmerType.EdgeOptions
-        || currentDimmer == DimmerType.PlotOptions
-        || currentDimmer == DimmerType.WaterOptions
-        || currentDimmer == DimmerType.PortOptions) {
+    if (currentDimmer == DimmerType.TileOptions ||
+        currentDimmer == DimmerType.EdgeOptions ||
+        currentDimmer == DimmerType.PlotOptions ||
+        currentDimmer == DimmerType.WaterOptions ||
+        currentDimmer == DimmerType.PortOptions) {
       dimmerChild = ControlPalette({'actions': actions, 'store': store});
     } else if (currentDimmer == DimmerType.GetRobbed) {
       dimmerChild = GetRobbed({'actions': actions, 'store': store});

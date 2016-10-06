@@ -1,7 +1,4 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
-
 
 class GameActions {
   w_flux.Action<Point> setInteractionPoint = new w_flux.Action<Point>();

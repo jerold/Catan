@@ -1,7 +1,4 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
-
 
 const int ROUND_BUTTON_RADIUS = 32;
 const int OPTION_RADIUS = 70;
@@ -15,13 +12,13 @@ class PaletteOption {
   PaletteOption(this.icon, this.callback);
 
   component(Point p, String c) => react.button({
-    'className': 'ui ${c} big icon circular button',
-    'style': {
-      'position': 'absolute',
-      'top': p.y - ROUND_BUTTON_RADIUS,
-      'left': p.x - ROUND_BUTTON_RADIUS,
-    }
-  }, react.i({'className': 'icon ${icon}'}));
+        'className': 'ui ${c} big icon circular button',
+        'style': {
+          'position': 'absolute',
+          'top': p.y - ROUND_BUTTON_RADIUS,
+          'left': p.x - ROUND_BUTTON_RADIUS,
+        }
+      }, react.i({'className': 'icon ${icon}'}));
 }
 
 class ControlPaletteConfig {
@@ -31,6 +28,7 @@ class ControlPaletteConfig {
 }
 
 var ControlPalette = react.registerComponent(() => new _ControlPalette());
+
 class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   List<StreamSubscription> _subs = new List<StreamSubscription>();
 
@@ -46,15 +44,20 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   stateFromStore() {
     Map<String, dynamic> storeState = new Map<String, dynamic>();
     if (store.currentDimmer == DimmerType.TileOptions) {
-      storeState['config'] = new TileControlPaletteConfig(store.board.activePiece, actions, store);
+      storeState['config'] =
+          new TileControlPaletteConfig(store.board.activePiece, actions, store);
     } else if (store.currentDimmer == DimmerType.EdgeOptions) {
-      storeState['config'] = new EdgeControlPaletteConfig(store.board.activeKey, actions, store);
+      storeState['config'] =
+          new EdgeControlPaletteConfig(store.board.activeKey, actions, store);
     } else if (store.currentDimmer == DimmerType.PlotOptions) {
-      storeState['config'] = new PlotControlPaletteConfig(store.board.activeKey, actions, store);
+      storeState['config'] =
+          new PlotControlPaletteConfig(store.board.activeKey, actions, store);
     } else if (store.currentDimmer == DimmerType.WaterOptions) {
-      storeState['config'] = new WaterControlPaletteConfig(store.board.activeKey, actions, store);
+      storeState['config'] =
+          new WaterControlPaletteConfig(store.board.activeKey, actions, store);
     } else if (store.currentDimmer == DimmerType.PortOptions) {
-      storeState['config'] = new PortControlPaletteConfig(store.board.activePiece, actions, store);
+      storeState['config'] =
+          new PortControlPaletteConfig(store.board.activePiece, actions, store);
     }
     storeState['startPoint'] = store.interactionPoint;
     storeState['currentPoint'] = store.interactionPoint;
@@ -63,13 +66,14 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
 
   setStateFromStore() => setState(stateFromStore());
 
-  Map<w_flux.Store, Function> getStoreHandlers() => { store: (_) => setStateFromStore() };
+  Map<w_flux.Store, Function> getStoreHandlers() =>
+      {store: (_) => setStateFromStore()};
 
   bool shouldComponentUpdate(_, nextState) {
-    return state['windowWidth'] != windowWidth
-        || state['startPoint'] != startPoint
-        || nextState['currentPoint'] != currentPoint
-        || nextState['config'] != config;
+    return state['windowWidth'] != windowWidth ||
+        state['startPoint'] != startPoint ||
+        nextState['currentPoint'] != currentPoint ||
+        nextState['config'] != config;
   }
 
   componentWillMount() {
@@ -89,7 +93,7 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   void componentDidMount(DivElement rootNode) {
-    setState({'windowWidth': rootNode.getBoundingClientRect().width});
+    setState({'windowWidth': rootNode.getBoundingClientRect().width.toInt()});
   }
 
   componentWillUnmount() {
@@ -104,18 +108,21 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
     List optionItems = new List();
     config.options.forEach((opt) {
       num dist = points[optIndex].distanceTo(currentPoint);
-      optionItems.add(opt.component(points[optIndex], dist < ROUND_BUTTON_RADIUS ? 'white' : 'blue'));
+      optionItems.add(opt.component(
+          points[optIndex], dist < ROUND_BUTTON_RADIUS ? 'white' : 'blue'));
       optIndex++;
     });
 
-    return react.div({'style': {
-      'position': 'absolute',
-      'top': 0,
-      'left': 0,
-      'width': '100%',
-      'height': '100%',
-      'color': 'white',
-    }}, optionItems);
+    return react.div({
+      'style': {
+        'position': 'absolute',
+        'top': 0,
+        'left': 0,
+        'width': '100%',
+        'height': '100%',
+        'color': 'white',
+      }
+    }, optionItems);
   }
 
   List<Point> _getOptionPoints(List<PaletteOption> options) {
@@ -127,16 +134,16 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
       num initialAngle = PI / 2 + totalArc * (startPoint.x / windowWidth);
       options.forEach((opt) {
         num angle = arc * optIndex - initialAngle;
-        Point basePoint = new Point(
-          cos(angle) * OPTION_RADIUS + startPoint.x,
-          sin(angle) * OPTION_RADIUS + startPoint.y
-        );
+        Point basePoint = new Point(cos(angle) * OPTION_RADIUS + startPoint.x,
+            sin(angle) * OPTION_RADIUS + startPoint.y);
         num dist = basePoint.distanceTo(currentPoint);
-        num extraRadius = (EXTRA_RADIUS_LIMIT - (dist.clamp(0, EXTRA_RADIUS_LIMIT))) / EXTRA_RADIUS_LIMIT * MAX_EXTRA_RADIUS;
+        num extraRadius =
+            (EXTRA_RADIUS_LIMIT - (dist.clamp(0, EXTRA_RADIUS_LIMIT))) /
+                EXTRA_RADIUS_LIMIT *
+                MAX_EXTRA_RADIUS;
         points.add(new Point(
-          cos(angle) * (OPTION_RADIUS + extraRadius) + startPoint.x,
-          sin(angle) * (OPTION_RADIUS + extraRadius) + startPoint.y
-        ));
+            cos(angle) * (OPTION_RADIUS + extraRadius) + startPoint.x,
+            sin(angle) * (OPTION_RADIUS + extraRadius) + startPoint.y));
         optIndex++;
       });
     }
@@ -152,17 +159,18 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
     e.preventDefault();
     interactionMoved(e.touches.first.client);
   }
+
   _handleTouchEnd(_) => interactionEnded();
   _handleTouchCancel(_) => interactionEnded();
 
   // Generic Handlers
 
   interactionMoved(Point p) {
-    if (store.currentDimmer == DimmerType.TileOptions
-        || store.currentDimmer == DimmerType.EdgeOptions
-        || store.currentDimmer == DimmerType.PlotOptions
-        || store.currentDimmer == DimmerType.WaterOptions
-        || store.currentDimmer == DimmerType.PortOptions) {
+    if (store.currentDimmer == DimmerType.TileOptions ||
+        store.currentDimmer == DimmerType.EdgeOptions ||
+        store.currentDimmer == DimmerType.PlotOptions ||
+        store.currentDimmer == DimmerType.WaterOptions ||
+        store.currentDimmer == DimmerType.PortOptions) {
       setState({'currentPoint': p});
     }
   }

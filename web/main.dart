@@ -11,7 +11,8 @@ main() async {
 
   react_client.setClientConfiguration();
 
-  react_dom.render(module.components.content(), querySelector(SELECTOR_CONTENT));
+  react_dom.render(
+      module.components.content(), querySelector(SELECTOR_CONTENT));
   react_dom.render(module.components.dimmer(), querySelector(SELECTOR_DIMMER));
 
   window.onContextMenu.listen((e) => e.preventDefault());

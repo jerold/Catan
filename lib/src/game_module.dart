@@ -1,5 +1,3 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 library catan.game_module;
 
 import 'dart:async';

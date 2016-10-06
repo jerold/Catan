@@ -1,9 +1,7 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
-
 var Trade = react.registerComponent(() => new _Trade());
+
 class _Trade extends _Exchange {
   Player get activePlayer => store.board.activePlayer;
 
@@ -40,14 +38,22 @@ class _Trade extends _Exchange {
     });
     items.add(partnerComponent());
 
-    return react.div({'className':'content'}, [
-      react.div({'className':'center'}, [
-        react.h2({'className':'ui inverted icon header'}, [
+    return react.div({
+      'className': 'content'
+    }, [
+      react.div({
+        'className': 'center'
+      }, [
+        react.h2({
+          'className': 'ui inverted icon header'
+        }, [
           react.div({'className': 'segment'}, title),
         ]),
-        react.div({'className':'sub header'}, items),
+        react.div({'className': 'sub header'}, items),
         react.div({'className': 'ui hidden divider'}),
-        react.div({'className': 'ui basic segment'}, [
+        react.div({
+          'className': 'ui basic segment'
+        }, [
           react.button({
             'className': 'ui big red basic cancel inverted button',
             'onClick': _handleCancel,
@@ -64,9 +70,6 @@ class _Trade extends _Exchange {
     List<TradePayload> trades = new List<TradePayload>();
     trades.add(new TradePayload(economy, payer: activePlayer, payee: player));
     trades.add(new TradePayload(economy, payee: activePlayer, payer: player));
-    setState({
-      'title': 'In for a penny, in for a pound...',
-      'trades': trades
-    });
+    setState({'title': 'In for a penny, in for a pound...', 'trades': trades});
   }
 }

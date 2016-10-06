@@ -1,5 +1,3 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.base_model;
 
 class Statistic {
@@ -22,7 +20,8 @@ class Statistic {
 
   bool _updateCache() {
     if (_values.length > 0) {
-      _cachedAvg = _values.fold(0.0, (sum, next) => sum + next) / _values.length;
+      _cachedAvg =
+          _values.fold(0.0, (sum, next) => sum + next) / _values.length;
       _cachedMax = _values.reduce(max);
       _cachedMin = _values.reduce(min);
     } else {

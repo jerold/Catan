@@ -1,16 +1,16 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
 
-
 var HandyGroup = react.registerComponent(() => new _HandyGroup());
+
 class _HandyGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.board];
-    else return [];
+    if (store is GameStore)
+      return [store.board];
+    else
+      return [];
   }
 
   render() {
@@ -29,8 +29,10 @@ class _HandyGroup extends w_flux.FluxComponent<GameActions, GameStore> {
           'fill': 'white',
           'stroke': 'white',
           'strokeWidth': 2,
-          'onMouseDown': (react.SyntheticMouseEvent e) => _handleMouseDown(e, eKey),
-          'onTouchStart': (react.SyntheticTouchEvent e) => _handleTouchStart(e, eKey),
+          'onMouseDown': (react.SyntheticMouseEvent e) =>
+              _handleMouseDown(e, eKey),
+          'onTouchStart': (react.SyntheticTouchEvent e) =>
+              _handleTouchStart(e, eKey),
         }));
       });
 
@@ -45,8 +47,10 @@ class _HandyGroup extends w_flux.FluxComponent<GameActions, GameStore> {
           'stroke': 'white',
           'strokeWidth': 2,
           'pointerEvents': 'none',
-          'onMouseDown': (react.SyntheticMouseEvent e) => _handleMouseDown(e, pKey),
-          'onTouchStart': (react.SyntheticTouchEvent e) => _handleTouchStart(e, pKey),
+          'onMouseDown': (react.SyntheticMouseEvent e) =>
+              _handleMouseDown(e, pKey),
+          'onTouchStart': (react.SyntheticTouchEvent e) =>
+              _handleTouchStart(e, pKey),
         }));
       });
     }

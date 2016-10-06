@@ -1,19 +1,18 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.game_module;
-
 
 const String WATER_COLOR = 'rgba(38, 169, 224, 0.2)';
 
-
 var WaterGroup = react.registerComponent(() => new _WaterGroup());
+
 class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
   Board get board => store.board;
 
   @override
   List<w_flux.Store> redrawOn() {
-    if (store is GameStore) return [store.board];
-    else return [];
+    if (store is GameStore)
+      return [store.board];
+    else
+      return [];
   }
 
   render() {
@@ -21,12 +20,17 @@ class _WaterGroup extends w_flux.FluxComponent<GameActions, GameStore> {
     board.expansionTiles.forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
       Point center = scaledPoint(coord);
-      List<Point> hexPoints = ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
+      List<Point> hexPoints =
+          ringOfPoints(center: center, radius: COORD_SPACING, count: 6);
       children.add(react.polygon({
-        'points': new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}')).join(' '),
+        'points':
+            new List<String>.from(hexPoints.map((hex) => '${hex.x},${hex.y}'))
+                .join(' '),
         'fill': WATER_COLOR,
-        'onMouseDown': (react.SyntheticMouseEvent e) => _handleMouseDown(e, key),
-        'onTouchStart': (react.SyntheticTouchEvent e) => _handleTouchStart(e, key),
+        'onMouseDown': (react.SyntheticMouseEvent e) =>
+            _handleMouseDown(e, key),
+        'onTouchStart': (react.SyntheticTouchEvent e) =>
+            _handleTouchStart(e, key),
       }));
     });
     return react.g({}, children);

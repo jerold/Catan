@@ -1,7 +1,4 @@
-// Copyright (c) 2015, Jerold Albertson. All rights reserved.
-
 part of catan.base_model;
-
 
 class Board extends w_flux.Store {
   BoardActions _actions = new BoardActions();
@@ -11,7 +8,8 @@ class Board extends w_flux.Store {
 
   Map<int, EdgePiece> get edges => _pieces[PieceType.Edge]; // roads, boats
   Map<int, PlotPiece> get plots => _pieces[PieceType.Plot]; // buildings
-  Map<int, TilePiece> get tiles => _pieces[PieceType.Tile]; // tiles, thief, and ports
+  Map<int, TilePiece> get tiles =>
+      _pieces[PieceType.Tile]; // tiles, thief, and ports
 
   int _activeKey;
   int get activeKey => _activeKey;
@@ -42,7 +40,8 @@ class Board extends w_flux.Store {
   // Tile Dependent Caches
   Set<int> _cachedExpansionTiles = new Set<int>();
   Set<int> _cachedPlots = new Set<int>();
-  Map<Commodity, List<Tile>> _cachedTilesWithCommodity = new Map<Commodity, List<Tile>>();
+  Map<Commodity, List<Tile>> _cachedTilesWithCommodity =
+      new Map<Commodity, List<Tile>>();
   Map<Commodity, int> _cachedCommodityChances = new Map<Commodity, int>();
   Map<int, int> _cachedPlotUtilities = new Map<int, int>();
 
@@ -52,7 +51,8 @@ class Board extends w_flux.Store {
   Set<int> _cachedOpenPlots = new Set<int>();
   Set<int> _cachedBlockedPlots = new Set<int>();
   Statistic _plotUtilityStats = new Statistic(); // stats limited to open plots
-  Map<Player, Map<Commodity, int>> _cachedCommoditiesExposed = new Map<Player, Map<Commodity, int>>();
+  Map<Player, Map<Commodity, int>> _cachedCommoditiesExposed =
+      new Map<Player, Map<Commodity, int>>();
 
   List<int> get expansionTiles => new List<int>.from(_cachedExpansionTiles);
 
@@ -75,7 +75,8 @@ class Board extends w_flux.Store {
     int terrainIndex = 0;
     int rollIndex = 0;
     keys.forEach((key) {
-      Terrain terrain = terrainIndex < terrains.length ? terrains[terrainIndex] : null;
+      Terrain terrain =
+          terrainIndex < terrains.length ? terrains[terrainIndex] : null;
       int roll = rollIndex < rolls.length ? rolls[rollIndex] : 0;
 
       if (roll >= 0) {
@@ -89,7 +90,8 @@ class Board extends w_flux.Store {
         }
         terrainIndex++;
       } else {
-        tiles[key] = new Port(key, terrain: terrain, facingIndex: (-1 * roll) - 1);
+        tiles[key] =
+            new Port(key, terrain: terrain, facingIndex: (-1 * roll) - 1);
         rollIndex++;
         terrainIndex++;
       }
@@ -181,7 +183,8 @@ class Board extends w_flux.Store {
     if (economy.canBuy(payload.piece, payload.player)) {
       economy.doBuy(payload.piece, payload.key, payload.player);
     } else {
-      print('WARNING!!! Player ${payload.player.color} can not afford a ${payload.piece}');
+      print(
+          'WARNING!!! Player ${payload.player.color} can not afford a ${payload.piece}');
     }
   }
 
@@ -200,7 +203,8 @@ class Board extends w_flux.Store {
     List<Piece> toRemove = new List<Piece>();
     PIECE_TYPES.forEach((pieceType) {
       _pieces[pieceType].forEach((pKey, piece) {
-        if (piece is Owned && piece.owner == player) toRemove.add((piece as Piece));
+        if (piece is Owned && piece.owner == player)
+          toRemove.add((piece as Piece));
       });
     });
     if (toRemove.length > 0) {
@@ -219,19 +223,25 @@ class Board extends w_flux.Store {
     return playerFound;
   }
 
-  bool thiefCalls() => players.any((player) => player.handCount > EXCEED_TO_ACTIVATE_THE_THIEF);
+  bool thiefCalls() =>
+      players.any((player) => player.handCount > EXCEED_TO_ACTIVATE_THE_THIEF);
 
   Statistic plotUtilityStats() => _plotUtilityStats;
 
   int utilityOfPlot(int key) => _cachedPlotUtilities[key];
 
-  List<Tile> tilesWithCommodity(Commodity type) => new List<Tile>.from(_cachedTilesWithCommodity[type]);
+  List<Tile> tilesWithCommodity(Commodity type) =>
+      new List<Tile>.from(_cachedTilesWithCommodity[type]);
 
   int commodityChances(Commodity type) => _cachedCommodityChances[type];
 
-  List<int> handyPlots(Player player) => _cachedHandyPlots.containsKey(player) ? new List<int>.from(_cachedHandyPlots[player]) : [];
+  List<int> handyPlots(Player player) => _cachedHandyPlots.containsKey(player)
+      ? new List<int>.from(_cachedHandyPlots[player])
+      : [];
 
-  List<int> handyEdges(Player player) => _cachedHandyEdges.containsKey(player) ? new List<int>.from(_cachedHandyEdges[player]) : [];
+  List<int> handyEdges(Player player) => _cachedHandyEdges.containsKey(player)
+      ? new List<int>.from(_cachedHandyEdges[player])
+      : [];
 
   List<int> openPlots() => new List<int>.from(_cachedOpenPlots);
 
@@ -243,8 +253,8 @@ class Board extends w_flux.Store {
     } else {
       int total = 0;
       players.forEach((player) {
-        if (_cachedCommoditiesExposed.containsKey(player)
-            && _cachedCommoditiesExposed[player].containsKey(commodity)) {
+        if (_cachedCommoditiesExposed.containsKey(player) &&
+            _cachedCommoditiesExposed[player].containsKey(commodity)) {
           total = total + _cachedCommoditiesExposed[player][commodity];
         }
       });
@@ -257,7 +267,8 @@ class Board extends w_flux.Store {
       return player.commodities[commodity];
     } else {
       int total = 0;
-      players.forEach((player) => total = total + player.commodities[commodity]);
+      players
+          .forEach((player) => total = total + player.commodities[commodity]);
       return total;
     }
   }
@@ -291,25 +302,29 @@ class Board extends w_flux.Store {
         _cachedTilesWithCommodity[tile.commodity].add(tile);
       }
     });
-    minP = new Point(minP.x - (2.5 * SPACING_X), minP.y - (3 * SPACING_Y)); // account for expansion tiles
-    maxP = new Point(maxP.x + (2.5 * SPACING_X), maxP.y + (3 * SPACING_Y)); // account for expansion tiles
+    minP = new Point(minP.x - (2.5 * SPACING_X),
+        minP.y - (3 * SPACING_Y)); // account for expansion tiles
+    maxP = new Point(maxP.x + (2.5 * SPACING_X),
+        maxP.y + (3 * SPACING_Y)); // account for expansion tiles
     _boundingRect = new Rectangle.fromPoints(minP, maxP);
-    _cachedExpansionTiles.removeAll(tiles.values.where((tile) => tile is Tile).map((tile) => tile.key));
+    _cachedExpansionTiles.removeAll(
+        tiles.values.where((tile) => tile is Tile).map((tile) => tile.key));
 
     // update _cachedCommodityChances
     COMMODITIES.forEach((commodity) {
-      _cachedCommodityChances[commodity] = _cachedTilesWithCommodity[commodity].fold(0, (sum, next) => sum + chances(next.roll));
+      _cachedCommodityChances[commodity] = _cachedTilesWithCommodity[commodity]
+          .fold(0, (sum, next) => sum + chances(next.roll));
     });
 
     // update _cachedPlotUtilities
     _cachedPlots.forEach((key) {
       Coordinate coord = Coordinate.fromKey(key);
-      List<Tile> nTiles = new List<Tile>.from(coord.neighbors(ofType: CoordinateType.Tile)
-        .values.where((tKey) {
-          return tiles.containsKey(tKey) && tiles[tKey] is Tile;
-        }).map((key) => tiles[key])
-      );
-      _cachedPlotUtilities[key] = nTiles.fold(0, (sum, tile) => sum + chances(tile.roll));
+      List<Tile> nTiles = new List<Tile>.from(
+          coord.neighbors(ofType: CoordinateType.Tile).values.where((tKey) {
+        return tiles.containsKey(tKey) && tiles[tKey] is Tile;
+      }).map((key) => tiles[key]));
+      _cachedPlotUtilities[key] =
+          nTiles.fold(0, (sum, tile) => sum + chances(tile.roll));
     });
 
     _updateBuildingDependentCaches();
@@ -346,7 +361,9 @@ class Board extends w_flux.Store {
     });
     plots.forEach((pKey, plot) {
       if (plot is Building) {
-        plot.coordinate.neighbors(ofType: CoordinateType.Plot).forEach((_, key) {
+        plot.coordinate
+            .neighbors(ofType: CoordinateType.Plot)
+            .forEach((_, key) {
           _cachedHandyEdges[plot.owner].add(Edge.getKey(pKey, key));
         });
       }
@@ -363,7 +380,8 @@ class Board extends w_flux.Store {
             }
           });
         });
-        _cachedHandyPlots[road.owner].addAll(road.edge.ends().map((end) => end.key));
+        _cachedHandyPlots[road.owner]
+            .addAll(road.edge.ends().map((end) => end.key));
       }
     });
     // remove handy edges for edges occupied by roads
@@ -390,8 +408,10 @@ class Board extends w_flux.Store {
           if (tiles.containsKey(tKey) && tiles[tKey] is Tile) {
             Tile tile = tiles[tKey] as Tile;
             if (tile.key != thiefKey) {
-              int prevValue = _cachedCommoditiesExposed[building.owner][tile.commodity];
-              _cachedCommoditiesExposed[building.owner][tile.commodity] = prevValue + building.production;
+              int prevValue =
+                  _cachedCommoditiesExposed[building.owner][tile.commodity];
+              _cachedCommoditiesExposed[building.owner][tile.commodity] =
+                  prevValue + building.production;
             }
           }
         });
