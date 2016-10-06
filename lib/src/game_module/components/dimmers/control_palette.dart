@@ -93,7 +93,7 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
   }
 
   void componentDidMount(DivElement rootNode) {
-    setState({'windowWidth': rootNode.getBoundingClientRect().width});
+    setState({'windowWidth': rootNode.getBoundingClientRect().width.toInt()});
   }
 
   componentWillUnmount() {
