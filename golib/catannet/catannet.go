@@ -12,14 +12,15 @@ var _ = math.Pi
 type Net interface {
 	Serialize([]byte)
 	Len() int
+	MsgType() MessageType
 }
 
 const FrameLen int = 6
 
-func NewPacket(t MessageType, msg Net) *Packet {
+func NewPacket(msg Net) *Packet {
 	return &Packet{
 		Frame: Frame{
-			MsgType:       t,
+			MsgType:       msg.MsgType(),
 			ContentLength: uint16(msg.Len()),
 		},
 		NetMsg: msg,
@@ -209,6 +210,10 @@ func (m Heartbeat) Len() int {
 	return mylen
 }
 
+func (m Heartbeat) MsgType() MessageType {
+	return HeartbeatMsgType
+}
+
 type SaveGame struct {
 	ID int32
 	Board Board
@@ -262,6 +267,10 @@ func (m SaveGame) Len() int {
 	return mylen
 }
 
+func (m SaveGame) MsgType() MessageType {
+	return SaveGameMsgType
+}
+
 type SaveGameResponse struct {
 	ID int32
 }
@@ -289,6 +298,10 @@ func (m SaveGameResponse) Len() int {
 	return mylen
 }
 
+func (m SaveGameResponse) MsgType() MessageType {
+	return SaveGameResponseMsgType
+}
+
 type LoadGame struct {
 	ID int32
 }
@@ -314,6 +327,10 @@ func (m LoadGame) Len() int {
 	mylen := 0
 	mylen += 4
 	return mylen
+}
+
+func (m LoadGame) MsgType() MessageType {
+	return LoadGameMsgType
 }
 
 type LoadGameResponse struct {
@@ -367,6 +384,10 @@ func (m LoadGameResponse) Len() int {
 	}
 
 	return mylen
+}
+
+func (m LoadGameResponse) MsgType() MessageType {
+	return LoadGameResponseMsgType
 }
 
 type Board struct {
@@ -430,6 +451,10 @@ func (m Board) Len() int {
 	return mylen
 }
 
+func (m Board) MsgType() MessageType {
+	return BoardMsgType
+}
+
 type PieceLocation struct {
 	Piece GamePiece
 	Location Coordinate
@@ -463,6 +488,10 @@ func (m PieceLocation) Len() int {
 	return mylen
 }
 
+func (m PieceLocation) MsgType() MessageType {
+	return PieceLocationMsgType
+}
+
 type Coordinate struct {
 	X int32
 	Y int32
@@ -494,6 +523,10 @@ func (m Coordinate) Len() int {
 	mylen += 4
 	mylen += 4
 	return mylen
+}
+
+func (m Coordinate) MsgType() MessageType {
+	return CoordinateMsgType
 }
 
 type Tile struct {
@@ -535,6 +568,10 @@ func (m Tile) Len() int {
 	return mylen
 }
 
+func (m Tile) MsgType() MessageType {
+	return TileMsgType
+}
+
 type GamePiece struct {
 	Owner int32
 	Type PieceType
@@ -566,6 +603,10 @@ func (m GamePiece) Len() int {
 	mylen += 4
 	mylen += 4
 	return mylen
+}
+
+func (m GamePiece) MsgType() MessageType {
+	return GamePieceMsgType
 }
 
 type Player struct {
@@ -655,6 +696,10 @@ func (m Player) Len() int {
 	return mylen
 }
 
+func (m Player) MsgType() MessageType {
+	return PlayerMsgType
+}
+
 type DevelopmentCard struct {
 }
 
@@ -674,6 +719,10 @@ func DevelopmentCardDeserialize(buffer []byte) (m DevelopmentCard) {
 func (m DevelopmentCard) Len() int {
 	mylen := 0
 	return mylen
+}
+
+func (m DevelopmentCard) MsgType() MessageType {
+	return DevelopmentCardMsgType
 }
 
 type Resource struct {
@@ -701,5 +750,9 @@ func (m Resource) Len() int {
 	mylen := 0
 	mylen += 4
 	return mylen
+}
+
+func (m Resource) MsgType() MessageType {
+	return ResourceMsgType
 }
 
