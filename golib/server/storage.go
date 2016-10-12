@@ -1,11 +1,27 @@
 package main
 
-import "github.com/jerold/Catan/golib/catannet"
+import (
+	"io/ioutil"
+	"strconv"
+	"sync/atomic"
+
+	"github.com/jerold/Catan/golib/catannet"
+)
+
+var lastID int32
 
 func SaveGame(game *catannet.SaveGame) (catannet.SaveGameResponse, error) {
-	return catannet.SaveGameResponse{}, nil
+	game.ID = atomic.AddInt32(&lastID, 1)
+	data := make([]byte, game.Len())
+	game.Serialize(data)
+
+	err := ioutil.WriteFile(strconv.Itoa(int(game.ID))+".save", data, 0655)
+	return catannet.SaveGameResponse{}, err
 }
 
 func LoadGame(id int32) (catannet.LoadGameResponse, error) {
-	return catannet.LoadGameResponse{}, nil
+
+	return catannet.LoadGameResponse{
+		ID: id,
+	}, nil
 }

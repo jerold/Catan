@@ -10,7 +10,7 @@ struct Heartbeat {
 
 struct SaveGame {
     ID int32 // Optional ID
-    Board Board
+    Board GameBoard
     Players []Player
 }
 
@@ -24,13 +24,13 @@ struct LoadGame {
 
 struct LoadGameResponse {
     ID int32
-    Board Board
+    Board GameBoard
     Players []Player
 }
 
 // Game State Structs
 
-struct Board {
+struct GameBoard {
     Pieces []PieceLocation
     Tiles  []Tile
 }
@@ -58,12 +58,14 @@ struct GamePiece {
 
 struct Player {
 	ID        int32
+    Name      string
 	Resources []Resource        // Resources in hand
 	Cards     []DevelopmentCard //
 	Pieces    []GamePiece       // Pieces in hand
 }
 
 struct DevelopmentCard {
+    CardType int // TODO
 }
 
 struct Resource {
@@ -72,8 +74,8 @@ struct Resource {
 
 enum PieceType {
     Settlement = 0
-    City       = 0
-    Road       = 0
+    City       = 1
+    Road       = 2
 }
 
 enum TileType {

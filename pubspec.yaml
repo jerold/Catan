@@ -13,7 +13,7 @@ dependencies:
   w_flux: 2.1.0
   w_module:
     git: git://github.com/Workiva/w_module
-  js:
+  js: ^0.6.0
 
 dev_dependencies:
   test: '>=0.12.0 <0.13.0'

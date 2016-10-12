@@ -3,8 +3,11 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+	"os/signal"
 
 	"github.com/jerold/Catan/golib/catannet"
+	"github.com/jerold/Catan/golib/client"
 
 	"golang.org/x/net/websocket"
 )
@@ -14,105 +17,88 @@ func main() {
 }
 
 func runServer() {
+	fmt.Printf("Starting server now.\n")
 	http.Handle("/ws", websocket.Handler(func(conn *websocket.Conn) {
 		c := createClient(conn)
-		runClient(c)
+		runClient(&c)
 	}))
-	err := http.ListenAndServe(":4567", nil)
+
+	go func() {
+		err := http.ListenAndServe(":4567", nil)
+		if err != nil {
+			fmt.Printf("Error starting server: %s\n", err)
+		}
+	}()
+
+	fmt.Printf("Started.")
+	c := make(chan os.Signal, 1)
+	signal.Notify(c, os.Interrupt)
+	<-c
+}
+
+type binaryWebsocket struct {
+	socket *websocket.Conn
+}
+
+func (ws *binaryWebsocket) Read(p []byte) (n int, err error) {
+	var inbuf []byte
+	err = websocket.Message.Receive(ws.socket, &inbuf)
 	if err != nil {
-		fmt.Printf("Error starting server: %s\n", err)
+		return 0, err
+	}
+	copy(p, inbuf)
+	return len(inbuf), err
+}
+
+func (ws *binaryWebsocket) Close() error {
+	return ws.socket.Close()
+}
+
+func (ws *binaryWebsocket) Write(p []byte) (n int, err error) {
+	err = websocket.Message.Send(ws.socket, p)
+	return len(p), err
+}
+
+func createClient(conn *websocket.Conn) client.Client {
+	fmt.Printf("New Connection: %s\n", conn.RemoteAddr().String())
+	return client.Client{
+		Name:     conn.RemoteAddr().String(),
+		Conn:     &binaryWebsocket{socket: conn},
+		Outgoing: make(chan *catannet.Packet, 100),
+		Incoming: make(chan *catannet.Packet, 100),
 	}
 }
 
-func createClient(conn *websocket.Conn) Client {
-	return Client{
-		conn:     conn,
-		outgoing: make(chan *catannet.Packet, 100),
-		incoming: make(chan *catannet.Packet, 100),
-	}
-}
+func runClient(c *client.Client) {
+	go client.Sender(c)
+	go client.Reader(c)
 
-func runClient(c Client) {
-	fmt.Printf("New Client: %v, %v\n", c.conn.RemoteAddr(), c.conn.LocalAddr())
-	go sender(c)
-	go reader(c)
-
-	for packet := range c.incoming {
+	for packet := range c.Incoming {
 		switch tmsg := packet.NetMsg.(type) {
 		case *catannet.Heartbeat:
-			c.outgoing <- packet // ECHO FOR SOME REASON
+			fmt.Printf("Got heartbeat!\n")
+			c.Outgoing <- packet // ECHO FOR SOME REASON
 		case *catannet.SaveGame:
+			fmt.Printf("Got save game request!\n")
 			go func(sg *catannet.SaveGame) {
 				resp, err := SaveGame(sg)
 				if err != nil {
 					// TODO: HANDLE ERR HERE.
 				}
-				c.outgoing <- catannet.NewPacket(resp)
+				c.Outgoing <- catannet.NewPacket(resp)
 			}(tmsg)
 		case *catannet.LoadGame:
+			fmt.Printf("Got loadgame request!\n")
 			go func(lg *catannet.LoadGame) {
 				lgr, err := LoadGame(lg.ID)
 				if err != nil {
 					// TODO: HANDLE ERR HERE.
 				}
-				c.outgoing <- catannet.NewPacket(lgr)
+				c.Outgoing <- catannet.NewPacket(lgr)
 			}(tmsg)
 		}
 
 	}
-}
 
-func reader(c Client) {
-	idx := 0
-	buffer := make([]byte, 4096)
-	for {
-		n, err := c.conn.Read(buffer[idx:])
-		if err != nil {
-			fmt.Printf("error reading: %s\n", err)
-			panic("error reading")
-			// ded?
-		} else if n == 0 {
-			fmt.Printf("0 length read!?\n")
-			// ded?
-			continue
-		} else if n+idx >= len(buffer) {
-			fmt.Printf("Expanding buffer to fit new message size, read: %d", n)
-			// Expand buffer to hold the message!
-			newbuff := make([]byte, len(buffer)*2)
-			copy(newbuff, buffer)
-			buffer = newbuff
-			idx += n
-			continue
-		}
-
-		p, ok := catannet.NextPacket(buffer)
-		if !ok {
-			fmt.Printf("server: nextpacket failed, no packet!?\n")
-			// increment idx so that
-			idx += n
-			continue
-		}
-		fmt.Printf("Got a packet on server, %v\n", p)
-		c.incoming <- &p
-		copy(buffer, buffer[n:])
-		idx = 0
-	}
-}
-
-func sender(c Client) {
-	for {
-		n, err := c.conn.Write((<-c.outgoing).Pack())
-		if err != nil {
-			// ded?
-		} else if n == 0 {
-			// ded?
-		}
-		fmt.Printf("Wrote outgoing message.")
-	}
-}
-
-type Client struct {
-	conn     *websocket.Conn
-	outgoing chan *catannet.Packet
-	incoming chan *catannet.Packet
+	fmt.Printf("Incoming closed, shutting down client %s.\n", c.Name)
 }
