@@ -1,8 +1,4 @@
-@JS('catannet')
-library catannet;
-
-import "package:js/js.dart";
-
+part of catannet;
 class PieceType {
 static const int Settlement = 0;
 static const int City = 1;
@@ -24,6 +20,7 @@ static const int Wheat = 5;
 }
 
 @JS()
+@anonymous
 class Heartbeat {
 external factory Heartbeat({int Time,int Latency});
 
@@ -35,8 +32,9 @@ external void set Latency(int val);
 }
 
 @JS()
-class SaveGame {
-external factory SaveGame({int ID,GameBoard Board,List<Player> Players});
+@anonymous
+class SaveGameRequest {
+external factory SaveGameRequest({int ID,GameBoard Board,List<Player> Players});
 
 external int get ID;
 external void set ID(int val);
@@ -49,6 +47,7 @@ external void set Players(List<Player> val);
 }
 
 @JS()
+@anonymous
 class SaveGameResponse {
 external factory SaveGameResponse({int ID});
 
@@ -57,14 +56,16 @@ external void set ID(int val);
 }
 
 @JS()
-class LoadGame {
-external factory LoadGame({int ID});
+@anonymous
+class LoadGameRequest {
+external factory LoadGameRequest({int ID});
 
 external int get ID;
 external void set ID(int val);
 }
 
 @JS()
+@anonymous
 class LoadGameResponse {
 external factory LoadGameResponse({int ID,GameBoard Board,List<Player> Players});
 
@@ -79,6 +80,7 @@ external void set Players(List<Player> val);
 }
 
 @JS()
+@anonymous
 class GameBoard {
 external factory GameBoard({List<PieceLocation> Pieces,List<Tile> Tiles});
 
@@ -90,6 +92,7 @@ external void set Tiles(List<Tile> val);
 }
 
 @JS()
+@anonymous
 class PieceLocation {
 external factory PieceLocation({GamePiece Piece,Coordinate Location});
 
@@ -101,6 +104,7 @@ external void set Location(Coordinate val);
 }
 
 @JS()
+@anonymous
 class Coordinate {
 external factory Coordinate({int X,int Y});
 
@@ -112,6 +116,7 @@ external void set Y(int val);
 }
 
 @JS()
+@anonymous
 class Tile {
 external factory Tile({Coordinate Location,int Type,int Product});
 
@@ -126,6 +131,7 @@ external void set Product(int val);
 }
 
 @JS()
+@anonymous
 class GamePiece {
 external factory GamePiece({int Owner,int Type});
 
@@ -137,6 +143,7 @@ external void set Type(int val);
 }
 
 @JS()
+@anonymous
 class Player {
 external factory Player({int ID,String Name,List<Resource> Resources,List<DevelopmentCard> Cards,List<GamePiece> Pieces});
 
@@ -157,6 +164,7 @@ external void set Pieces(List<GamePiece> val);
 }
 
 @JS()
+@anonymous
 class DevelopmentCard {
 external factory DevelopmentCard({int CardType});
 
@@ -165,6 +173,7 @@ external void set CardType(int val);
 }
 
 @JS()
+@anonymous
 class Resource {
 external factory Resource({int Type});
 

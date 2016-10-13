@@ -1,9 +1,10 @@
-// +build !js
+// +build js
 
 package catannet
 
 import (
 	"math"
+	"github.com/gopherjs/gopherjs/js"
 )
 
 // Make sure math import is always valid
@@ -219,9 +220,10 @@ const(
 )
 
 type Heartbeat struct {
+	*js.Object
 
-	Time int64
-	Latency int64
+	Time int64	 `js:"Time"`
+	Latency int64	 `js:"Latency"`
 }
 
 func (m Heartbeat) Serialize(buffer []byte) {
@@ -233,6 +235,7 @@ func (m Heartbeat) Serialize(buffer []byte) {
 }
 
 func HeartbeatDeserialize(buffer []byte) (m Heartbeat) {
+	m = Heartbeat{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.Time = int64(LittleEndian.Uint64(buffer[idx:]))
 	idx+=8
@@ -253,10 +256,11 @@ func (m Heartbeat) MsgType() MessageType {
 }
 
 type SaveGameRequest struct {
+	*js.Object
 
-	ID int32
-	Board *GameBoard
-	Players []*Player
+	ID int32	 `js:"ID"`
+	Board *GameBoard	 `js:"Board"`
+	Players []*Player	 `js:"Players"`
 }
 
 func (m SaveGameRequest) Serialize(buffer []byte) {
@@ -274,6 +278,7 @@ func (m SaveGameRequest) Serialize(buffer []byte) {
 }
 
 func SaveGameRequestDeserialize(buffer []byte) (m SaveGameRequest) {
+	m = SaveGameRequest{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.ID = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -309,8 +314,9 @@ func (m SaveGameRequest) MsgType() MessageType {
 }
 
 type SaveGameResponse struct {
+	*js.Object
 
-	ID int32
+	ID int32	 `js:"ID"`
 }
 
 func (m SaveGameResponse) Serialize(buffer []byte) {
@@ -320,6 +326,7 @@ func (m SaveGameResponse) Serialize(buffer []byte) {
 }
 
 func SaveGameResponseDeserialize(buffer []byte) (m SaveGameResponse) {
+	m = SaveGameResponse{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.ID = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -337,8 +344,9 @@ func (m SaveGameResponse) MsgType() MessageType {
 }
 
 type LoadGameRequest struct {
+	*js.Object
 
-	ID int32
+	ID int32	 `js:"ID"`
 }
 
 func (m LoadGameRequest) Serialize(buffer []byte) {
@@ -348,6 +356,7 @@ func (m LoadGameRequest) Serialize(buffer []byte) {
 }
 
 func LoadGameRequestDeserialize(buffer []byte) (m LoadGameRequest) {
+	m = LoadGameRequest{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.ID = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -365,10 +374,11 @@ func (m LoadGameRequest) MsgType() MessageType {
 }
 
 type LoadGameResponse struct {
+	*js.Object
 
-	ID int32
-	Board *GameBoard
-	Players []*Player
+	ID int32	 `js:"ID"`
+	Board *GameBoard	 `js:"Board"`
+	Players []*Player	 `js:"Players"`
 }
 
 func (m LoadGameResponse) Serialize(buffer []byte) {
@@ -386,6 +396,7 @@ func (m LoadGameResponse) Serialize(buffer []byte) {
 }
 
 func LoadGameResponseDeserialize(buffer []byte) (m LoadGameResponse) {
+	m = LoadGameResponse{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.ID = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -421,9 +432,10 @@ func (m LoadGameResponse) MsgType() MessageType {
 }
 
 type GameBoard struct {
+	*js.Object
 
-	Pieces []*PieceLocation
-	Tiles []*Tile
+	Pieces []*PieceLocation	 `js:"Pieces"`
+	Tiles []*Tile	 `js:"Tiles"`
 }
 
 func (m GameBoard) Serialize(buffer []byte) {
@@ -443,6 +455,7 @@ func (m GameBoard) Serialize(buffer []byte) {
 }
 
 func GameBoardDeserialize(buffer []byte) (m GameBoard) {
+	m = GameBoard{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	l0_1 := int(LittleEndian.Uint32(buffer[idx:]))
 	idx += 4
@@ -485,9 +498,10 @@ func (m GameBoard) MsgType() MessageType {
 }
 
 type PieceLocation struct {
+	*js.Object
 
-	Piece *GamePiece
-	Location *Coordinate
+	Piece *GamePiece	 `js:"Piece"`
+	Location *Coordinate	 `js:"Location"`
 }
 
 func (m PieceLocation) Serialize(buffer []byte) {
@@ -499,6 +513,7 @@ func (m PieceLocation) Serialize(buffer []byte) {
 }
 
 func PieceLocationDeserialize(buffer []byte) (m PieceLocation) {
+	m = PieceLocation{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	var subPiece = GamePieceDeserialize(buffer[idx:])
 	m.Piece = &subPiece
@@ -521,9 +536,10 @@ func (m PieceLocation) MsgType() MessageType {
 }
 
 type Coordinate struct {
+	*js.Object
 
-	X int32
-	Y int32
+	X int32	 `js:"X"`
+	Y int32	 `js:"Y"`
 }
 
 func (m Coordinate) Serialize(buffer []byte) {
@@ -535,6 +551,7 @@ func (m Coordinate) Serialize(buffer []byte) {
 }
 
 func CoordinateDeserialize(buffer []byte) (m Coordinate) {
+	m = Coordinate{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.X = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -555,10 +572,11 @@ func (m Coordinate) MsgType() MessageType {
 }
 
 type Tile struct {
+	*js.Object
 
-	Location *Coordinate
-	Type TileType
-	Product Commodity
+	Location *Coordinate	 `js:"Location"`
+	Type TileType	 `js:"Type"`
+	Product Commodity	 `js:"Product"`
 }
 
 func (m Tile) Serialize(buffer []byte) {
@@ -572,6 +590,7 @@ func (m Tile) Serialize(buffer []byte) {
 }
 
 func TileDeserialize(buffer []byte) (m Tile) {
+	m = Tile{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	var subLocation = CoordinateDeserialize(buffer[idx:])
 	m.Location = &subLocation
@@ -596,9 +615,10 @@ func (m Tile) MsgType() MessageType {
 }
 
 type GamePiece struct {
+	*js.Object
 
-	Owner int32
-	Type PieceType
+	Owner int32	 `js:"Owner"`
+	Type PieceType	 `js:"Type"`
 }
 
 func (m GamePiece) Serialize(buffer []byte) {
@@ -610,6 +630,7 @@ func (m GamePiece) Serialize(buffer []byte) {
 }
 
 func GamePieceDeserialize(buffer []byte) (m GamePiece) {
+	m = GamePiece{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.Owner = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -630,12 +651,13 @@ func (m GamePiece) MsgType() MessageType {
 }
 
 type Player struct {
+	*js.Object
 
-	ID int32
-	Name string
-	Resources []*Resource
-	Cards []*DevelopmentCard
-	Pieces []*GamePiece
+	ID int32	 `js:"ID"`
+	Name string	 `js:"Name"`
+	Resources []*Resource	 `js:"Resources"`
+	Cards []*DevelopmentCard	 `js:"Cards"`
+	Pieces []*GamePiece	 `js:"Pieces"`
 }
 
 func (m Player) Serialize(buffer []byte) {
@@ -667,6 +689,7 @@ func (m Player) Serialize(buffer []byte) {
 }
 
 func PlayerDeserialize(buffer []byte) (m Player) {
+	m = Player{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.ID = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -731,8 +754,9 @@ func (m Player) MsgType() MessageType {
 }
 
 type DevelopmentCard struct {
+	*js.Object
 
-	CardType int32
+	CardType int32	 `js:"CardType"`
 }
 
 func (m DevelopmentCard) Serialize(buffer []byte) {
@@ -742,6 +766,7 @@ func (m DevelopmentCard) Serialize(buffer []byte) {
 }
 
 func DevelopmentCardDeserialize(buffer []byte) (m DevelopmentCard) {
+	m = DevelopmentCard{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.CardType = int32(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4
@@ -759,8 +784,9 @@ func (m DevelopmentCard) MsgType() MessageType {
 }
 
 type Resource struct {
+	*js.Object
 
-	Type Commodity
+	Type Commodity	 `js:"Type"`
 }
 
 func (m Resource) Serialize(buffer []byte) {
@@ -770,6 +796,7 @@ func (m Resource) Serialize(buffer []byte) {
 }
 
 func ResourceDeserialize(buffer []byte) (m Resource) {
+	m = Resource{Object: js.Global.Get("Object").New(), }
 	idx := 0
 	m.Type = Commodity(LittleEndian.Uint32(buffer[idx:]))
 	idx+=4

@@ -74,22 +74,25 @@ func runClient(c *client.Client) {
 	go client.Reader(c)
 
 	for packet := range c.Incoming {
+		if packet == nil {
+			break
+		}
 		switch tmsg := packet.NetMsg.(type) {
 		case *catannet.Heartbeat:
 			fmt.Printf("Got heartbeat!\n")
 			c.Outgoing <- packet // ECHO FOR SOME REASON
-		case *catannet.SaveGame:
+		case *catannet.SaveGameRequest:
 			fmt.Printf("Got save game request!\n")
-			go func(sg *catannet.SaveGame) {
+			go func(sg *catannet.SaveGameRequest) {
 				resp, err := SaveGame(sg)
 				if err != nil {
 					// TODO: HANDLE ERR HERE.
 				}
 				c.Outgoing <- catannet.NewPacket(resp)
 			}(tmsg)
-		case *catannet.LoadGame:
+		case *catannet.LoadGameRequest:
 			fmt.Printf("Got loadgame request!\n")
-			go func(lg *catannet.LoadGame) {
+			go func(lg *catannet.LoadGameRequest) {
 				lgr, err := LoadGame(lg.ID)
 				if err != nil {
 					// TODO: HANDLE ERR HERE.

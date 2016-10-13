@@ -52,6 +52,8 @@ class GameStore extends w_flux.Store {
   DimmerType _currentDimmer = DimmerType.None;
   DimmerType get currentDimmer => _currentDimmer;
 
+  cnet.Client netclient;
+
   GameStore(this._actions) {
     String mapParam = Uri.base.queryParameters['map'];
     List<String> tileStrings = _splitMapParam(mapParam);
@@ -70,6 +72,23 @@ class GameStore extends w_flux.Store {
     triggerOnAction(_actions.hideDimmer, _hideDimmer);
 
     _board.listen(_pushBoardToURI);
+
+    netclient = cnet.NewClient();
+    var netevents = netclient.Events();
+    netevents.OnConnect(allowInterop((){
+        print("connected!");
+        cnet.LoadGameRequest r = new cnet.LoadGameRequest(ID: 13);
+        netclient.LoadGame(r);
+    } ));
+    netevents.OnSaveGame(allowInterop((cnet.SaveGameResponse sgr) {
+        print("game saved.");
+        print(sgr);
+    }));
+    netevents.OnLoadGame(allowInterop((cnet.LoadGameResponse lgr) {
+        print("game loaded.");
+        print(lgr);
+    }));
+    netclient.Dial(""); //defaults to localhost
   }
 
   _startNewGame([_]) {

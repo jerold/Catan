@@ -1,7 +1,7 @@
 #! /bin/bash
 
 pushd $GOPATH/src/github.com/jerold/Catan/golib
-netgen catannet/messages.ng
+netgen --input=catannet/messages.ng --gendart=true
 mv catannet/catannet.dart ../lib/src/catannet
 popd
 

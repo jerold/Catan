@@ -8,36 +8,36 @@ struct Heartbeat {
     Latency int64
 }
 
-struct SaveGame {
+struct SaveGameRequest {
     ID int32 // Optional ID
-    Board GameBoard
-    Players []Player
+    Board *GameBoard
+    Players []*Player
 }
 
 struct SaveGameResponse {
     ID int32
 }
 
-struct LoadGame {
+struct LoadGameRequest {
     ID int32
 }
 
 struct LoadGameResponse {
     ID int32
-    Board GameBoard
-    Players []Player
+    Board *GameBoard
+    Players []*Player
 }
 
 // Game State Structs
 
 struct GameBoard {
-    Pieces []PieceLocation
-    Tiles  []Tile
+    Pieces []*PieceLocation
+    Tiles  []*Tile
 }
 
 struct PieceLocation {
-	Piece    GamePiece
-	Location Coordinate
+	Piece    *GamePiece
+	Location *Coordinate
 }
 
 struct Coordinate {
@@ -46,7 +46,7 @@ struct Coordinate {
 }
 
 struct Tile {
-	Location Coordinate
+	Location *Coordinate
 	Type     TileType   // Land or Water
 	Product  Commodity  // Commodity Type
 }
@@ -59,13 +59,13 @@ struct GamePiece {
 struct Player {
 	ID        int32
     Name      string
-	Resources []Resource        // Resources in hand
-	Cards     []DevelopmentCard //
-	Pieces    []GamePiece       // Pieces in hand
+	Resources []*Resource        // Resources in hand
+	Cards     []*DevelopmentCard //
+	Pieces    []*GamePiece       // Pieces in hand
 }
 
 struct DevelopmentCard {
-    CardType int // TODO
+    CardType int32 // TODO
 }
 
 struct Resource {
