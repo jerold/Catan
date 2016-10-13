@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gopherjs/gopherjs/js"
 	"github.com/jerold/Catan/golib/catannet"
+	"github.com/jerold/Catan/golib/catannet/catannetjs"
 	"github.com/jerold/Catan/golib/client"
 )
 
@@ -28,11 +29,14 @@ func (c *ClientJS) Events() *js.Object {
 	return js.MakeWrapper(c.events)
 }
 
-func (c *ClientJS) LoadGame(lg *catannet.LoadGameRequest) {
+func (c *ClientJS) LoadGame(jso *js.Object) {
+	lg := catannetjs.LoadGameRequestFromJS(jso)
 	c.Outgoing <- catannet.NewPacket(lg)
 }
 
-func (c *ClientJS) SaveGame(sg *catannet.SaveGameRequest) {
+func (c *ClientJS) SaveGame(jso *js.Object) {
+	sg := catannetjs.SaveGameRequestFromJS(jso)
+	print("save game converted!")
 	c.Outgoing <- catannet.NewPacket(sg)
 }
 
@@ -82,9 +86,10 @@ func runClient(c *ClientJS) {
 		case catannet.HeartbeatMsgType:
 			print("heartbeat returned.")
 		case catannet.SaveGameResponseMsgType:
-			print("save game response returned.")
+			if c.events.onSaveGame != nil {
+				c.events.onSaveGame(packet.NetMsg.(*catannet.SaveGameResponse))
+			}
 		case catannet.LoadGameResponseMsgType:
-			print("load game response returned.")
 			if c.events.onLoadGame != nil {
 				c.events.onLoadGame(packet.NetMsg.(*catannet.LoadGameResponse))
 			}

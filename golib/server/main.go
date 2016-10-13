@@ -17,6 +17,7 @@ func main() {
 }
 
 func runServer() {
+	os.Mkdir("storage", 0777)
 	fmt.Printf("Starting server now.\n")
 	http.Handle("/ws", websocket.Handler(func(conn *websocket.Conn) {
 		c := createClient(conn)
@@ -86,7 +87,11 @@ func runClient(c *client.Client) {
 			go func(sg *catannet.SaveGameRequest) {
 				resp, err := SaveGame(sg)
 				if err != nil {
+					fmt.Printf("Failed to save game: %s\n", err)
 					// TODO: HANDLE ERR HERE.
+					resp.ID = -1
+				} else {
+					fmt.Printf("Saved game under id: %d\n", resp.ID)
 				}
 				c.Outgoing <- catannet.NewPacket(resp)
 			}(tmsg)
@@ -95,6 +100,7 @@ func runClient(c *client.Client) {
 			go func(lg *catannet.LoadGameRequest) {
 				lgr, err := LoadGame(lg.ID)
 				if err != nil {
+					fmt.Printf("Failed to load game: %s\n", err)
 					// TODO: HANDLE ERR HERE.
 				}
 				c.Outgoing <- catannet.NewPacket(lgr)

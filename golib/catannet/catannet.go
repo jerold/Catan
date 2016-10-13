@@ -1,5 +1,3 @@
-// +build !js
-
 package catannet
 
 import (
@@ -219,7 +217,6 @@ const(
 )
 
 type Heartbeat struct {
-
 	Time int64
 	Latency int64
 }
@@ -253,7 +250,6 @@ func (m Heartbeat) MsgType() MessageType {
 }
 
 type SaveGameRequest struct {
-
 	ID int32
 	Board *GameBoard
 	Players []*Player
@@ -309,7 +305,6 @@ func (m SaveGameRequest) MsgType() MessageType {
 }
 
 type SaveGameResponse struct {
-
 	ID int32
 }
 
@@ -337,7 +332,6 @@ func (m SaveGameResponse) MsgType() MessageType {
 }
 
 type LoadGameRequest struct {
-
 	ID int32
 }
 
@@ -365,7 +359,6 @@ func (m LoadGameRequest) MsgType() MessageType {
 }
 
 type LoadGameResponse struct {
-
 	ID int32
 	Board *GameBoard
 	Players []*Player
@@ -421,7 +414,6 @@ func (m LoadGameResponse) MsgType() MessageType {
 }
 
 type GameBoard struct {
-
 	Pieces []*PieceLocation
 	Tiles []*Tile
 }
@@ -485,7 +477,6 @@ func (m GameBoard) MsgType() MessageType {
 }
 
 type PieceLocation struct {
-
 	Piece *GamePiece
 	Location *Coordinate
 }
@@ -521,7 +512,6 @@ func (m PieceLocation) MsgType() MessageType {
 }
 
 type Coordinate struct {
-
 	X int32
 	Y int32
 }
@@ -555,7 +545,6 @@ func (m Coordinate) MsgType() MessageType {
 }
 
 type Tile struct {
-
 	Location *Coordinate
 	Type TileType
 	Product Commodity
@@ -596,7 +585,6 @@ func (m Tile) MsgType() MessageType {
 }
 
 type GamePiece struct {
-
 	Owner int32
 	Type PieceType
 }
@@ -630,7 +618,6 @@ func (m GamePiece) MsgType() MessageType {
 }
 
 type Player struct {
-
 	ID int32
 	Name string
 	Resources []*Resource
@@ -731,7 +718,6 @@ func (m Player) MsgType() MessageType {
 }
 
 type DevelopmentCard struct {
-
 	CardType int32
 }
 
@@ -759,7 +745,6 @@ func (m DevelopmentCard) MsgType() MessageType {
 }
 
 type Resource struct {
-
 	Type Commodity
 }
 

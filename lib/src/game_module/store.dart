@@ -77,12 +77,28 @@ class GameStore extends w_flux.Store {
     var netevents = netclient.Events();
     netevents.OnConnect(allowInterop((){
         print("connected!");
-        cnet.LoadGameRequest r = new cnet.LoadGameRequest(ID: 13);
-        netclient.LoadGame(r);
+
+        // Example of creating a game and saving it.
+        var players = new List<cnet.Player>(0);
+        var pieces = new List<cnet.PieceLocation>(10);
+        var tiles = new List<cnet.Tile>(10);
+        for (var i = 0; i < 10; i++) {
+            pieces[i] = new cnet.PieceLocation(
+                Piece: new cnet.GamePiece(Owner: i%2, Type: cnet.PieceType.Road),
+                Location: new cnet.Coordinate(X:i, Y:i%5)
+            );
+        }
+        for (var i = 0; i < 10; i++) {
+            tiles[i] = new cnet.Tile(Location: new cnet.Coordinate(X: i, Y: i%3), Type: cnet.TileType.LandTile, Product: i%6);
+        }
+        var gb = new cnet.GameBoard(Pieces: pieces, Tiles: tiles);
+        cnet.SaveGameRequest r = new cnet.SaveGameRequest(Board: gb, Players: players);
+        netclient.SaveGame(r);
     } ));
     netevents.OnSaveGame(allowInterop((cnet.SaveGameResponse sgr) {
-        print("game saved.");
-        print(sgr);
+        print("game saved: " + sgr.ID.toString());
+        cnet.LoadGameRequest r = new cnet.LoadGameRequest(ID: sgr.ID);
+        netclient.LoadGame(r);
     }));
     netevents.OnLoadGame(allowInterop((cnet.LoadGameResponse lgr) {
         print("game loaded.");
