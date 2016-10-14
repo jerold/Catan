@@ -15,3 +15,11 @@ packages
 # Include when developing application packages.
 pubspec.lock
 
+# generated source code
+golib/catannet/catannet.go
+golib/catannet/catannetjs/
+lib/src/bindings.js
+lib/src/catannet/
+
+# local storage
+golib/server/storage/
