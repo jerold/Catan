@@ -36,7 +36,6 @@ func (c *ClientJS) LoadGame(jso *js.Object) {
 
 func (c *ClientJS) SaveGame(jso *js.Object) {
 	sg := catannetjs.SaveGameRequestFromJS(jso)
-	print("save game converted!")
 	c.Outgoing <- catannet.NewPacket(sg)
 }
 
