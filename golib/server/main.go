@@ -80,10 +80,10 @@ func runClient(c *client.Client) {
 		}
 		switch tmsg := packet.NetMsg.(type) {
 		case *catannet.Heartbeat:
-			fmt.Printf("Got heartbeat!\n")
+			fmt.Printf(" %s: Got heartbeat!\n", c.Name)
 			c.Outgoing <- packet // ECHO FOR SOME REASON
 		case *catannet.SaveGameRequest:
-			fmt.Printf("Got save game request!\n")
+			fmt.Printf(" %s: Requests game to be saved.\n", c.Name)
 			go func(sg *catannet.SaveGameRequest) {
 				resp, err := SaveGame(sg)
 				if err != nil {
@@ -91,12 +91,12 @@ func runClient(c *client.Client) {
 					// TODO: HANDLE ERR HERE.
 					resp.ID = -1
 				} else {
-					fmt.Printf("Saved game under id: %d\n", resp.ID)
+					fmt.Printf(" %s: Saved game under id: %d\n", c.Name, resp.ID)
 				}
 				c.Outgoing <- catannet.NewPacket(resp)
 			}(tmsg)
 		case *catannet.LoadGameRequest:
-			fmt.Printf("Got loadgame request!\n")
+			fmt.Printf(" %s: Requests game %d to be loaded.\n", c.Name, tmsg.ID)
 			go func(lg *catannet.LoadGameRequest) {
 				lgr, err := LoadGame(lg.ID)
 				if err != nil {
@@ -109,5 +109,5 @@ func runClient(c *client.Client) {
 
 	}
 
-	fmt.Printf("Incoming closed, shutting down client %s.\n", c.Name)
+	fmt.Printf("%s: Socket closed, shutting down parser.\n", c.Name)
 }
