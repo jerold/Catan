@@ -3,12 +3,14 @@ library catan.game_module;
 import 'dart:async';
 import 'dart:html';
 import 'dart:math';
+import 'package:js/js.dart';
 
 import 'package:react/react.dart' as react;
 import 'package:w_flux/w_flux.dart' as w_flux;
 import 'package:w_module/w_module.dart' as w_module;
 
 import 'base_model.dart';
+import 'package:catan/catannet.dart' as cnet;
 
 part 'game_module/actions.dart';
 part 'game_module/components.dart';

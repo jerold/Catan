@@ -52,6 +52,8 @@ class GameStore extends w_flux.Store {
   DimmerType _currentDimmer = DimmerType.None;
   DimmerType get currentDimmer => _currentDimmer;
 
+  cnet.Client netclient;
+
   GameStore(this._actions) {
     String mapParam = Uri.base.queryParameters['map'];
     List<String> tileStrings = _splitMapParam(mapParam);
@@ -70,6 +72,39 @@ class GameStore extends w_flux.Store {
     triggerOnAction(_actions.hideDimmer, _hideDimmer);
 
     _board.listen(_pushBoardToURI);
+
+    netclient = cnet.NewClient();
+    var netevents = netclient.Events();
+    netevents.OnConnect(allowInterop((){
+        print("connected!");
+
+        // Example of creating a game and saving it.
+        var players = new List<cnet.Player>(0);
+        var pieces = new List<cnet.PieceLocation>(10);
+        var tiles = new List<cnet.Tile>(10);
+        for (var i = 0; i < 10; i++) {
+            pieces[i] = new cnet.PieceLocation(
+                Piece: new cnet.GamePiece(Owner: i%2, Type: cnet.PieceType.Road),
+                Location: new cnet.Coordinate(X:i, Y:i%5)
+            );
+        }
+        for (var i = 0; i < 10; i++) {
+            tiles[i] = new cnet.Tile(Location: new cnet.Coordinate(X: i, Y: i%3), Type: cnet.TileType.LandTile, Product: i%6);
+        }
+        var gb = new cnet.GameBoard(Pieces: pieces, Tiles: tiles);
+        cnet.SaveGameRequest r = new cnet.SaveGameRequest(Board: gb, Players: players);
+        netclient.SaveGame(r);
+    } ));
+    netevents.OnSaveGame(allowInterop((cnet.SaveGameResponse sgr) {
+        print("game saved: " + sgr.ID.toString());
+        cnet.LoadGameRequest r = new cnet.LoadGameRequest(ID: sgr.ID);
+        netclient.LoadGame(r);
+    }));
+    netevents.OnLoadGame(allowInterop((cnet.LoadGameResponse lgr) {
+        print("game loaded.");
+        print(lgr);
+    }));
+    netclient.Dial(""); //defaults to localhost
   }
 
   _startNewGame([_]) {

@@ -21,3 +21,18 @@ git add -f build/web && git commit -m "build commit"
 git push origin --delete gh-pages
 git subtree push --prefix build/web origin gh-pages
 ```
+
+# Server
+Requires Go 1.7 to be installed and a GOPATH is setup.
+Make sure server is cloned into $GOPATH
+Make sure $PATH has $GOPATH/bin in it.
+
+```
+./initgo.sh
+./runserver.sh
+```
+
+If you are working on client code you can regenerated it via
+```
+./golib/buildclient.sh
+```
