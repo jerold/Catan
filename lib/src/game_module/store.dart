@@ -78,6 +78,10 @@ class GameStore extends w_flux.Store {
     netevents.OnConnect(allowInterop((){
         print("connected!");
 
+        // Subscribe to game ID 1
+        cnet.ListenSubscribe subr = new cnet.ListenSubscribe(ID: 1);
+        netclient.SubscribeGame(subr);
+
         // Example of creating a game and saving it.
         var players = new List<cnet.Player>(0);
         var pieces = new List<cnet.PieceLocation>(10);
@@ -92,9 +96,13 @@ class GameStore extends w_flux.Store {
             tiles[i] = new cnet.Tile(Location: new cnet.Coordinate(X: i, Y: i%3), Type: cnet.TileType.LandTile, Product: i%6);
         }
         var gb = new cnet.GameBoard(Pieces: pieces, Tiles: tiles);
-        cnet.SaveGameRequest r = new cnet.SaveGameRequest(Board: gb, Players: players);
+        var gid = new cnet.GameID(ID: 1);
+        cnet.SaveGameRequest r = new cnet.SaveGameRequest(ID: gid, Board: gb, Players: players);
         netclient.SaveGame(r);
     } ));
+    netevents.OnListenEvent(allowInterop((cnet.ListenEvent li){
+        print("notification of board change for board: " + li.ID.ID.toString() + " Revision: " + li.ID.Revision.toString());
+    }));
     netevents.OnSaveGame(allowInterop((cnet.SaveGameResponse sgr) {
         print("game saved: " + sgr.ID.toString());
         cnet.LoadGameRequest r = new cnet.LoadGameRequest(ID: sgr.ID);
