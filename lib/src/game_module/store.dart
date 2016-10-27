@@ -145,7 +145,6 @@ class GameStore extends w_flux.Store {
         gid = lgr.ID;
         // TODO: load the board
         // sub after we load a game.
-        netclient.SubscribeGame(new cnet.ListenSubscribe(ID: lgr.ID.ID));
         break;
       case cnet.EventType.ListenEvent:
         cnet.ListenEvent li = event.state;
@@ -168,7 +167,8 @@ class GameStore extends w_flux.Store {
   _startGameFromID(String gidStr) {
     int id = int.parse(gidStr);
     gid.ID = id;
-    netclient.LoadGame(new cnet.LoadGameRequest(ID: new cnet.GameID(ID: id)));
+    netclient.SubscribeGame(new cnet.ListenSubscribe(ID: id));
+    netclient.LoadGame(new cnet.LoadGameRequest(ID: gid));
   }
 
   _startNewGameFromURI(List<String> tileStrings) {
