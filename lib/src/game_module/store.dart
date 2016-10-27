@@ -52,15 +52,25 @@ class GameStore extends w_flux.Store {
   DimmerType _currentDimmer = DimmerType.None;
   DimmerType get currentDimmer => _currentDimmer;
 
-  cnet.Client netclient;
+  cnet.DartClient netclient;
+  cnet.GameID gid;
 
   GameStore(this._actions) {
+    netclient = new cnet.DartClient(""); // default connects to localhost
+    netclient.events.listen(_handleNetEvent);
+    gid = new cnet.GameID(ID: 0);
+
     String mapParam = Uri.base.queryParameters['map'];
     List<String> tileStrings = _splitMapParam(mapParam);
-    if (tileStrings.length > 0)
+    String gidParam = Uri.base.queryParameters['gid'];
+    if (tileStrings.length > 0) {
       _startNewGameFromURI(tileStrings);
-    else
+    } else if (gidParam != null && gidParam.length > 0) {
+      _startGameFromID(gidParam);
       _startNewGame();
+    } else {
+      _startNewGame();
+    }
 
     triggerOnAction(_actions.setInteractionPoint, _setInteractionPoint);
 
@@ -72,47 +82,79 @@ class GameStore extends w_flux.Store {
     triggerOnAction(_actions.hideDimmer, _hideDimmer);
 
     _board.listen(_pushBoardToURI);
+  }
 
-    netclient = cnet.NewClient();
-    var netevents = netclient.Events();
-    netevents.OnConnect(allowInterop((){
-        print("connected!");
+  _saveGame() {
+    var players = new List<cnet.Player>(0);
+    var pieces = new List<cnet.PieceLocation>();
+    this.board.edges.forEach((k, edge) {
+      //   if (edge is Boat) {
+      //       return;
+      //   }
+      Road r = edge;
+      // TODO: get coords from r.ends() ?
+      pieces.add(new cnet.PieceLocation(
+          // TODO: get a real player ID
+          Piece: new cnet.GamePiece(Owner: r.owner._colorIndex, Type: cnet.PieceType.Road),
+          Location: new cnet.Coordinate(X: 0, Y: 0)));
+    });
+    this.board.plots.forEach((k, plot) {
+      int t = cnet.PieceType.Settlement;
+      if (plot is City) {
+        t = cnet.PieceType.City;
+      }
+      // TODO: get coords from r.ends() ?
+      pieces.add(new cnet.PieceLocation(
+          // TODO: get a real player ID
+          Piece: new cnet.GamePiece(Owner: 0, Type: t),
+          Location: new cnet.Coordinate(X: 0, Y: 0)));
+    });
+    var tiles = new List<cnet.Tile>();
+    this.board.tiles.forEach((k, v) {
+      tiles.add(new cnet.Tile(
+          // TODO: get real coords
+          Location: new cnet.Coordinate(X: 0, Y: 0),
+          // TODO: make sure these are all land tiles?
+          Type: cnet.TileType.LandTile,
+          // TODO: get product
+          Product: 0));
+    });
+    var gb = new cnet.GameBoard(Pieces: pieces, Tiles: tiles);
+    cnet.SaveGameRequest r = new cnet.SaveGameRequest(ID: gid, Board: gb, Players: players);
+    netclient.SaveGame(r);
+  }
 
-        // Subscribe to game ID 1
-        cnet.ListenSubscribe subr = new cnet.ListenSubscribe(ID: 1);
-        netclient.SubscribeGame(subr);
-
-        // Example of creating a game and saving it.
-        var players = new List<cnet.Player>(0);
-        var pieces = new List<cnet.PieceLocation>(10);
-        var tiles = new List<cnet.Tile>(10);
-        for (var i = 0; i < 10; i++) {
-            pieces[i] = new cnet.PieceLocation(
-                Piece: new cnet.GamePiece(Owner: i%2, Type: cnet.PieceType.Road),
-                Location: new cnet.Coordinate(X:i, Y:i%5)
-            );
+  _handleNetEvent(cnet.NetEvent event) {
+    switch (event.type) {
+      case cnet.EventType.Connected:
+        print("connected to server.");
+        break;
+      case cnet.EventType.Disconnected:
+        break;
+      case cnet.EventType.SaveGame:
+        cnet.SaveGameResponse sgr = event.state;
+        print("game saved: " + sgr.ID.ID.toString() + " Revision: " + sgr.ID.Revision.toString());
+        if (sgr.ID.Revision == 0) {
+          netclient.SubscribeGame(new cnet.ListenSubscribe(ID: sgr.ID.ID));
+          // sub on first save only.
         }
-        for (var i = 0; i < 10; i++) {
-            tiles[i] = new cnet.Tile(Location: new cnet.Coordinate(X: i, Y: i%3), Type: cnet.TileType.LandTile, Product: i%6);
-        }
-        var gb = new cnet.GameBoard(Pieces: pieces, Tiles: tiles);
-        var gid = new cnet.GameID(ID: 1);
-        cnet.SaveGameRequest r = new cnet.SaveGameRequest(ID: gid, Board: gb, Players: players);
-        netclient.SaveGame(r);
-    } ));
-    netevents.OnListenEvent(allowInterop((cnet.ListenEvent li){
-        print("notification of board change for board: " + li.ID.ID.toString() + " Revision: " + li.ID.Revision.toString());
-    }));
-    netevents.OnSaveGame(allowInterop((cnet.SaveGameResponse sgr) {
-        print("game saved: " + sgr.ID.toString());
-        cnet.LoadGameRequest r = new cnet.LoadGameRequest(ID: sgr.ID);
-        netclient.LoadGame(r);
-    }));
-    netevents.OnLoadGame(allowInterop((cnet.LoadGameResponse lgr) {
-        print("game loaded.");
-        print(lgr);
-    }));
-    netclient.Dial(""); //defaults to localhost
+        break;
+      case cnet.EventType.LoadGame:
+        cnet.LoadGameResponse lgr = event.state;
+        print("game loaded: ID: " + lgr.ID.ID.toString() + " Revision: " + lgr.ID.Revision.toString());
+        gid = lgr.ID;
+        // TODO: load the board
+        // sub after we load a game.
+        netclient.SubscribeGame(new cnet.ListenSubscribe(ID: lgr.ID.ID));
+        break;
+      case cnet.EventType.ListenEvent:
+        cnet.ListenEvent li = event.state;
+        print("notification of board change for board: " +
+            li.ID.ID.toString() +
+            " Revision: " +
+            li.ID.Revision.toString());
+        break;
+    }
   }
 
   _startNewGame([_]) {
@@ -121,6 +163,12 @@ class GameStore extends w_flux.Store {
 
     _board = new Board.standard();
     _pushBoardToURI();
+  }
+
+  _startGameFromID(String gidStr) {
+    int id = int.parse(gidStr);
+    gid.ID = id;
+    netclient.LoadGame(new cnet.LoadGameRequest(ID: new cnet.GameID(ID: id)));
   }
 
   _startNewGameFromURI(List<String> tileStrings) {
@@ -146,16 +194,17 @@ class GameStore extends w_flux.Store {
             '${tile.key.toString().padLeft(4, "0")}${tile.roll.toString().padLeft(2, "0")}${stringFromTerrain(tile.terrain)}');
       }
       if (tile is Port) {
-        mapParam.add(
-            '${tile.key.toString().padLeft(4, "0")}-${tile.facingIndex + 1}${stringFromTerrain(tile.terrain)}');
+        mapParam
+            .add('${tile.key.toString().padLeft(4, "0")}-${tile.facingIndex + 1}${stringFromTerrain(tile.terrain)}');
       }
     });
     Uri current = Uri.base;
-    Map<String, String> params =
-        new Map<String, String>.from(current.queryParameters);
+    Map<String, String> params = new Map<String, String>.from(current.queryParameters);
     params['map'] = mapParam.join('');
     current = current.replace(queryParameters: params);
     window.history.pushState('', '', current.toString());
+
+    _saveGame();
   }
 
   List<String> _splitMapParam(String mapParam) {

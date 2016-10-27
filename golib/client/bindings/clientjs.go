@@ -81,8 +81,8 @@ func (c *ClientJS) Dial(url string) {
 			if c.events.onConnect != nil {
 				c.events.onConnect()
 			}
+			go runClient(c)
 		})
-		go runClient(c)
 	}()
 }
 
