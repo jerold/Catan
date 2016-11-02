@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"sync"
 
 	"github.com/jerold/Catan/golib/catannet"
 	"github.com/jerold/Catan/golib/client"
@@ -19,9 +20,17 @@ func main() {
 func runServer() {
 	os.Mkdir("storage", 0777)
 	fmt.Printf("Starting server now.\n")
+	ss := &ServerState{
+		sl: &ServerListeners{
+			listeners: map[int32][]*client.Client{},
+			m:         &sync.Mutex{},
+		},
+		gamerevs: map[int32]int32{},
+		gm:       &sync.Mutex{},
+	}
 	http.Handle("/ws", websocket.Handler(func(conn *websocket.Conn) {
 		c := createClient(conn)
-		runClient(&c)
+		runClient(&c, ss)
 	}))
 
 	go func() {
@@ -70,7 +79,7 @@ func createClient(conn *websocket.Conn) client.Client {
 	}
 }
 
-func runClient(c *client.Client) {
+func runClient(c *client.Client, ss *ServerState) {
 	go client.Sender(c)
 	go client.Reader(c)
 
@@ -85,15 +94,26 @@ func runClient(c *client.Client) {
 		case *catannet.SaveGameRequest:
 			fmt.Printf(" %s: Requests game to be saved.\n", c.Name)
 			go func(sg *catannet.SaveGameRequest) {
-				resp, err := SaveGame(sg)
+				resp, err := SaveGame(sg, ss)
 				if err != nil {
 					fmt.Printf("Failed to save game: %s\n", err)
 					// TODO: HANDLE ERR HERE.
-					resp.ID = -1
+					resp.ID.ID = -1
 				} else {
 					fmt.Printf(" %s: Saved game under id: %d\n", c.Name, resp.ID)
 				}
 				c.Outgoing <- catannet.NewPacket(resp)
+				update := catannet.ListenEvent{
+					ID:      resp.ID,
+					Board:   tmsg.Board,
+					Players: tmsg.Players,
+				}
+				eventPacket := catannet.NewPacket(update)
+				ss.sl.m.Lock()
+				for _, li := range ss.sl.listeners[update.ID.ID] {
+					li.Outgoing <- eventPacket
+				}
+				ss.sl.m.Unlock()
 			}(tmsg)
 		case *catannet.LoadGameRequest:
 			fmt.Printf(" %s: Requests game %d to be loaded.\n", c.Name, tmsg.ID)
@@ -105,6 +125,10 @@ func runClient(c *client.Client) {
 				}
 				c.Outgoing <- catannet.NewPacket(lgr)
 			}(tmsg)
+		case *catannet.ListenSubscribe:
+			ss.sl.m.Lock()
+			ss.sl.listeners[tmsg.ID] = append(ss.sl.listeners[tmsg.ID], c)
+			ss.sl.m.Unlock()
 		}
 
 	}

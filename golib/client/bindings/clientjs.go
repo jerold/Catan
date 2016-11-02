@@ -39,15 +39,22 @@ func (c *ClientJS) SaveGame(jso *js.Object) {
 	c.Outgoing <- catannet.NewPacket(sg)
 }
 
+func (c *ClientJS) SubscribeGame(jso *js.Object) {
+	sg := catannetjs.ListenSubscribeFromJS(jso)
+	c.Outgoing <- catannet.NewPacket(sg)
+}
+
 type ClientEvents struct {
-	onLoadGame LoadCallback
-	onSaveGame SaveCallback
-	onConnect  FieldlessCallback
+	onLoadGame   LoadCallback
+	onSaveGame   SaveCallback
+	onConnect    FieldlessCallback
+	onNotifyGame GameChangeCallback
 }
 
 type FieldlessCallback func()
 type LoadCallback func(*catannet.LoadGameResponse)
 type SaveCallback func(*catannet.SaveGameResponse)
+type GameChangeCallback func(*catannet.ListenEvent)
 
 func (ce *ClientEvents) OnSaveGame(cb SaveCallback) {
 	ce.onSaveGame = cb
@@ -59,6 +66,10 @@ func (ce *ClientEvents) OnLoadGame(cb LoadCallback) {
 
 func (ce *ClientEvents) OnConnect(cb FieldlessCallback) {
 	ce.onConnect = cb
+}
+
+func (ce *ClientEvents) OnListenEvent(cb GameChangeCallback) {
+	ce.onNotifyGame = cb
 }
 
 func (c *ClientJS) Dial(url string) {
@@ -91,6 +102,10 @@ func runClient(c *ClientJS) {
 		case catannet.LoadGameResponseMsgType:
 			if c.events.onLoadGame != nil {
 				c.events.onLoadGame(packet.NetMsg.(*catannet.LoadGameResponse))
+			}
+		case catannet.ListenEventMsgType:
+			if (c.events.onNotifyGame) != nil {
+				c.events.onNotifyGame(packet.NetMsg.(*catannet.ListenEvent))
 			}
 		}
 	}

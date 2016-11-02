@@ -9,27 +9,44 @@ struct Heartbeat {
 }
 
 struct SaveGameRequest {
-    ID int32 // Optional ID
+    ID GameID // Optional ID
+    Revision int32
     Board *GameBoard
     Players []*Player
 }
 
 struct SaveGameResponse {
-    ID int32
+    ID GameID
 }
 
 struct LoadGameRequest {
-    ID int32
+    ID GameID
 }
 
 struct LoadGameResponse {
-    ID int32
+    ID GameID
+    Board *GameBoard
+    Players []*Player
+}
+
+// Listen to a game ID for changes.
+struct ListenSubscribe {
+    ID int32 // ID of game to listen to
+}
+
+// Event is sent to all listeners
+struct ListenEvent {
+    ID GameID
     Board *GameBoard
     Players []*Player
 }
 
 // Game State Structs
 
+struct GameID {
+    ID int32
+    Revision int32
+}
 struct GameBoard {
     Pieces []*PieceLocation
     Tiles  []*Tile
