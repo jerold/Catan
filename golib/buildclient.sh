@@ -10,6 +10,6 @@ popd
 
 pushd $GOPATH/src/github.com/jerold/Catan/golib/client/bindings
 gopherjs build -m
-du -lah bindings.js
+du -h bindings.js
 mv bindings.js ../../../lib/src
 popd

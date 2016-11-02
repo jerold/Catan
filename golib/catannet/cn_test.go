@@ -13,6 +13,7 @@ func TestPerformance(t *testing.T) {
 	}
 
 	for i := 0; i < 100; i++ {
+		b.Pieces[i] = &PieceLocation{}
 		b.Pieces[i].Location = &Coordinate{
 			X: 1054,
 			Y: 4538,
@@ -23,6 +24,7 @@ func TestPerformance(t *testing.T) {
 		}
 	}
 	for i := 0; i < 50; i++ {
+		b.Tiles[i] = &Tile{}
 		b.Tiles[i].Location = &Coordinate{
 			X: 5354,
 			Y: 58459,
