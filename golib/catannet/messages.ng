@@ -61,14 +61,14 @@ struct PieceLocation {
 }
 
 struct Coordinate {
-	X int32
-	Y int32
+  X int32
+  Y int32
 }
 
 struct Tile {
-	Location *Coordinate
-	Type     TileType   // Land or Water
-	Product  Commodity  // Commodity Type
+  Location *Coordinate
+  Type     TileType   // Land or Water
+  Product  Commodity  // Commodity Type
 }
 
 struct Token {
@@ -77,16 +77,16 @@ struct Token {
 }
 
 struct GamePiece {
-	Owner int32
-	Type  PieceType
+  Owner int32
+  Type  PieceType
 }
 
 struct Player {
-	ID        int32
+  ID        int32
   Name      string
-	Resources []*Resource        // Resources in hand
-	Cards     []*DevelopmentCard //
-	Pieces    []*GamePiece       // Pieces in hand
+  Resources []*Resource        // Resources in hand
+  Cards     []*DevelopmentCard //
+  Pieces    []*GamePiece       // Pieces in hand
 }
 
 struct DevelopmentCard {
@@ -94,7 +94,7 @@ struct DevelopmentCard {
 }
 
 struct Resource {
-	Type Commodity
+  Type Commodity
 }
 
 enum PieceType {
