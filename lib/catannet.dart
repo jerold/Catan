@@ -35,8 +35,8 @@ class DartClient {
         _client.SaveGame(r);
     }
 
-    SubscribeGame(ListenSubscribe r) {
-        _client.SubscribeGame(r);
+    JoinGame(JoinGame r) {
+        _client.JoinGame(r);
     }
 
     DartClient(String url) {
@@ -72,7 +72,7 @@ typedef OnEventFunction(ListenEvent li);
 class Client {
     external void LoadGame(LoadGameRequest lg);
     external void SaveGame(SaveGameRequest sg);
-    external void SubscribeGame(ListenSubscribe ls);
+    external void JoinGame(JoinGame ls);
 
     external void Dial(String url);
 

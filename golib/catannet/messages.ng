@@ -33,7 +33,7 @@ struct LoadGameResponse {
 struct JoinGame {
     ID int32 // ID of game to listen to
     PlayerID int32 // Player to take over. -1 means server will assign you next available.
-    Name string // Name of yourself 
+    Name string // Name of yourself
 }
 
 // Event is sent to all listeners
@@ -51,7 +51,7 @@ struct PlayerEvent {
 // Board Operation could be a change to tile, edge, or plot
 struct BoardOperation {
     OpType OperationType
-    Value dynamic  
+    Value dynamic
 }
 
 enum OperationType {
