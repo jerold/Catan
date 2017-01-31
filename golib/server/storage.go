@@ -22,6 +22,7 @@ type ServerState struct {
 }
 
 // Listener subscriptions
+// TODO: Turn this into a full live game instead of just a listener.
 type ServerListeners struct {
 	listeners map[int32][]*client.Client
 	m         *sync.Mutex

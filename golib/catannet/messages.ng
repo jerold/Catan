@@ -30,31 +30,56 @@ struct LoadGameResponse {
 }
 
 // Listen to a game ID for changes.
-struct ListenSubscribe {
+struct JoinGame {
     ID int32 // ID of game to listen to
+    PlayerID int32 // Player to take over. -1 means server will assign you next available.
+    Name string // Name of yourself
 }
 
 // Event is sent to all listeners
-struct ListenEvent {
+struct BoardEvent {
     ID GameID
-    Board *GameBoard
-    Players []*Player
+    Ops []*BoardOperation
+}
+
+struct PlayerEvent {
+    ID GameID
 }
 
 // Game State Structs
+
+// Board Operation could be a change to tile, edge, or plot
+struct BoardOperation {
+    OpType OperationType
+    Value dynamic
+}
+
+enum OperationType {
+    Add = 1
+    Remove = 2
+    Update = 3
+}
 
 struct GameID {
     ID int32
     Revision int32
 }
 struct GameBoard {
-    Pieces []*PieceLocation
+    Edges []*EdgePiece
+    Plots []*PlotPiece
     Tiles  []*Tile
+    Thief  *Coordinate
 }
 
-struct PieceLocation {
-	Piece    *GamePiece
-	Location *Coordinate
+struct EdgePiece {
+    Piece    *GamePiece
+    Start    *Coordinate
+    End      *Coordinate
+}
+
+struct PlotPiece {
+    Piece    *GamePiece
+    Location *Coordinate
 }
 
 struct Coordinate {
@@ -66,6 +91,7 @@ struct Tile {
 	Location *Coordinate
 	Type     TileType   // Land or Water
 	Product  Commodity  // Commodity Type
+    Value    int16 // For land this is the roll. For water this is port facing.
 }
 
 struct GamePiece {
