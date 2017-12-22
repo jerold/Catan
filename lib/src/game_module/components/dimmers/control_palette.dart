@@ -92,8 +92,8 @@ class _ControlPalette extends w_flux.FluxComponent<GameActions, GameStore> {
     _subs.add(document.onTouchCancel.listen(_handlers['_handleTouchCancel']));
   }
 
-  void componentDidMount(DivElement rootNode) {
-    setState({'windowWidth': rootNode.getBoundingClientRect().width.toInt()});
+  void componentDidMount() {
+    setState({'windowWidth': react_dom.findDOMNode(this).getBoundingClientRect().width.toInt()});
   }
 
   componentWillUnmount() {

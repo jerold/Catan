@@ -2,6 +2,8 @@ library catan.base_model;
 
 import 'dart:math';
 
+import 'package:catan/catannet.dart' as cnet;
+
 import 'package:w_flux/w_flux.dart' as w_flux;
 
 part 'base_model/actions/board.dart';
@@ -17,6 +19,8 @@ part 'base_model/stores/pieces/port.dart';
 part 'base_model/stores/pieces/road.dart';
 part 'base_model/stores/pieces/settlement.dart';
 part 'base_model/stores/pieces/tile.dart';
+
+part 'base_model/game_board.dart';
 
 part 'base_model/coordinate.dart';
 part 'base_model/economy.dart';
