@@ -86,6 +86,7 @@ class GameStore extends w_flux.Store {
         var players = new List<cnet.Player>(0);
         var pieces = new List<cnet.PieceLocation>(10);
         var tiles = new List<cnet.Tile>(10);
+        var tokens = new List<cnet.Token>(10);
         for (var i = 0; i < 10; i++) {
             pieces[i] = new cnet.PieceLocation(
                 Piece: new cnet.GamePiece(Owner: i%2, Type: cnet.PieceType.Road),
@@ -93,9 +94,13 @@ class GameStore extends w_flux.Store {
             );
         }
         for (var i = 0; i < 10; i++) {
-            tiles[i] = new cnet.Tile(Location: new cnet.Coordinate(X: i, Y: i%3), Type: cnet.TileType.LandTile, Product: i%6);
+            cnet.Coordinate coord = new cnet.Coordinate(X: i, Y: i%3);
+            int roll = (i % 9) + 2; // can roll 2-6,8-12
+            if (roll >= 7) roll + 1;
+            tiles[i] = new cnet.Tile(Location: coord, Type: cnet.TileType.LandTile, Product: i%6);
+            tokens[i] = new cnet.Token(Location: coord, Roll: roll);
         }
-        var gb = new cnet.GameBoard(Pieces: pieces, Tiles: tiles);
+        var gb = new cnet.GameBoard(Pieces: pieces, Tiles: tiles, Tokens: tokens, Thief: new cnet.Coordinate(X: 0, Y: 0));
         var gid = new cnet.GameID(ID: 1);
         cnet.SaveGameRequest r = new cnet.SaveGameRequest(ID: gid, Board: gb, Players: players);
         netclient.SaveGame(r);

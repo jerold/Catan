@@ -6,6 +6,7 @@ import 'dart:math';
 import 'package:js/js.dart';
 
 import 'package:react/react.dart' as react;
+import 'package:react/react_dom.dart' as react_dom;
 import 'package:w_flux/w_flux.dart' as w_flux;
 import 'package:w_module/w_module.dart' as w_module;
 

@@ -9,8 +9,9 @@ environment:
 
 dependencies:
   browser: ">=0.10.0 <0.11.0"
-  react: 0.9.0
-  w_flux: 2.1.0
+  react:
+  over_react:
+  w_flux:
   w_module:
     git: git://github.com/Workiva/w_module
   js: ^0.6.0
